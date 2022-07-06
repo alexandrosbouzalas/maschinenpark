@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow" />
+    <link rel="shortcut icon" href="/img/logo.png" type="image/x-icon">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <link href="http://fonts.cdnfonts.com/css/vw-head" rel="stylesheet">
+    <link rel="stylesheet" href="/css/register.css" />
+    <link rel="stylesheet" href="/css/global.css" />
+    <title>Maschinenpark - Registrierung</title>
+</head>
+<body>
+    <div class="header-container">
+        <div class="header-text">
+          <p>Akademie Emden</p>
+        </div>
+        <div class="header-line-middle"></div>
+        <div class="header-logo">
+          <img class="logo" src="/img/logo.png" alt="">
+        </div>
+        <div class="header-line-end"></div>
+    </div>
+    <div class="container-main">
+        <div class="register-form-container">
+            <form action="/register" method="post">
+                <div class="input-field">
+                    <div class="input-label">
+                        <label for="name">Name</label>
+                    </div>
+                    <input type="text" name="name">
+                </div>
+                <div class="input-field">
+                    <div class="input-label">
+                        <label for="vorname">Vorname</label>
+                    </div>
+                    <input type="text" name="vorname">
+                </div>
+                <div class="input-field">
+                    <div class="input-label">
+                        <label for="uid">Volkswagen UserID</label>
+                    </div>
+                    <input title="Ihre werksinterne siebenstellige Identifikationsnummer" type="text" name="uid" minlength="7" maxlength="7" style="text-transform:uppercase" />
+                </div>
+                <div class="input-field">
+                    <div class="input-label">
+                        <label for="password">Passwort</label>
+                    </div>
+                    <input type="password" name="password">
+                </div>
+                <div class="input-field">
+                    <div class="input-label">
+                        <label for="role">Role</label>
+                    </div>
+                    <select name="role">
+                        <option value="AZB">Auszubildender</option>
+                        <option value="ABBA">Ausbilder</option>
+                    </select>
+                </div>
+                <div class="input-field">
+                    <div class="input-label">
+                        <label for="field">Beruf</label>
+                    </div>
+                    <select name="field">
+                        <option value="INMECH">Industriemechaniker</option>
+                        <option value="ZERMECH">Zerspannungsmechaniker</option>
+                        <option value="TPD">Technischer Produktdesigner</option>
+                    </select>
+                </div>
+                <div class="input-field">
+                    <div class="input-label">
+                        <label for="year">Lehrjahr</label>
+                    </div>
+                    <select name="year">
+                        <option value="1">Eins</option>
+                        <option value="2">Zwei</option>
+                        <option value="3">Drei</option>
+                        <option value="4">Vier</option>
+                    </select>
+                </div>
+                <div class="buttons-container">
+                    <button id="back-btn">Zur&#252;ck</button>
+                    <button id="submit-btn">Registrieren</button>
+                </div>
+            </form>
+        </div>
+        <div id="help-btn" class="help-menu-container">
+            <div class="help-menu"><ion-icon name="help-outline"></ion-icon></div>
+          </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/register.js"></script>
+</body>
+</html>

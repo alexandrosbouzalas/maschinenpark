@@ -6,8 +6,8 @@ const redisStore = require("connect-redis")(session);
 const redisClient = redis.createClient();
 
 const homeRouter = require("./routes/home");
-/* const registerRouter = require("./routes/register");
-const loginRouter = require("./routes/login"); */
+const registerRouter = require("./routes/register");
+const loginRouter = require("./routes/login");
 /* const logoutRouter = require("./routes/logout"); */
 
 const port = 3000;
@@ -60,9 +60,9 @@ app.get("/", (req, res) => {
 });
 
 app.use("/home", homeRouter);
-/* app.use("/register", registerRouter);
+app.use("/register", registerRouter);
 app.use("/login", loginRouter);
-app.use("/logout", logoutRouter);
+/*app.use("/logout", logoutRouter);
 app.use("/recover", recoverRouter); */
 
 try {

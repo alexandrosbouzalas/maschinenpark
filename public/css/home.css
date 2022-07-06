@@ -1,0 +1,96 @@
+.container-main {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.my-bookings-table tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+}
+
+.my-bookings-table tbody tr.ended-row {
+    font-weight: bold;
+    color: #f25902;
+}
+
+.my-bookings-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.my-bookings-table tbody tr:nth-of-type(odd) {
+    background-color: white;
+}
+
+.my-bookings-table  {
+    width: 100%;
+    margin: 0;
+}
+
+caption {
+    background-color: rgb(0, 30, 80);
+    color: #f6f8fa;
+    font-size: 25px;
+    padding: 12px;
+    font-family: "VW Head", sans-serif;
+}
+
+.my-bookings-container {
+    margin-inline: 30px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    width: 45%;
+    border: 3px solid rgb(0, 30, 80);
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.my-bookings-table th,
+.my-bookings-table td {
+    padding: 12px 15px;
+    font-size: 18px;
+    font-family: "VW Head", sans-serif;
+}
+
+.my-bookings-table thead tr {
+    text-align: left;
+    background-color: #f6f8fa;
+}
+
+.container-secondary {
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 80vh;
+    margin-right: 100px;
+}
+
+#date-time {
+    text-align: right;
+    margin-top: 20px;
+    padding-right: 30px;
+    color: rgb(0, 30, 80);
+    font-size: 25px;
+    font-family: "VW Head", sans-serif;
+}
+
+#edit-btn,
+#add-btn {
+    height: 80px;
+    width: 100%;
+    color: #f6f8fa;
+    background-color: rgb(0, 30, 80);
+    border-radius: 50px;
+    margin-inline: auto;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    font-size: 25px;
+    font-family: "VW Head", sans-serif;
+}
+
+#edit-btn:hover,
+#add-btn:hover {
+    cursor: pointer;
+    background-color: #02ccfd;
+}

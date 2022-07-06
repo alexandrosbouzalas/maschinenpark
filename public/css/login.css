@@ -1,0 +1,123 @@
+
+.container-main {
+    height: 85vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-form-container {
+    width: 100%;
+    margin: auto;
+}
+
+.input-label {
+    padding-left: 10px;
+    font-size: 20px;
+    font-family: "VW Head", sans-serif;
+    color: rgb(0, 30, 80);
+    margin-bottom: 5px;
+}
+
+.input-field {
+    width: 50%;
+    margin-inline: auto;
+    margin-bottom: 15px;
+
+}
+
+
+input, select {
+    box-sizing:border-box;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    font-size: 22px;
+    padding: 10px;
+    padding-left: 15px;
+    font-family: "VW Text", sans-serif;
+    border: 3px solid rgb(0, 30, 80);
+    border-radius: 50px;
+}
+
+.buttons-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#submit-btn {
+    height: 50px;
+    width: 200px;
+    margin-top: 10px;
+    border-radius: 50px;
+    background-color: rgb(0, 30, 80);
+    color: #f6f8fa;
+    font-family: "VW Text", sans-serif;
+    font-size: 23px;
+
+}
+
+#submit-btn:hover {
+    background-color: #02ccfd;
+    cursor: pointer;
+}
+
+#back-btn {
+    height: 50px;
+    width: 100px;
+    margin-top: 10px;
+    border-radius: 50px;
+    border: 3px solid rgb(0, 30, 80);
+    background-color: #f6f8fa;
+    color: rgb(0, 30, 80);
+    font-family: "VW Text", sans-serif;
+    font-size: 23px;
+}
+
+#back-btn:hover {
+    background-color: rgb(0, 30, 80);
+    color: #f6f8fa;
+    cursor: pointer;
+}
+
+button {
+    margin-inline: 5px;
+}
+
+.bottom-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+}
+
+#password-input-label {
+    display: flex;
+    flex: row;
+    justify-content: space-between;
+}
+
+#password-forgot {
+    font-size: 15px;
+}
+
+#password-forgot:hover {
+    color: #02ccfd;
+    cursor: pointer;
+}
+
+.password-reset-info-container {
+    width: 60%;
+    margin: auto;
+
+}
+
+#password-reset-info {
+    display: none;
+    color: #f25902;
+    text-align: center;
+    font-size: 20px;
+    font-family: "VW Text", sans-serif;
+    margin: 25px;
+}

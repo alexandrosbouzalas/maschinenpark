@@ -1,0 +1,39 @@
+#welcome-text {
+    text-align: center;
+    font-family: 'VW Head', sans-serif;
+    font-size: 30px;
+}
+
+button {
+    width: 200px;
+    height: 70px;
+    margin: 20px;
+    background-color: rgb(0, 30, 80);
+    color: #f6f8fa;
+    font-size: 25px;
+    font-family: 'VW Text', sans-serif;
+    border-radius: 100px;
+    outline: none;
+    border: none;
+}
+
+button:hover {
+    background-color: #02ccfd;
+    transition: all .3s;
+    cursor: pointer;
+}
+
+.container-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 85vh;
+}
+
+.buttons-container {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+

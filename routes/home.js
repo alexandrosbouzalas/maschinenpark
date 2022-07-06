@@ -1,17 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const redis = require("redis");
-
-
-const redisPort = process.env.port || 6379;
-const redisClient = redis.createClient(redisPort);
-
-const title = "home";
 
 router.use(express.json());
 
 router.get("/", (req, res) => {
-  res.render("home/home", { title: title });
+  res.render("home/home");
 
   /* if (req.session.authenticated) {
     res.render("home/home", { title: title });

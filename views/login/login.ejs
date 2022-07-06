@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow" />
+    <link rel="shortcut icon" href="/img/logo.png" type="image/x-icon">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <link href="http://fonts.cdnfonts.com/css/vw-head" rel="stylesheet">
+    <link rel="stylesheet" href="/css/login.css" />
+    <link rel="stylesheet" href="/css/global.css" />
+    <title>Maschinenpark - Anmeldung</title>
+</head>
+<body>
+    <div class="header-container">
+        <div class="header-text">
+          <p>Akademie Emden</p>
+        </div>
+        <div class="header-line-middle"></div>
+        <div class="header-logo">
+          <img class="logo" src="/img/logo.png" alt="">
+        </div>
+        <div class="header-line-end"></div>
+    </div>
+    <div class="container-main">
+        <div class="login-form-container">
+            <form action="/login" method="post">
+                <div class="input-field">
+                    <div class="input-label">
+                        <label for="uid">Volkswagen UserID</label>
+                    </div>
+                    <input title="Ihre werksinterne siebenstellige Identifikationsnummer" type="text" name="uid" minlength="7" maxlength="7" style="text-transform:uppercase" />
+                </div>
+                <div class="input-field">
+                    <div id="password-input-label" class="input-label">
+                        <div class="bottom-text">
+                            <label class="bottom-text" for="password">Passwort</label>
+                        </div>
+                        <div class="bottom-text">
+                            <p class="bottom-text" id="password-forgot">Passwort vergessen?</p>
+                        </div>
+                    </div>
+                    <input type="password" name="password">
+                </div>
+                <div class="password-reset-info-container">
+                    <p id="password-reset-info">Eigenst&#228;ndiges Zur&#252;cksetzen Ihres Passwortes ist auf dieser Seite nicht m&#246;glich</br></br> Wenden Sie sich an Ihren Vorgesetzen / Meister um Ihr Passwort zur&#252;ckzusetzen</p>
+                </div>
+                <div class="buttons-container">
+                    <button id="back-btn">Zur&#252;ck</button>
+                    <button id="submit-btn">Anmelden</button>
+                </div>
+            </form>
+        </div>
+        <div id="help-btn" class="help-menu-container">
+            <div class="help-menu"><ion-icon name="help-outline"></ion-icon></div>
+          </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/login.js"></script>
+</body>
+</html>

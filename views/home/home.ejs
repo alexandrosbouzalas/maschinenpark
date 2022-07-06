@@ -4,9 +4,154 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maschinenpark</title>
+    <meta name="robots" content="index, follow" />
+    <link rel="shortcut icon" href="/img/logo.png" type="image/x-icon">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <link href="http://fonts.cdnfonts.com/css/vw-head" rel="stylesheet">
+    <link rel="stylesheet" href="/css/home.css" />
+    <link rel="stylesheet" href="/css/global.css" />
+    <title>Maschinenpark - Home</title>
 </head>
 <body>
-    <p>This is a test</p>
+    <div class="header-container">
+        <div class="header-text">
+          <p>Akademie Emden</p>
+        </div>
+        <div class="header-line-middle"></div>
+        <div class="header-logo">
+          <img class="logo" src="/img/logo.png" alt="">
+        </div>
+        <div class="header-line-end"></div>
+    </div>
+    <div>
+        <p id="date-time"></p>
+    </div>
+    <div class="container-main">
+        <div class="my-bookings-container">
+            <table class="my-bookings-table" cellspacing="0" cellpadding="0">
+                <caption>Meine Buchungen</caption>
+                <thead>
+                    <tr>
+                        <th>Machinennummer</th>
+                        <th>Von</th>
+                        <th>Bis</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="ended-row">
+                        <td>Dom</td>
+                        <td>6000</td>
+                        <td>6000</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                    <tr class="active-row">
+                        <td>Melissa</td>
+                        <td>5150</td>
+                        <td>5150</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="container-secondary">
+            <div class="option-button-container">
+                <div>
+                    <button id="edit-btn">Buchung bearbeiten</button>
+                </div>
+                <div>
+                    <button id="add-btn">Neue Buchung</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/home.js"></script>
 </body>
 </html>
