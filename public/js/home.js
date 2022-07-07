@@ -8,7 +8,7 @@ setInterval(() => {
                 + currentdate.getFullYear() + " - "  
                 + currentdate.getHours() + ":"  
                 + currentdate.getMinutes() + ":" 
-                + currentdate.getSeconds();
+                + String(currentdate.getSeconds()).padStart(2, '0');
 
     $('#date-time').text(datetime);
 });
@@ -38,11 +38,17 @@ $('#help-btn').click(() => {
       }) 
 })
 
+let picker;
+
 $('.edit-icon').click((event) => {
 
-    
-
-    let element;
+    picker = MCDatepicker.create({
+        el: '#datepicker',
+        disableWeekends: true,
+        theme: {
+            theme_color: 'rgb(0, 30, 80)'
+        }
+    });
 
     if($(event.target).is("div")) {
         element = event.target.parentNode.parentNode.parentNode
@@ -51,45 +57,69 @@ $('.edit-icon').click((event) => {
     }
 
     let currentMachine = element.childNodes[3];
+    let currentToDate = element.childNodes[5];
+    let currentFromDate = element.childNodes[7];
 
     Swal.fire({
         html: '<div class="edit-options-container">'
         + ' <div class="edit-option">'
-        + '     <div>'
-        + '         <label for="maschine">Maschine:</label>'
-        + `         <input id="current-maschine" type="text" name="maschine" placeholder="${currentMachine.innerText}" disabled/>`
-        + '         <button id="maschine-change-btn" type="button">Neue Auswahl</button>'
+        + '     <div class="edit-option-row">'
+        + '         <div class="label-container">'
+        + '             <label for="maschine">Maschine:</label>'
+        + '         </div>'
+        + '         <div>'
+        + `             <input id="current-maschine" type="text" name="maschine" placeholder="${currentMachine.innerText}" disabled/>`
+        + '         </div>'
+        + '         <div>'
+        + '             <button id="maschine-change-btn" type="button">Ändern</button>'
+        + '         </div>'
         + '     </div>'
         + ' </div>'
         + ' <div class="edit-option">'
-        + '     <div>'
-        + '         <label for="from">Von:</label>'
-        + '         <input type="text" name="from"/><ion-icon id="from-calendar" name="calendar-outline"></ion-icon>'
+        + '     <div class="edit-option-row">'
+        + '         <div class="label-container">'
+        + '             <label for="from">Von:</label>'
+        + '         </div>'
+        + '         <div>'
+        + `             <input type="text" name="from" placeholder="${currentFromDate.innerText}" disabled/>`
+        + '         </div>'
+        + '         <div class="icon-container" onClick="openCalendar($(this))">'
+        + '             <ion-icon id="from-calendar" name="calendar-outline" ></ion-icon>'
+        + '         </div>'
         + '     </div>'
         + ' </div>'
         + ' <div class="edit-option">'
-        + '     <div>'
-        + '         <label for="to">Bis:</label>'
-        + '         <input type="text" name="to"/><ion-icon id="to-calendar" name="calendar-outline"></ion-icon>'
+        + '     <div class="edit-option-row">'
+        + '         <div class="label-container">'
+        + '             <label for="to">Bis:</label>'
+        + '         </div>'
+        + '         <div>'
+        + `             <input type="text" name="to" placeholder="${currentToDate.innerText}" disabled/>`
+        + '         </div>'
+        + '         <div class="icon-container" onClick="openCalendar($(this))">'
+        + '             <ion-icon id="from-calendar" name="calendar-outline"></ion-icon>'
+        + '         </div>'
         + '     </div>'
         + ' </div>'
+        + ' </div>'
+
         + '</div>',
         showCancelButton: true,
         width: '90%',
         customClass: 'swal',
-        cancelButtonColor: 'grey',
+        cancelButtonColor: 'lightgrey',
         cancelButtonText: 'Abbrechen', 
         confirmButtonText: 'Speichern',
         confirmButtonColor: 'rgb(0, 30, 80)',
-        reverseButtons: true
+        reverseButtons: true,
       }).then((result) => {
         if (result.isConfirmed) {
             
+        } else {
+            picker.close();
         }
       })
 })
-
-
 
 $('.delete-icon').click((event) => {
     let element;
@@ -101,10 +131,10 @@ $('.delete-icon').click((event) => {
     }
 
     Swal.fire({
-        text: "Wollen Sie diese Buchung wirklich löschen?",
+        title: "Wollen Sie diese Buchung wirklich löschen?",
         icon: 'warning',
         showCancelButton: true,
-        cancelButtonColor: 'grey',
+        cancelButtonColor: 'lightgrey',
         confirmButtonText: 'Löschen',
         confirmButtonColor: 'rgb(0, 30, 80)',
         cancelButtonText: 'Abbrechen', 
@@ -114,17 +144,21 @@ $('.delete-icon').click((event) => {
           element.remove();
           if($('#table-body')[0].rows.length == 1) {
             $('#nobookings-info').show();
+            $('#edit-btn').text('Buchung bearbeiten');
             $('#edit-btn').css('background-color', 'grey');
-            $('#edit-btn').css('cursor', 'not-allowed');  
+            $('#edit-btn').css('pointer-events', 'none');
           }
         }
       })
 })
 
 
+function openCalendar(element) {
+    picker.open();
+}
+
 $('#edit-btn').click(() => {
     
-
     if($('#table-body')[0].rows.length > 1) {
         if($('#edit-btn').hasClass('off')) {
             $('#edit-btn').removeClass('off');
@@ -157,5 +191,4 @@ $(document).ready(() => {
         $('#edit-btn').css('background-color', 'grey');
         $('#edit-btn').css('cursor', 'not-allowed'); 
     }
-
 })
