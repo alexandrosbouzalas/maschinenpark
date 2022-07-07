@@ -69,7 +69,7 @@ try {
 
   const server = app.listen(3000)
   
-  console.info(`Listening on: https://ketakinder.tk`);
+  console.info(`Listening on: http://localhost:3000`);
 
 } catch (e) {
   
