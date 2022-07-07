@@ -1,9 +1,53 @@
-.container-main {
-    height: 85vh;
-    width: 100%;
-    display: flex;
+.swal {
+    height: 90vh;
+    display: flex !important;
     flex-direction: column;
     justify-content: center;
+}
+
+.swal h2 {
+    font-size: 40px;
+    color: rgb(0, 30, 80);
+    font-family: 'VW Head', sans-serif;
+}
+
+.swal2-title {
+    padding-bottom: 30px !important;
+}
+.top-info-text {
+    color: #f25902;
+}
+
+
+.swal2-confirm {
+    margin-top: 20px !important;
+    font-size: 20px !important;
+    font-family: "VW Text", sans-serif;
+    height: 60px;
+    border-radius: 50px !important;
+    text-align: center;
+}
+
+.swal2-confirm {
+    width: 200px;
+    outline: none !important;
+    border: none !important;
+}
+
+.swal2-html-container {
+    font-family: "VW Text", sans-serif;
+    font-size: 20px !important;
+    color: rgb(0, 30, 80);
+}
+
+.swal2-confirm:hover {
+    background-color: #02ccfd !important;
+}
+
+.container-main {
+    width: 100%;
+    margin-top: 100px;
+    padding-bottom: 100px
 }
 
 .register-form-container {
