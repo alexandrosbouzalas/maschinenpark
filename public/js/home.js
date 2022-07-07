@@ -155,6 +155,8 @@ $('.delete-icon').click((event) => {
 
 function openCalendar(element) {
     picker.open();
+    $('#mc-btn__clear').text('Zurücksetzen');
+    $('#mc-btn__cancel').text('ABBRECHEN');
 }
 
 $('#edit-btn').click(() => {
