@@ -35,123 +35,74 @@
                 <caption>Meine Buchungen</caption>
                 <thead>
                     <tr>
-                        <th>Machinennummer</th>
+                        <th>Buchungsnr.</th>
+                        <th>Machine</th>
                         <th>Von</th>
                         <th>Bis</th>
+                        <th class="edit-icons-header"></th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr class="ended-row">
-                        <td>Dom</td>
-                        <td>6000</td>
-                        <td>6000</td>
+                <tbody id="table-body">
+                    <tr id="nobookings-info">
+                        <td class="overlay">Sie haben aktuell keine Buchungen</td>
+                    </tr>
+                     <tr class="ended-row">
+                        <td>1234</td>
+                        <td>F3</td>
+                        <td>02.08.2022</td>
+                        <td>02.08.2023</td>
+                        <td class="edit-icons-cell">
+                            <div class="edit-icons-container">
+                                <div title="Diese Buchung bearbeiten" class="edit-icon"><ion-icon name="pencil-outline"></ion-icon></ion-icon></div>
+                                <div title="Diese Buchung l&#246;schen" class="delete-icon"><ion-icon name="trash-outline"></ion-icon></ion-icon></div>
+                            </div>
+                        </td>
                     </tr>
                     <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
+                        <td>1234</td>
+                        <td>D11</td>
+                        <td>16.03.2022</td>
+                        <td >22.06.2022</td>
+                        <td class="edit-icons-cell">
+                            <div class="edit-icons-container">
+                                <div title="Diese Buchung bearbeiten" class="edit-icon"><ion-icon name="pencil-outline"></ion-icon></ion-icon></div>
+                                <div title="Diese Buchung l&#246;schen" class="delete-icon"><ion-icon name="trash-outline"></ion-icon></ion-icon></div>
+                            </div>
+                        </td>
                     </tr>
                     <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
-                    </tr>
-                    <tr class="active-row">
-                        <td>Melissa</td>
-                        <td>5150</td>
-                        <td>5150</td>
+                        <td>1234</td>
+                        <td>D11</td>
+                        <td>16.03.2052</td>
+                        <td >22.06.2052</td>
+                        <td class="edit-icons-cell">
+                            <div class="edit-icons-container">
+                                <div title="Diese Buchung bearbeiten" class="edit-icon"><ion-icon name="pencil-outline"></ion-icon></ion-icon></div>
+                                <div title="Diese Buchung l&#246;schen" class="delete-icon"><ion-icon name="trash-outline"></ion-icon></ion-icon></div>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div class="container-secondary">
             <div class="option-button-container">
-                <div>
-                    <button id="edit-btn">Buchung bearbeiten</button>
+                <div class="button-container">
+                    <button class="off" id="edit-btn">Buchung bearbeiten</button>
                 </div>
-                <div>
+                <div class="button-container">
                     <button id="add-btn">Neue Buchung</button>
                 </div>
             </div>
         </div>
+        <div id="help-btn" class="help-menu-container">
+            <div class="help-menu"><ion-icon name="help-outline"></ion-icon></div>
+        </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <script src="/js/home.js"></script>
 </body>
 </html>
