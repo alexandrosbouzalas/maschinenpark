@@ -31,3 +31,5 @@ $('#register-btn').click(() => {
 $('#login-btn').click(() => {
     window.location.pathname = 'login';
 })
+
+

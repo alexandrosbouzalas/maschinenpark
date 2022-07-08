@@ -1,3 +1,10 @@
+const currentYear = new Date().getFullYear();
+
+for (var i = currentYear; i >= currentYear - 5; i--) {
+  $('#apprenticeyear').append(`<option value="${i}">${i}</option>`)
+}
+
+
 $(document).ready(() => {
   Swal.fire({
     title: 'Wichtige Information',
