@@ -130,8 +130,41 @@ caption {
     background-color: #02ccfd;
 }
 
+#logout-btn {
+    height: 40px;
+    width: 20%;
+    color: #f6f8fa;
+    background-color: lightgray;
+    border-radius: 50px;
+    margin-inline: auto;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    font-size: 20px;
+    font-family: "VW Head", sans-serif;
+}
+
+#logout-btn:hover {
+    cursor: pointer !important;
+    opacity: 0.8;
+}
+
+.edit-field {
+   color: #009879;
+}
+
 #nobookings-info {
     display: none;
+}
+
+.datepicker-error-message {
+    text-align: center;
+    color: red;
+    padding: 0 10px 15px 10px;
+}
+
+.error-message-container {
+    display: none;
+    width: 100%;
 }
 
 .edit-icon,
@@ -257,7 +290,7 @@ label {
     color: rgb(0, 30, 80);
 }
 
-input {
+input, select {
     box-sizing:border-box;
     padding: 0;
     margin: 0;
@@ -271,6 +304,9 @@ input {
     text-align: center;
 }
 
+select {
+    padding: 5px;
+}
 .edit-options-container {
     width: 100%;
     font-size: 25px;
