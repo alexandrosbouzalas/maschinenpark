@@ -63,15 +63,11 @@ router.post("/", async (req, res) => {
     res.status(200).json({ msg: "Success" });
   } catch (e) {
     var status = res.status(500);
-    if (e.message.includes("username"))
+    if (e.message.includes("userId")) {
       status.json({
-        msg: `Username "${username}" already exists`,
+        msg: `Diese UserID wurde bereits registriert`,
       });
-    else if (e.message.includes("email"))
-      status.json({
-        msg: `Email "${email}" already exists`,
-      });
-    else {
+    } else {
       status.json({ msg: "There was a problem processing your request" });
     }
     console.log(e.message);

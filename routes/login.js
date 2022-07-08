@@ -31,15 +31,14 @@ router.get("/", (req, res) => {
 
 router.post("/", async (req, res) => {
   const { userId, password } = req.body.data;
-  console.log(req.body.data.userId);
 
   try {
     var user;
     
-    user = await User.findOne({ userId: userId.toUpperCase() })
+    user = await User.findOne({ userId: userId })
 
     if (!validatePassword(password.toString()))
-      throw new Error("Falsches Passwort Format");
+      throw new Error("Falsches Format");
 
     if (userId && password) {
       if (req.session.authenticated) {
@@ -50,7 +49,7 @@ router.post("/", async (req, res) => {
 
           const valid = await bcryptCompare(password, user);
 
-          if (!valid) throw new Error("Falsches Passwort")
+          if (!valid) throw new Error("Falsche UserID oder falsches Passwort")
           else {
             req.session.authenticated = true;
             req.session.user = {
@@ -67,22 +66,25 @@ router.post("/", async (req, res) => {
       throw new Error("Fehlende Parameter");
     }
   } catch (e) {
-    console.log(e.message);
     if (
-      e.message.includes("Wrong") ||
+      e.message.includes("wrong") ||
       e.message.includes("not found") ||
       e.message.includes("undefined") ||
-      e.message.includes("Invalid")
+      e.message.includes("Invalid") ||
+      e.message.includes("falsch") ||
+      e.message.includes("nicht gefunden") ||
+      e.message.includes("undefiniert") ||
+      e.message.includes("invalide") ||
+      e.message.includes("passwort")
     ) {
       res.status(403).json({
-        msg: "Die UserId oder das Passwort sind inkorrekt",
+        msg: "Die UserID oder das Passwort ist inkorrekt",
       });
     } else {
       res.status(500).json({
         msg: "There was a problem processing your request",
       });
     }
-    console.log(e.message);
   }
 });
 

@@ -72,10 +72,18 @@ $("#submit-btn").on("click", function () {
       $(this).removeClass("errorBorder");
     }
   });
+  if ($("#userId").val().length < 7) {
+    console.log(userId);
+    valid = false;
+    $("#message").html("Die UserID besteht aus 7 Zeichen").addClass("errorText");
+    $("#userId").removeClass("inputBorder");
+    $("#userId").addClass("errorBorder");
+  }
   if (valid) checkInput();
 });
 
 function checkInput() {
+  console.log("Checking input...");
   var valid = true;
   $("[required]").each(function () {
     if (
@@ -96,7 +104,7 @@ function checkInput() {
     }
     if ($("#password").val() !== $("#passwordRepeat").val()) {
       valid = false;
-      $("#message").html("Passwörter passen nicht zusammen").addClass("errorText");
+      $("#message").html("Passwörter stimmen nicht überein").addClass("errorText");
       $("#password").removeClass("inputBorder");
       $("#password").addClass("errorBorder");
       $("#passwordRepeat").removeClass("inputBorder");
@@ -107,13 +115,15 @@ function checkInput() {
 }
 
 const verifySuccess = () => {
+  $("#message").html("").removeClass("errorText");
+
   data = {};
 
   const formData = new FormData(document.querySelector("form"));
   for (var pair of formData.entries()) {
     if (pair[0] === "lastname") Object.assign(data, { lastname: pair[1] });
     if (pair[0] === "firstname") Object.assign(data, { firstname: pair[1] });
-    if (pair[0] === "userId") Object.assign(data, { userId: pair[1] });
+    if (pair[0] === "userId") Object.assign(data, { userId: pair[1].toUpperCase() });
     if (pair[0] === "password") Object.assign(data, { password: pair[1] });
     if (pair[0] === "role") Object.assign(data, { role: pair[1] });
     if (pair[0] === "profession") Object.assign(data, { profession : pair[1] });

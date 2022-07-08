@@ -53,8 +53,15 @@ $("#submit-btn").on("click", function () {
       $(this).removeClass("errorBorder");
     }
   });
+
+  if ($("#userId").val().length < 7) {
+      valid = false;
+      $("#message").html("Die UserId besteht aus 7 Zeichen").addClass("errorText");
+      $("#userId").removeClass("inputBorder");
+      $("#userId").addClass("errorBorder");
+  }
   if (valid) checkInput();
-});
+  });
 
 function checkInput() {
   var valid = true;
@@ -88,15 +95,16 @@ function checkInput() {
 }
 
 const verifySuccess = () => {
+  $("#message").html("").removeClass("errorText");
+
   data = {};
 
   const formData = new FormData(document.querySelector("form"));
   for (var pair of formData.entries()) {
-    if (pair[0] === "userId") Object.assign(data, { userId: pair[1] });
+    if (pair[0] === "userId") Object.assign(data, { userId: pair[1].toUpperCase() });
     if (pair[0] === "password") Object.assign(data, { password: pair[1] });
   }
 
-  console.log("AJAX");
   $.ajax({
     url: "/login",
     method: "POST",
@@ -117,7 +125,7 @@ const verifySuccess = () => {
         });
     },
     error: function (err) {
-      console.log(err);
+      console.log(err.responseJSON.msg);
       try {
         Swal.fire({
           title: err.responseJSON.msg,
