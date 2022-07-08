@@ -256,6 +256,10 @@ $('#edit-btn').click(() => {
     }
 })
 
+$('#logout-btn').click(() => {
+  window.location.href = '/logout';
+})
+
 $(document).ready(() => {
     if($('#table-body')[0].rows.length == 1) {
         $('#nobookings-info').show();
