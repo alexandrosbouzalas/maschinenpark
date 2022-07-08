@@ -4,13 +4,13 @@ const router = express.Router();
 router.use(express.json());
 
 router.get("/", (req, res) => {
-  res.render("home/home");
+  //res.render("home/home");
 
-  /* if (req.session.authenticated) {
+  if (req.session.authenticated) {
     res.render("home/home", { title: title });
   } else {
     res.redirect("/");
-  } */
+  } 
 });
 
 /* router.post("/", (req, res) => {

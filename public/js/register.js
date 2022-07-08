@@ -50,3 +50,101 @@ $('#back-btn').click((event) => {
     event.preventDefault();
     window.location.href = "/";
 })
+
+$("#submit-btn").on("click", function () {
+  let valid = true;
+  $("[required]").each(function () {
+    if ($(this).is(":invalid") || !$(this).val()) {
+      valid = false;
+      $(this).removeClass("inputBorder");
+      $(this).addClass("errorBorder");
+      $("#message")
+        .html("Bitte fülle alle Felder aus")
+        .addClass("errorText");
+    } else {
+      $(this).removeClass("errorBorder");
+    }
+  });
+  if (valid) checkInput();
+});
+
+function checkInput() {
+  var valid = true;
+  $("[required]").each(function () {
+    if (
+      $(this).attr("id") === "email" &&
+      (!$(this).val() || !checkPattern($(this).attr("id")))
+    ) {
+      valid = false;
+      var message;
+
+      if ($(this).val().length < 8)
+        message = "Bitte benutze mindestens 8 Zeichen";
+
+      $("#message").html(message).addClass("errorText");
+      $("#password").removeClass("inputBorder");
+      $("#password").addClass("errorBorder");
+      $("#passwordRepeat").removeClass("inputBorder");
+      $("#passwordRepeat").addClass("errorBorder");
+    }
+    if ($("#password").val() !== $("#passwordRepeat").val()) {
+      valid = false;
+      $("#message").html("Passwörter passen nicht zusammen").addClass("errorText");
+      $("#password").removeClass("inputBorder");
+      $("#password").addClass("errorBorder");
+      $("#passwordRepeat").removeClass("inputBorder");
+      $("#passwordRepeat").addClass("errorBorder");
+    }
+  });
+  if (valid) verifySuccess();
+}
+
+const verifySuccess = () => {
+  data = {};
+
+  const formData = new FormData(document.querySelector("form"));
+  for (var pair of formData.entries()) {
+    if (pair[0] === "lastname") Object.assign(data, { lastname: pair[1] });
+    if (pair[0] === "firstname") Object.assign(data, { firstname: pair[1] });
+    if (pair[0] === "userId") Object.assign(data, { userId: pair[1] });
+    if (pair[0] === "password") Object.assign(data, { password: pair[1] });
+    if (pair[0] === "role") Object.assign(data, { role: pair[1] });
+    if (pair[0] === "profession") Object.assign(data, { profession : pair[1] });
+    if (pair[0] === "apprenticeyear") Object.assign(data, { apprenticeyear: pair[1] }); 
+  }
+
+  console.log(data);
+
+  $.ajax({
+    url: "/register",
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({ data: data }),
+    success: function (response) {
+      Swal.fire({
+        title: `Du hast dich erfolgreich registriert`,
+        icon: "success",
+        allowOutsideClick: false,
+        showCloseButton: false,
+        showCancelButton: false,
+        showConfirmButton: true,
+        width: "50%",
+        background: "#f1f4f6",
+        confirmButtonColor: "#007bff",
+      }).then(() => {
+        window.location = "/home";
+      });
+    },
+    error: function (err) {
+      Swal.fire({
+        title: err.responseJSON.msg,
+        icon: "error",
+        allowOutsideClick: false,
+        confirmButtonText: "OK",
+        confirmButtonColor: "#007bff",
+        background: "#f1f4f6",
+        width: "50%",
+      });
+    },
+  });
+};

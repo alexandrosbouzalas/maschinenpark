@@ -28,51 +28,51 @@
     </div>
     <div class="container-main">
         <div class="register-form-container">
-            <form action="/register" method="post">
+            <form action="/register" method="post" name="registerform">
                 <div class="input-field">
                     <div class="input-label">
-                        <label for="name">Name</label>
+                        <label for="lastname">Name</label>
                     </div>
-                    <input type="text" name="name">
+                    <input id="lastname" required type="text" name="lastname">
                 </div>
                 <div class="input-field">
                     <div class="input-label">
-                        <label for="vorname">Vorname</label>
+                        <label for="firstname">Vorname</label>
                     </div>
-                    <input type="text" name="vorname">
+                    <input id="firstname" required type="text" name="firstname">
                 </div>
                 <div class="input-field">
                     <div class="input-label">
-                        <label for="uid">Volkswagen UserID</label>
+                        <label for="userId">Volkswagen UserID</label>
                     </div>
-                    <input title="Ihre werksinterne siebenstellige Identifikationsnummer" type="text" name="uid" minlength="7" maxlength="7" style="text-transform:uppercase" />
+                    <input id="userId" required title="Ihre werksinterne siebenstellige Identifikationsnummer" type="text" name="userId" minlength="7" maxlength="7" style="text-transform:uppercase" />
                 </div>
                 <div class="input-field">
                     <div class="input-label">
                         <label for="password">Passwort</label>
                     </div>
-                    <input id="password" type="password" name="password">
+                    <input required id="password" type="password" name="password">
                 </div>
                 <div class="input-field">
                     <div class="input-label">
-                        <label for="password">Passwort wiederholen</label>
+                        <label for="passwordRepeat">Passwort wiederholen</label>
                     </div>
-                    <input id="passwordRepeat" type="password" name="password">
+                    <input required id="passwordRepeat" type="password" name="passwordRepeat">
                 </div>
-                <div class="input-field">
+                <div  class="input-field">
                     <div class="input-label">
                         <label for="role">Role</label>
                     </div>
-                    <select name="role">
+                    <select id="role" name="role">
                         <option value="AZB">Auszubildender</option>
                         <option value="ABBA">Ausbilder - Meister</option>
                     </select>
                 </div>
                 <div class="input-field">
                     <div class="input-label">
-                        <label for="field">Beruf</label>
+                        <label for="profession">Beruf</label>
                     </div>
-                    <select name="field">
+                    <select id="profession" name="profession">
                         <option value="MECH">Mechaniker/-in</option>
                         <option value="IM">Industriemechaniker/-in</option>
                         <option value="ZM">Zerspannungsmechaniker/-in</option>
@@ -83,18 +83,19 @@
                 </div>
                 <div class="input-field">
                     <div class="input-label">
-                        <label for="year">Lehrjahr</label>
+                        <label for="apprenticeyear">Lehrjahr</label>
                     </div>
-                    <select name="year">
+                    <select id="apprenticeyear" name="apprenticeyear">
                         <option value="1">Eins</option>
                         <option value="2">Zwei</option>
                         <option value="3">Drei</option>
                         <option value="4">Vier</option>
                     </select>
+                    <p id="message"></p>
                 </div>
                 <div class="buttons-container">
                     <button id="back-btn">Zur&#252;ck</button>
-                    <button id="submit-btn">Registrieren</button>
+                    <button type="button" id="submit-btn">Registrieren</button>
                 </div>
             </form>
         </div>
