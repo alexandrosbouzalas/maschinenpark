@@ -116,3 +116,16 @@ input:focus,
 select:focus {
     border: 3px solid #02ccfd;
 }
+
+.errorBorder {
+    border: 3px solid red;
+}
+
+.errorText {
+    color: #ff3a3a;
+    padding-top: 12px;
+    text-align: center;
+    font-family: 'Trebuchet MS', sans-serif;
+    font-size: 20px;
+    margin: 0;
+  }

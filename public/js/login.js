@@ -38,3 +38,111 @@ $('#password-forgot').click(() => {
 
     }
 })
+
+$("#submit-btn").on("click", function () {
+  let valid = true;
+  $("[required]").each(function () {
+    if ($(this).is(":invalid") || !$(this).val()) {
+      valid = false;
+      $(this).removeClass("inputBorder");
+      $(this).addClass("errorBorder");
+      $("#message")
+        .html("Bitte fülle alle Felder aus")
+        .addClass("errorText");
+    } else {
+      $(this).removeClass("errorBorder");
+    }
+  });
+  if (valid) checkInput();
+});
+
+function checkInput() {
+  var valid = true;
+
+  $("[required]").each(function () {
+    if (
+      $(this).attr("id") === "userId" && (!$(this).val())
+    ) {
+      $("#message").addClass("errorText");
+
+      valid = false;
+      $("#message").html("Invalid format");
+      $(this).removeClass("inputBorder");
+      $(this).addClass("errorBorder");
+    }
+    if (
+      $(this).attr("id") === "password" &&
+      (!$(this).val() || $(this).val().length < 8)
+    ) {
+      $("#message").addClass("errorText");
+
+      valid = false;
+      var message = "Das Passwort besteht aus mindestens 8 Zeichen";
+
+      $("#message").html(message);
+      $("#password").removeClass("inputBorder");
+      $("#password").addClass("errorBorder");
+    }
+  });
+  if (valid) verifySuccess();
+}
+
+const verifySuccess = () => {
+  data = {};
+
+  const formData = new FormData(document.querySelector("form"));
+  for (var pair of formData.entries()) {
+    if (pair[0] === "userId") Object.assign(data, { userId: pair[1] });
+    if (pair[0] === "password") Object.assign(data, { password: pair[1] });
+  }
+
+  console.log("AJAX");
+  $.ajax({
+    url: "/login",
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({ data: data }),
+    success: function (response) {
+        Swal.fire({
+          title: `Willkommen zurück`,
+          icon: "success",
+          allowOutsideClick: false,
+          showCloseButton: false,
+          showCancelButton: false,
+          showConfirmButton: false,
+          background: "#f1f4f6",
+          timer: 3000,
+        }).then(() => {
+          window.location = "/home";
+        });
+    },
+    error: function (err) {
+      console.log(err);
+      try {
+        Swal.fire({
+          title: err.responseJSON.msg,
+          icon: "error",
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+          background: "#f1f4f6",
+          confirmButtonColor: "#007bff",
+        });
+      } catch {
+        Swal.fire({
+          title: "There was an error processing your request",
+          icon: "error",
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+          background: "#f1f4f6",
+          confirmButtonColor: "#007bff",
+        });
+      }
+    },
+  });
+};
+
+$(document).keydown(function(event) {
+  if(event.key === "Enter" && ($("#userId").is(":focus") || $("#password").is(":focus"))) {
+      $('#submitbutton').trigger('click');
+  }
+})
