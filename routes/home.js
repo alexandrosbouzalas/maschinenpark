@@ -4,10 +4,8 @@ const router = express.Router();
 router.use(express.json());
 
 router.get("/", (req, res) => {
-  //res.render("home/home");
-
   if (req.session.authenticated) {
-    res.render("home/home", { title: title });
+    res.render("home/home");
   } else {
     res.redirect("/");
   } 

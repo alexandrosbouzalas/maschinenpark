@@ -33,7 +33,7 @@
                     <div class="input-label">
                         <label for="userId">Volkswagen UserID</label>
                     </div>
-                    <input id="userId" title="Ihre werksinterne siebenstellige Identifikationsnummer" type="text" name="userId" minlength="7" maxlength="7" style="text-transform:uppercase" />
+                    <input required id="userId" title="Ihre werksinterne siebenstellige Identifikationsnummer" type="text" name="userId" minlength="7" maxlength="7" style="text-transform:uppercase" />
                 </div>
                 <div class="input-field">
                     <div id="password-input-label" class="input-label">
@@ -44,16 +44,16 @@
                             <p class="bottom-text" id="password-forgot">Passwort vergessen?</p>
                         </div>
                     </div>
-                    <input id="password" type="password" name="password">
+                    <input required id="password" type="password" name="password">
                 </div>
                 <div class="password-reset-info-container">
                     <p id="password-reset-info">Eigenst&#228;ndiges Zur&#252;cksetzen Ihres Passwortes ist auf dieser Seite nicht m&#246;glich</br></br> Wenden Sie sich an Ihren Vorgesetzen / Meister um Ihr Passwort zur&#252;ckzusetzen</p>
                 </div>
+                <p id="message"></p>
                 <div class="buttons-container">
                     <button id="back-btn">Zur&#252;ck</button>
                     <button type="button" id="submit-btn">Anmelden</button>
                 </div>
-                <p id="message"></p>
             </form>
         </div>
         <div id="help-btn" class="help-menu-container">
