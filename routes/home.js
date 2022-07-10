@@ -4,6 +4,7 @@ const User = require("./../models/user");
 const Booking = require("./../models/booking");
 const Machine = require("./../models/machine");
 const Statistic = require("./../models/statistic");
+const { response } = require("express");
 
 
 router.use(express.json());
@@ -23,10 +24,6 @@ router.post("/createNewBooking", async (req, res) => {
       const { userId } = req.session.user;
   
       const { maschineId, beginDate, endDate, activity, timewindow } = req.body.data;
-  
-      /* const bookingsCount = await Booking.aggregate( [
-        { $count: "bookingId" }
-      ]) */
 
       const bookingsCount = await Statistic.findOne({});
       
@@ -108,6 +105,48 @@ router.post("/getUserBookings", async (req, res) => {
       res.status(200).json(userBookings);
     } catch (err) {
       res.status(500).json({msg: "Beim Laden Ihrer Buchungen ist ein Fehler aufgetreten"});
+    }
+    
+  } else {
+    res.status(403).send();
+  }
+})
+
+router.post("/updateBooking", async (req, res) => {
+  if (req.session.authenticated) {
+
+    try {
+      const {bookingId, machines, beginDate, endDate} = req.body.data;
+
+      const [beginDay, beginMonth, beginYear] = beginDate.split('.')
+      const [endDay, endMonth, endYear] = endDate.split('.')
+
+      const booking = await Booking.findOne({bookingId: bookingId});
+
+      if(booking) {
+        try {
+          await Booking.updateMany(
+            {
+                bookingId: booking.bookingId,
+            },
+            { 
+              $set: {
+                machineId: machines[0],
+                beginDate: new Date(beginYear, beginMonth, beginDay),
+                endDate: new Date(endYear, endMonth, endDay),
+              }           
+            })
+
+            res.status(200).send();
+        } catch(err) {
+          throw new Error();
+        }
+      } else {
+        res.status(404).json({msg:"Diese Buchungsnummer existiert nicht"});
+      }
+
+    } catch (err) {
+      res.status(500).json({msg: "Bei der Aktualisierung Ihrer Buchung ist ein Fehler aufgetreten"});
     }
     
   } else {

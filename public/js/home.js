@@ -380,7 +380,7 @@ const createBooking = (machines) => {
   })
 }
 
-const editBooking = (event, machine) => {
+const editBooking = (event, machines) => {
   if($(event.target).is("div")) {
     element = event.target.parentNode.parentNode.parentNode
   } else if ($(event.target).is("ion-icon")) {
@@ -402,10 +402,10 @@ const editBooking = (event, machine) => {
     + '             <label for="maschine">Maschine:</label>'
     + '         </div>'
     + '         <div>'
-    + `             <input class="edit-field" id="current-machines" type="text" name="maschine" placeholder="${machine ? machine : currentMachine.innerText}" disabled/>`
+    + `             <input class="edit-field" id="current-machines" type="text" name="maschine" placeholder="${machines ? machines : currentMachine.innerText}" disabled/>`
     + '         </div>'
     + '         <div>'
-    + `             <button id="maschine-change-btn" type="button" onClick="openParkView('${currentMachine.innerText}', true)">Ändern</button>`
+    + `             <button id="maschine-change-btn" type="button" onClick="openParkView('${machines ? machines : currentMachine.innerText}', true)">Ändern</button>`
     + '         </div>'
     + '     </div>'
     + ' </div>'
@@ -447,7 +447,56 @@ const editBooking = (event, machine) => {
     reverseButtons: true,
   }).then((result) => {
     if (result.isConfirmed) {
-        
+
+      const updateOptions = {};
+
+      Object.assign(updateOptions, {bookingId: element.childNodes[1].innerText});
+      Object.assign(updateOptions, {machines: machines ? machines : [currentMachine.innerText]});
+      Object.assign(updateOptions, {beginDate: dates.beginDate ? dates.beginDate: $('#from-date-picker').attr("placeholder")});
+      Object.assign(updateOptions, {endDate: dates.endDate ? dates.endDate: $('#to-date-picker').attr("placeholder")});
+
+      dates = {};
+
+      $.ajax({
+        url: "/home/updateBooking",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ data: updateOptions }),
+        success: function (response) {
+          Swal.fire({
+            title: "Ihre Buchung wurde erfolgreich aktualisiert",
+            icon: "success",
+            allowOutsideClick: false,
+            showCloseButton: false,
+            showCancelButton: false,
+            showConfirmButton: false,
+            background: "#f6f8fa",
+            timer: 2000,
+          }).then(() => {
+            buildBookingTable();
+          });
+        },
+        error: function (err) {
+          console.log(err.responseJSON.msg);
+          try {
+            Swal.fire({
+              title: err.responseJSON.msg,
+              icon: "error",
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+            });
+          } catch {
+            Swal.fire({
+              title: "Es ist ein unerwarteter Fehler aufgetreten",
+              icon: "error",
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+              allowOutsideClick: false,
+              background: "#f6f8fa",
+            });
+          }
+        }
+      }); 
     } else {
       if(picker)
         picker.close();
@@ -545,9 +594,9 @@ const checkDates = (e, defaultDate) => {
   const pickerDate = picker.getFullDate();
   let fromDay, fromMonth, fromYear, toDay, toMonth, toYear;
 
-  if($('#to-date-picker')[0].placeholder) {
-    let [fromDay, fromMonth, fromYear] =  $('#from-date-picker')[0].placeholder.split('.');
-    let [toDay, toMonth, toYear] =  $('#to-date-picker')[0].placeholder.split('.');
+  if($('#to-date-picker').attr("placeholder")) {
+    let [fromDay, fromMonth, fromYear] =  $('#from-date-picker').attr("placeholder").split('.');
+    let [toDay, toMonth, toYear] =  $('#to-date-picker').attr("placeholder").split('.');
   }
 
   if(picker.el === '#from-date-picker') {
