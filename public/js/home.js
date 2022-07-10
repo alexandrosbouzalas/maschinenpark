@@ -2,6 +2,7 @@
 // Global variables
 let picker;
 let dates = {};
+let currentEditElement;
 
 // Content that has to be loaded first
 setInterval(() => {
@@ -105,7 +106,7 @@ const buildBookingTable = () => {
 
 buildBookingTable();
 
-const openParkView = (placeholderMachine) => {
+const openParkView = (placeholderMachine, editMode) => {
 
   let machines = []; // Container that is passed along holding all the selected machines
 
@@ -138,9 +139,17 @@ const openParkView = (placeholderMachine) => {
     reverseButtons: true,
   }).then((result) => {
     if (result.isConfirmed) {
-        createBooking(machines)
+      if(editMode) {
+        editBooking(currentEditElement, machines);
+      } else {
+        createBooking(machines);
+      }
     } else {
-        Swal.close();
+      if(editMode) {
+
+      } else {
+        createBooking();
+      }
     }
   })
 
@@ -198,6 +207,9 @@ const openParkView = (placeholderMachine) => {
 
   if(placeholderMachine !== '') {
     $(`#${placeholderMachine}`).addClass('selected');
+
+    machines.push(placeholderMachine);
+
   }
 
   $('.status-free').click((e) => {
@@ -309,7 +321,6 @@ const createBooking = (machines) => {
     reverseButtons: true,
   }).then((result) => {
     if (result.isConfirmed) {
-
       
       const booking = {};
       
@@ -369,20 +380,21 @@ const createBooking = (machines) => {
   })
 }
 
-const editBooking = (event) => {
+const editBooking = (event, machine) => {
   if($(event.target).is("div")) {
     element = event.target.parentNode.parentNode.parentNode
-} else if ($(event.target).is("ion-icon")) {
-    element = event.target.parentNode.parentNode.parentNode.parentNode
-}
+  } else if ($(event.target).is("ion-icon")) {
+      element = event.target.parentNode.parentNode.parentNode.parentNode
+  }
 
-let currentMachine = element.childNodes[3];
-let currentFromDate = element.childNodes[5];
-let currentToDate = element.childNodes[7];
+  currentEditElement = event;
+
+  let currentMachine = element.childNodes[3];
+  let currentFromDate = element.childNodes[5];
+  let currentToDate = element.childNodes[7];
 
 
-
-Swal.fire({
+  Swal.fire({
     html: '<div class="edit-options-container">'
     + ' <div class="edit-option">'
     + '     <div class="edit-option-row">'
@@ -390,10 +402,10 @@ Swal.fire({
     + '             <label for="maschine">Maschine:</label>'
     + '         </div>'
     + '         <div>'
-    + `             <input class="edit-field" id="current-machines" type="text" name="maschine" placeholder="${currentMachine.innerText}" disabled/>`
+    + `             <input class="edit-field" id="current-machines" type="text" name="maschine" placeholder="${machine ? machine : currentMachine.innerText}" disabled/>`
     + '         </div>'
     + '         <div>'
-    + `             <button id="maschine-change-btn" type="button" onClick="openParkView('${currentMachine.innerText}')">Ändern</button>`
+    + `             <button id="maschine-change-btn" type="button" onClick="openParkView('${currentMachine.innerText}', true)">Ändern</button>`
     + '         </div>'
     + '     </div>'
     + ' </div>'
@@ -553,6 +565,7 @@ const checkDates = (e, defaultDate) => {
     }
     else {
       $('.error-message-container').slideUp();
+
       return true
     }
   } else if (picker.el === '#to-date-picker') {
@@ -566,6 +579,7 @@ const checkDates = (e, defaultDate) => {
       }
       else {
         $('.error-message-container').slideUp();
+        selectedBeginDate = $('#from-date-picker').attr('placeholder');
         return true
       }
     } else {
@@ -580,10 +594,10 @@ const checkDates = (e, defaultDate) => {
       }
       else {
         $('.error-message-container').slideUp();
+        selectedEndDate = $('#to-date-picker').attr('placeholder');
         return true
       }
     }
-
   }
 }
 
