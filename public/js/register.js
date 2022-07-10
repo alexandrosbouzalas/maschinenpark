@@ -145,7 +145,7 @@ const verifySuccess = () => {
         showCloseButton: false,
         showCancelButton: false,
         showConfirmButton: false,
-        background: "#f1f4f6",
+        background: "#f6f8fa",
         timer: 2000,
       }).then(() => {
         window.location = "/login";
@@ -158,9 +158,15 @@ const verifySuccess = () => {
         allowOutsideClick: false,
         confirmButtonText: "OK",
         confirmButtonColor: "#007bff",
-        background: "#f1f4f6",
+        background: "#f6f8fa",
         width: "50%",
       });
     },
   });
 };
+
+$(document).keydown(function(event) {
+  if(event.key === "Enter" && ($("#userId").is(":focus") || $("#password").is(":focus"))) {
+    $('#submit-btn').click();
+  }
+})

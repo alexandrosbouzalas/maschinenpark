@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema({
   registeredAt: {
     type: Date,
     default: Date.now(),
+  },
+  permissionClass: {
+    type: String,
+    default: "1",
   }
 });
 

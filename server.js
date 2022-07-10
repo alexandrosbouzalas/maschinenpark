@@ -10,8 +10,6 @@ const registerRouter = require("./routes/register");
 const loginRouter = require("./routes/login");
 const logoutRouter = require("./routes/logout");
 
-const port = 3000;
-
 const title = "index";
 
 const app = express();
@@ -65,9 +63,9 @@ app.use("/logout", logoutRouter);
 
 try {
 
-  const server = app.listen(3000)
+  const server = app.listen(80)
   
-  console.info(`Listening on: http://localhost:3000`);
+  console.info(`Listening on: http://localhost`);
 
 } catch (e) {
   

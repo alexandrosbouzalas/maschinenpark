@@ -117,7 +117,7 @@ const verifySuccess = () => {
           showCloseButton: false,
           showCancelButton: false,
           showConfirmButton: false,
-          background: "#f1f4f6",
+          background: "#f6f8fa",
           timer: 2000,
         }).then(() => {
           window.location = "/home";
@@ -131,16 +131,16 @@ const verifySuccess = () => {
           icon: "error",
           allowOutsideClick: false,
           confirmButtonText: "OK",
-          background: "#f1f4f6",
+          background: "#f6f8fa",
           confirmButtonColor: "#007bff",
         });
       } catch {
         Swal.fire({
-          title: "There was an error processing your request",
+          title: "Es ist ein unerwarteter Fehler aufgetreten",
           icon: "error",
           allowOutsideClick: false,
           confirmButtonText: "OK",
-          background: "#f1f4f6",
+          background: "#f6f8fa",
           confirmButtonColor: "#007bff",
         });
       }

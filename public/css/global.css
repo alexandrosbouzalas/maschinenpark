@@ -117,8 +117,13 @@ select:focus {
     border: 3px solid #02ccfd;
 }
 
+.swal2-title {
+    color: rgb(0, 30, 80) !important;
+    font-family: 'VW Head', sans-serif !important;
+}
+
 .errorBorder {
-    border: 3px solid red;
+    border: 3px solid red !important;
 }
 
 .errorText {
@@ -146,10 +151,4 @@ select:focus {
 
 .swal2-confirm:hover {
     background-color: #02ccfd !important;
-}
-
-.swal2-title {
-    font-size: 50px;
-    color: rgb(0, 30, 80);
-    font-family: 'VW Head', sans-serif;
 }

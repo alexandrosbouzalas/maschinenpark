@@ -1,57 +1,109 @@
 
 // Global variables
 let picker;
+let dates = {};
 
-// Clock interval
+// Content that has to be loaded first
 setInterval(() => {
     var daysOfWeek = [ 'Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag',];
 
     var currentdate = new Date(); 
     var datetime = daysOfWeek[currentdate.getDay()] + " - "
-                + currentdate.getDate() + "." 
-                + (currentdate.getMonth()+1)  + "." 
+                + String(currentdate.getDate()).padStart(2, '0') + "." 
+                + String((currentdate.getMonth()+1)).padStart(2, '0')  + "." 
                 + currentdate.getFullYear() + " - "  
-                + currentdate.getHours() + ":"  
+                + String(currentdate.getHours()).padStart(2, '0') + ":"  
                 + String(currentdate.getMinutes()).padStart(2, '0') + ":" 
                 + String(currentdate.getSeconds()).padStart(2, '0');
 
     $('#date-time').text(datetime);
 });
 
-// Event listeners
-$('#help-btn').click(() => {
-  showHelpMenu();
-})
-
-$('.edit-icon').click((event) => {  
-  editBooking(event);
-})
-
-$('.delete-icon').click((event) => {
-  deleteBooking(event);
-})
-
-$('#add-btn').click(() => {
-  createBooking();
-});
-
-$('#edit-btn').click(() => {    
-    toggleEditMode();
-})
-
-$('#logout-btn').click(() => {
-  window.location.href = '/logout';
-})
-
-$(document).ready(() => {
-    if($('#table-body')[0].rows.length == 1) {
-        $('#nobookings-info').show();
-        $('#edit-btn').css('background-color', 'grey');
-        $('#edit-btn').css('cursor', 'not-allowed'); 
-    }
-})
-
 // Functions
+
+const buildBookingTable = () => {
+
+  $.ajax({
+    url: "/home/getUserBookings",
+    method: "POST",
+    contentType: "application/json",
+    success: function (response) {
+
+      if(response.length >= 1) {
+
+        $('#nobookings-info').hide();
+
+        $(".booking-row").remove();
+
+        toggleEditMode();
+
+        $('#edit-btn').removeClass('edit-btn-disabled');
+
+        for(let booking of response) {
+
+          let bookingStartDate = new Date(booking.beginDate);
+          let bookingEndDate = new Date(booking.endDate);
+  
+          let bookingElement = '<tr class="booking-row active-row">'
+          + `   <td>${booking.bookingId}</td>`
+          + `   <td>${booking.machineId}</td>`
+          + `   <td>${String(bookingStartDate.getDate()).padStart(2, '0')}.${String(bookingStartDate.getMonth()).padStart(2, '0')}.${bookingStartDate.getFullYear()}</td>`
+          + `   <td>${String(bookingEndDate.getDate()).padStart(2, '0')}.${String(bookingEndDate.getMonth()).padStart(2, '0')}.${bookingEndDate.getFullYear()}</td>`
+          + '   <td class="edit-icons-cell">'
+          + '       <div class="edit-icons-container">'
+          + '           <div title="Diese Buchung bearbeiten" class="edit-icon"><ion-icon name="pencil-outline"></ion-icon></ion-icon></div>'
+          + '           <div title="Diese Buchung l&#246;schen" class="delete-icon"><ion-icon name="trash-outline"></ion-icon></ion-icon></div>'
+          + '       </div>'
+          + '   </td>'
+          + '</tr>'
+          
+          $('#table-body').append(bookingElement);
+        }
+        
+        
+        if($('#table-body')[0].rows.length > 1) {
+          if($('#edit-btn').hasClass('on')) {
+              $('.edit-icons-header').show();
+              $('.edit-icons-cell').show();
+          } 
+        } 
+
+        $('.edit-icon').click((event) => {  
+          editBooking(event);
+        })
+        
+        $('.delete-icon').click((event) => {
+          deleteBooking(event);
+        })
+
+      } else {
+        $(".booking-row").remove();
+        $('#nobookings-info').show();
+        $('#edit-btn').addClass('edit-btn-disabled');
+      }
+    },
+    error: function (err) {
+      console.log(err.responseJSON.msg);
+      try {
+        Swal.fire({
+          title: err.responseJSON.msg,
+          icon: "error",
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+        });
+      } catch {
+        Swal.fire({
+          title: "Es ist ein unerwarteter Fehler aufgetreten",
+          icon: "error",
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+        });
+      }
+    }
+  });
+}
+
+buildBookingTable();
 
 const openParkView = (placeholderMachine) => {
 
@@ -220,10 +272,24 @@ const createBooking = (machines) => {
     + ' <div class="edit-option">'
     + '     <div class="edit-option-row">'
     + '         <div class="label-container">'
+    + '             <label for="to">Tätigkeit:</label>'
+    + '         </div>'
+    + '         <div>'
+    + '             <select id="activity" name="activity">'
+    + '               <option value="A">Ausbildung</option>'
+    + '               <option value="T">Technische Dienstleistungen (Aufträge)</option>'
+    + '               <option value="P">Prüfung / Prüfungsvorbereitung</option>'
+    + '             </select>'
+    + '         </div>'
+    + '     </div>'
+    + ' </div>'
+    + ' <div class="edit-option">'
+    + '     <div class="edit-option-row">'
+    + '         <div class="label-container">'
     + '             <label for="to">Zeitraum:</label>'
     + '         </div>'
     + '         <div>'
-    + '             <select name="role">'
+    + '             <select id="timewindow" name="timewindow">'
     + '               <option value="FULL">Ganzer Tag</option>'
     + '               <option value="BEFORE">Vormittags</option>'
     + '               <option value="AFTER">Nachmittags</option>'
@@ -243,9 +309,62 @@ const createBooking = (machines) => {
     reverseButtons: true,
   }).then((result) => {
     if (result.isConfirmed) {
-        
+
+      
+      const booking = {};
+      
+      Object.assign(booking, {maschineId: $('#current-machines').attr("placeholder")});
+      Object.assign(booking, {beginDate: dates.beginDate});
+      Object.assign(booking, {endDate: dates.endDate});
+      Object.assign(booking, {activity: $('#activity').val()});
+      Object.assign(booking, {timewindow: $('#timewindow').val()});
+      
+      
+      dates = {};
+
+      $.ajax({
+        url: "/home/createNewBooking",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ data: booking }),
+        success: function (response) {
+          Swal.fire({
+            title: "Ihre Buchung wurde erfolgreich gespeichert",
+            icon: "success",
+            allowOutsideClick: false,
+            showCloseButton: false,
+            showCancelButton: false,
+            showConfirmButton: false,
+            background: "#f6f8fa",
+            timer: 2000,
+          }).then(() => {
+            buildBookingTable();
+          });
+        },
+        error: function (err) {
+          console.log(err.responseJSON.msg);
+          try {
+            Swal.fire({
+              title: err.responseJSON.msg,
+              icon: "error",
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+            });
+          } catch {
+            Swal.fire({
+              title: "Es ist ein unerwarteter Fehler aufgetreten",
+              icon: "error",
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+            });
+          }
+        }
+      });
+
     } else {
-        Swal.close();
+      dates = {};
+      if(picker)
+        picker.close();
     }
   })
 }
@@ -261,6 +380,8 @@ let currentMachine = element.childNodes[3];
 let currentFromDate = element.childNodes[5];
 let currentToDate = element.childNodes[7];
 
+
+
 Swal.fire({
     html: '<div class="edit-options-container">'
     + ' <div class="edit-option">'
@@ -272,7 +393,7 @@ Swal.fire({
     + `             <input class="edit-field" id="current-machines" type="text" name="maschine" placeholder="${currentMachine.innerText}" disabled/>`
     + '         </div>'
     + '         <div>'
-    + '             <button id="maschine-change-btn" type="button" onClick="openParkView()">Ändern</button>'
+    + `             <button id="maschine-change-btn" type="button" onClick="openParkView('${currentMachine.innerText}')">Ändern</button>`
     + '         </div>'
     + '     </div>'
     + ' </div>'
@@ -302,20 +423,6 @@ Swal.fire({
     + '         </div>'
     + '     </div>'
     + ' </div>'
-    + ' <div class="edit-option">'
-    + '     <div class="edit-option-row">'
-    + '         <div class="label-container">'
-    + '             <label for="to">Zeitraum:</label>'
-    + '         </div>'
-    + '         <div>'
-    + '             <select name="role">'
-    + '               <option value="FULL">Ganzer Tag</option>'
-    + '               <option value="BEFORE">Vormittags</option>'
-    + '               <option value="AFTER">Nachmittags</option>'
-    + '             </select>'
-    + '         </div>'
-    + '     </div>'
-    + ' </div>'
     + ' </div>'
     + '</div>',
     showCancelButton: true,
@@ -330,6 +437,7 @@ Swal.fire({
     if (result.isConfirmed) {
         
     } else {
+      if(picker)
         picker.close();
     }
   })
@@ -344,6 +452,8 @@ const deleteBooking = (event) => {
   } else if ($(event.target).is("ion-icon")) {
       element = event.target.parentNode.parentNode.parentNode.parentNode
   }
+
+
   Swal.fire({
       title: "Wollen Sie diese Buchung wirklich löschen?",
       icon: 'warning',
@@ -355,12 +465,52 @@ const deleteBooking = (event) => {
       reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed) {
-        element.remove();
+
+        $.ajax({
+          url: "/home/deleteBooking",
+          method: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({ data: element.childNodes[1].innerText }),
+          success: function (response) {
+            Swal.fire({
+              title: "Ihre Buchung wurde erfolgreich gelöscht",
+              icon: "success",
+              allowOutsideClick: false,
+              showCloseButton: false,
+              showCancelButton: false,
+              showConfirmButton: false,
+              background: "#f6f8fa",
+              timer: 2000,
+            }).then(() => {
+              buildBookingTable();
+            });
+          },
+          error: function (err) {
+            console.log(err.responseJSON.msg);
+            try {
+              Swal.fire({
+                title: err.responseJSON.msg,
+                icon: "error",
+                allowOutsideClick: false,
+                confirmButtonText: "OK",
+              });
+            } catch {
+              Swal.fire({
+                title: "Es ist ein unerwarteter Fehler aufgetreten",
+                icon: "error",
+                allowOutsideClick: false,
+                confirmButtonText: "OK",
+                allowOutsideClick: false,
+                background: "#f6f8fa",
+              });
+            }
+          }
+        });
+
         if($('#table-body')[0].rows.length == 1) {
           $('#nobookings-info').show();
           $('#edit-btn').text('Buchung bearbeiten');
-          $('#edit-btn').css('background-color', 'grey');
-          $('#edit-btn').css('pointer-events', 'none');
+          $('#edit-btn').addClass('edit-btn-disabled');
         }
       }
     })
@@ -374,6 +524,11 @@ const resetDatepicker = () =>{
 
 const checkDates = (e, defaultDate) => {
 
+  if(picker.el === "#from-date-picker")
+    Object.assign(dates, {beginDate: picker.getFormatedDate()});
+  else if(picker.el === "#to-date-picker")
+    Object.assign(dates, {endDate: picker.getFormatedDate()});
+
   const currentDate = defaultDate ? new Date() : picker.getFullDate();
   const pickerDate = picker.getFullDate();
   let fromDay, fromMonth, fromYear, toDay, toMonth, toYear;
@@ -382,7 +537,6 @@ const checkDates = (e, defaultDate) => {
     let [fromDay, fromMonth, fromYear] =  $('#from-date-picker')[0].placeholder.split('.');
     let [toDay, toMonth, toYear] =  $('#to-date-picker')[0].placeholder.split('.');
   }
-  
 
   if(picker.el === '#from-date-picker') {
 
@@ -504,3 +658,20 @@ const showHelpMenu = () => {
     showCloseButton: true
   }) 
 }
+
+// Event listeners
+$('#help-btn').click(() => {
+  showHelpMenu();
+})
+
+$('#add-btn').click(() => {
+  createBooking();
+});
+
+$('#edit-btn').click(() => {    
+    toggleEditMode();
+})
+
+$('#logout-btn').click(() => {
+  window.location.href = '/logout';
+})

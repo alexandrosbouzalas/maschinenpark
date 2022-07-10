@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 
-const machineSchema = new mongoose.Schema({
+const bookingSchema = new mongoose.Schema({
   bookingId: {
     type: String,
     required: true,
     unique: true
   },
-  creator: {
+  userId: {
     type: String,
     required: true,
   },
@@ -23,10 +23,18 @@ const machineSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  activity: {
+    type: String,
+    required: true,
+  },
+  timewindow: {
+    type: String,
+    required: true,
+  },
   creationDate: {
     type: Date,
     default: Date.now(),
   }
 });
 
-module.exports = mongoose.model("Machine", machineSchema);
+module.exports = mongoose.model("Booking", bookingSchema);

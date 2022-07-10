@@ -15,18 +15,14 @@ router.use("./public/js/utils", bcryptHash);
 router.use("./public/js/utils", validatePassword);
 router.use("./public/js/utils", validateUserId);
 
-const redisPort = process.env.port || 6379;
-const redisClient = redis.createClient(redisPort);
-
 router.use(express.json());
 
 router.get("/", (req, res) => {
-  res.render("register/register");
-/*  if (req.session.authenticated) {
-    res.render("home/home", { title: title });
+ if (req.session.authenticated) {
+    res.redirect("/home");
   } else {
-    res.redirect("/");
-  }*/
+    res.render("register/register");
+  }
 });
 
 router.use(function (req, res, next) {
@@ -39,7 +35,7 @@ router.use(function (req, res, next) {
 router.post("/", async (req, res) => {
   req.body = sanitize(req.body);
 
-  const { lastname, firstname, userId, password, role, profession, apprenticeyear } = req.body.data;
+  const { lastname, firstname, userId, password, role, profession, apprenticeyear} = req.body.data;
 
   if (!validatePassword(password.toString()))
     throw new Error("Falsches Passwort");

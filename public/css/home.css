@@ -133,7 +133,7 @@ caption {
 #logout-btn {
     height: 40px;
     width: 20%;
-    color: #f6f8fa;
+    color: black;
     background-color: lightgray;
     border-radius: 50px;
     margin-inline: auto;
@@ -562,4 +562,27 @@ select {
 
 .off:hover {
     background-color: #02ccfd;
+}
+
+.edit-btn-disabled {
+    pointer-events: none;
+    background-color: grey !important;
+}
+
+@media screen and (max-width: 1000px) { 
+
+    .container-main {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .my-bookings-container { 
+        width: auto
+    }
+
+    .container-secondary {
+        width: auto;
+        height: auto;
+    }
 }
