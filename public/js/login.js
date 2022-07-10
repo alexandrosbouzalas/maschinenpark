@@ -35,7 +35,6 @@ $('#password-forgot').click(() => {
         $('#password-reset-info').slideDown();
     } else {
         $('#password-reset-info').slideUp();
-
     }
 })
 
@@ -119,7 +118,7 @@ const verifySuccess = () => {
           showCancelButton: false,
           showConfirmButton: false,
           background: "#f1f4f6",
-          timer: 3000,
+          timer: 2000,
         }).then(() => {
           window.location = "/home";
         });
@@ -151,6 +150,6 @@ const verifySuccess = () => {
 
 $(document).keydown(function(event) {
   if(event.key === "Enter" && ($("#userId").is(":focus") || $("#password").is(":focus"))) {
-      $('#submitbutton').trigger('click');
+    $('#submit-btn').click();
   }
 })

@@ -144,12 +144,11 @@ const verifySuccess = () => {
         allowOutsideClick: false,
         showCloseButton: false,
         showCancelButton: false,
-        showConfirmButton: true,
-        width: "50%",
+        showConfirmButton: false,
         background: "#f1f4f6",
-        confirmButtonColor: "#007bff",
+        timer: 2000,
       }).then(() => {
-        window.location = "/home";
+        window.location = "/login";
       });
     },
     error: function (err) {

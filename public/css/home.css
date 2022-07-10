@@ -363,3 +363,203 @@ select {
 .label-container {
     margin-top: 18px;
 }
+
+.maschinenpark-container {
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: 3px solid rgb(0, 30, 80);
+    height: auto;
+    background-color: #f6f8fa;
+    width: 95%;
+    margin-inline: auto;
+    border-radius: 10px;
+}
+
+
+.bohr-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.fraes-maschinen-container,
+.dreh-maschinen-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.fraes-container,
+.dreh-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.maschine-type-container {
+    background-color: lightgray;
+    border: 3px solid rgb(0, 30, 80);
+    margin: 20px;
+    padding: 20px;
+    height: auto;
+}
+.machinen-container {
+    margin: auto;
+    justify-content: center;
+}
+
+.park-section-title {
+    font-family: "VW Head", sans-serif;
+    font-size: 22px;
+    text-align: center;
+    color: rgb(0, 30, 80);
+}
+
+.maschine {
+    height: 50px;
+    width: 50px;
+    border: 3px solid rgb(0, 30, 80);
+    border-radius: 10px;
+    margin: 10px;
+}
+
+.drehmaschine {
+    background-color: #02ccfd;
+    background-image: url("/img/dreh.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    padding: 5px;
+    background-origin: content-box;
+}
+
+.fraesmaschine {
+    background-color: #02ccfd;
+    background-image: url("/img/fraes.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    padding: 5px;
+    background-origin: content-box;
+}
+
+.bohrmaschine {
+    background-color: #02ccfd;
+    background-image: url("/img/bohr.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    padding: 5px;
+    background-origin: content-box;
+}
+
+.status-bullet {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+}
+
+.status-occupied-bullet{
+    background-color: #f25902;
+}
+
+.status-free-bullet {
+    background-color: #009879;
+}
+
+.status-outoforder-bullet {
+    background-color: red;
+}
+.status-occupied{
+    background-color: #f25902;
+    cursor: not-allowed;
+}
+
+.status-free {
+    background-color: #009879;
+    cursor: pointer;
+}
+
+.status-outoforder {
+    background-color: red;
+    cursor: not-allowed;
+}
+
+.info-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-section {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: start;
+}
+
+.status-text {
+    padding-top: 2px;
+    padding-inline: 10px;
+    font-size: 23px;
+}
+
+.info-text {
+    font-size: 17px;
+}
+
+.current-user {
+    padding-left: 10px;
+    flex-wrap: nowrap;
+    color: #02ccfd;
+    font-size: 23px;
+}
+
+.occupied-unti {
+    padding-left: 10px;
+    flex-wrap: nowrap;
+    color: #02ccfd;
+    font-size: 23px;
+    margin-bottom: 20px;
+}
+
+.swal-park {
+    height: 95vh;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 2 !important;
+    margin: 0 !important;
+}
+
+.swal2-html-container {
+    margin: 0 !important;
+}
+
+.left-park-section {
+    width: 30%;
+}
+
+.right-park-section {
+    display: flex;
+    flex-direction: column;
+    width: 63%;
+}
+
+.selected {
+    background-color: rgb(0, 30, 80) !important;
+}
+
+.on {
+    background-color: #f25902 !important;
+}
+
+.off {
+    background-color: rgb(0, 30, 80);
+}
+
+.on:hover {
+    opacity: 0.8;
+}
+
+.off:hover {
+    background-color: #02ccfd;
+}

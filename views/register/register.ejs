@@ -8,9 +8,9 @@
     <link rel="shortcut icon" href="/img/logo.png" type="image/x-icon">
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+      href="/css/animate.min.css"
     />
-    <link href="http://fonts.cdnfonts.com/css/vw-head" rel="stylesheet">
+    <link href="/css/vw-head.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/register.css" />
     <link rel="stylesheet" href="/css/global.css" />
     <title>Maschinenpark - Registrierung</title>
@@ -28,7 +28,7 @@
     </div>
     <div class="container-main">
         <div class="register-form-container">
-            <form action="/register" method="post" name="registerform">
+            <form name="registerform">
                 <div class="input-field">
                     <div class="input-label">
                         <label for="lastname">Name</label>
@@ -93,7 +93,7 @@
                 </div>
                 <div class="buttons-container">
                     <button id="back-btn">Zur&#252;ck</button>
-                    <button type="button" id="submit-btn">Registrieren</button>
+                    <button id="submit-btn">Registrieren</button>
                 </div>
             </form>
         </div>
@@ -102,6 +102,8 @@
         </div>
     </div>
     <script src="/js/jquery.min.js"></script>
+    <script type="module" src="/js/dist/ionicons/ionicons.esm.js"></script> 
+    <script nomodule src="/js/dist/ionicons/ionicons.js"></script> 
     <script src="/js/sweetalert.js"></script>
     <script src="/js/register.js"></script>
 </body>

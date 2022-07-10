@@ -129,3 +129,27 @@ select:focus {
     font-size: 20px;
     margin: 0;
   }
+
+  .swal2-confirm {
+    background-color: rgb(0, 30, 80) !important;
+    font-size: 20px !important;
+    font-family: "VW Text", sans-serif;
+    height: 40px;
+    border-radius: 50px !important;
+    text-align: center;
+    width: 150px;
+    outline: none !important;
+    border: none !important;
+    padding: 0 !important;
+
+}
+
+.swal2-confirm:hover {
+    background-color: #02ccfd !important;
+}
+
+.swal2-title {
+    font-size: 50px;
+    color: rgb(0, 30, 80);
+    font-family: 'VW Head', sans-serif;
+}
