@@ -73,7 +73,6 @@ $("#submit-btn").on("click", function () {
     }
   });
   if ($("#userId").val().length < 7) {
-    console.log(userId);
     valid = false;
     $("#message").html("Die UserID besteht aus 7 Zeichen").addClass("errorText");
     $("#userId").removeClass("inputBorder");
@@ -83,7 +82,6 @@ $("#submit-btn").on("click", function () {
 });
 
 function checkInput() {
-  console.log("Checking input...");
   var valid = true;
   $("[required]").each(function () {
     if (
@@ -129,8 +127,6 @@ const verifySuccess = () => {
     if (pair[0] === "profession") Object.assign(data, { profession : pair[1] });
     if (pair[0] === "apprenticeyear") Object.assign(data, { apprenticeyear: pair[1] }); 
   }
-
-  console.log(data);
 
   $.ajax({
     url: "/register",

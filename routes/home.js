@@ -91,15 +91,17 @@ router.post("/deleteBooking", async (req, res) => {
   if(req.session.authenticated) {
 
     try {
-      const bookingId = req.params.data
-  
-      await Booking.deleteOne(bookingId);
-  
-      res.status(200).send();
-  
-    } catch(e) {
-      res.status(500).json({msg: "Beim Löschen Ihrer Buchung ist ein Fehler aufgetreten"});
-    }
+      
+        const bookingId = req.body.data
+    
+        await Booking.deleteOne({bookingId: bookingId});
+    
+        res.status(200).send();
+    
+      } catch(e) {
+        res.status(500).json({msg: "Beim Löschen Ihrer Buchung ist ein Fehler aufgetreten"});
+      }
+    
   } else {
     res.status(403).send();
   }
@@ -111,15 +113,35 @@ router.post("/getUserBookings", async (req, res) => {
 
     try {
       const { userId } = req.session.user;
-    
+
+      const getAllBookings = req.body.data;
+
+      let bookings;
+
+      if(getAllBookings) {
+
+        const user = await User.findOne({userId: userId});
+
+        if(user.permissionClass !== "3") {
+          console.log("Insufficient permissions")
+          throw new Error("Insufficient permissions")
+        } 
+
+        bookings = await Booking.find({});
+        
+      } else {
+        
+        bookings = await Booking.find({userId: userId});
+
+      }
+      
+
       let userBookings = [];
       let currentBookingObj = {};
-      
-      const bookings = await Booking.find({userId: userId});
-      
+          
       for (let booking of bookings) {
         Object.assign(currentBookingObj, {bookingId: booking.bookingId});
-        Object.assign(currentBookingObj, {userId: booking.creator});
+        Object.assign(currentBookingObj, {userId: booking.userId});
         Object.assign(currentBookingObj, {machineId: booking.machineId});
         Object.assign(currentBookingObj, {beginDate: booking.beginDate});
         Object.assign(currentBookingObj, {endDate: booking.endDate});
@@ -179,5 +201,32 @@ router.post("/updateBooking", async (req, res) => {
     res.status(403).send();
   }
 })
+
+router.post("/getUserPermissions", async (req, res) => {
+  if (req.session.authenticated) {
+    try {
+
+      const { userId } = req.session.user;
+      const permissionClass = req.body.data;
+      
+      const user = await User.findOne({userId: userId});
+
+      if(user) {
+
+        if(user.permissionClass === permissionClass.toString()) 
+          res.status(200).send();
+        else 
+          res.status(403).send();
+      }
+        
+    } catch (err) {
+      res.status(403).send();
+    }
+    
+  } else {
+    res.status(403).send();
+  }
+})
+
 
 module.exports = router;

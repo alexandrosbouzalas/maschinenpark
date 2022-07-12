@@ -23,90 +23,6 @@ setInterval(() => {
 
 // Functions
 
-const buildBookingTable = () => {
-
-  $.ajax({
-    url: "/home/getUserBookings",
-    method: "POST",
-    contentType: "application/json",
-    success: function (response) {
-
-      if(response.length >= 1) {
-
-        $('#nobookings-info').hide();
-
-        $(".booking-row").remove();
-
-        toggleEditMode();
-
-        $('#edit-btn').removeClass('edit-btn-disabled');
-
-        for(let booking of response) {
-
-          let bookingStartDate = new Date(booking.beginDate);
-          let bookingEndDate = new Date(booking.endDate);
-  
-          let bookingElement = '<tr class="booking-row active-row">'
-          + `   <td>${booking.bookingId}</td>`
-          + `   <td>${booking.machineId}</td>`
-          + `   <td>${String(bookingStartDate.getDate()).padStart(2, '0')}.${String(bookingStartDate.getMonth()).padStart(2, '0')}.${bookingStartDate.getFullYear()}</td>`
-          + `   <td>${String(bookingEndDate.getDate()).padStart(2, '0')}.${String(bookingEndDate.getMonth()).padStart(2, '0')}.${bookingEndDate.getFullYear()}</td>`
-          + '   <td class="edit-icons-cell">'
-          + '       <div class="edit-icons-container">'
-          + '           <div title="Diese Buchung bearbeiten" class="edit-icon"><ion-icon name="pencil-outline"></ion-icon></ion-icon></div>'
-          + '           <div title="Diese Buchung l&#246;schen" class="delete-icon"><ion-icon name="trash-outline"></ion-icon></ion-icon></div>'
-          + '       </div>'
-          + '   </td>'
-          + '</tr>'
-          
-          $('#table-body').append(bookingElement);
-        }
-        
-        
-        if($('#table-body')[0].rows.length > 1) {
-          if($('#edit-btn').hasClass('on')) {
-              $('.edit-icons-header').show();
-              $('.edit-icons-cell').show();
-          } 
-        } 
-
-        $('.edit-icon').click((event) => {  
-          editBooking(event);
-        })
-        
-        $('.delete-icon').click((event) => {
-          deleteBooking(event);
-        })
-
-      } else {
-        $(".booking-row").remove();
-        $('#nobookings-info').show();
-        $('#edit-btn').addClass('edit-btn-disabled');
-      }
-    },
-    error: function (err) {
-      console.log(err.responseJSON.msg);
-      try {
-        Swal.fire({
-          title: err.responseJSON.msg,
-          icon: "error",
-          allowOutsideClick: false,
-          confirmButtonText: "OK",
-        });
-      } catch {
-        Swal.fire({
-          title: "Es ist ein unerwarteter Fehler aufgetreten",
-          icon: "error",
-          allowOutsideClick: false,
-          confirmButtonText: "OK",
-        });
-      }
-    }
-  });
-}
-
-buildBookingTable();
-
 const openParkView = (placeholderMachine, editMode) => {
 
   Swal.fire({
@@ -140,6 +56,7 @@ const openParkView = (placeholderMachine, editMode) => {
     if (result.isConfirmed) {
       if(editMode) {
         editBooking(currentEditElement, machines);
+        $('#current-machines').addClass('edit-field');
       } else {
         createBooking(machines);
       }
@@ -276,7 +193,7 @@ const createBooking = (machines) => {
             background: "#f6f8fa",
             timer: 2000,
           }).then(() => {
-            buildBookingTable();
+            hasPermission("3", "buildView")
           });
         },
         error: function (err) {
@@ -329,7 +246,7 @@ const editBooking = (event, machines) => {
     + '             <label for="maschine">Maschine:</label>'
     + '         </div>'
     + '         <div>'
-    + `             <input class="edit-field" id="current-machines" type="text" name="maschine" placeholder="${machines ? machines : currentMachine.innerText}" disabled/>`
+    + `             <input id="current-machines" type="text" name="maschine" placeholder="${machines ? machines : currentMachine.innerText}" disabled/>`
     + '         </div>'
     + '         <div>'
     + `             <button id="maschine-change-btn" type="button" onClick="openParkView('${machines ? machines : currentMachine.innerText}', true)">Ändern</button>`
@@ -342,7 +259,7 @@ const editBooking = (event, machines) => {
     + '             <label for="from">Von:</label>'
     + '         </div>'
     + '         <div>'
-    + `             <input class="edit-field" type="text" id="from-date-picker" name="from" placeholder="${currentFromDate.innerText}" disabled/>`
+    + `             <input type="text" id="from-date-picker" name="from" placeholder="${currentFromDate.innerText}" disabled/>`
     + '         </div>'
     + '         <div class="icon-container" onClick="openCalendar($(this))">'
     + '             <ion-icon id="from-calendar" name="calendar-outline" ></ion-icon>'
@@ -355,7 +272,7 @@ const editBooking = (event, machines) => {
     + '             <label for="to">Bis:</label>'
     + '         </div>'
     + '         <div>'
-    + `             <input class="edit-field" type="text" id="to-date-picker" name="to" placeholder="${currentToDate.innerText}" disabled />`
+    + `             <input type="text" id="to-date-picker" name="to" placeholder="${currentToDate.innerText}" disabled />`
     + '         </div>'
     + '         <div class="icon-container" onClick="openCalendar($(this))">'
     + '             <ion-icon id="from-calendar" name="calendar-outline"></ion-icon>'
@@ -400,7 +317,8 @@ const editBooking = (event, machines) => {
             background: "#f6f8fa",
             timer: 2000,
           }).then(() => {
-            buildBookingTable();
+            hasPermission("3", "buildView")
+
           });
         },
         error: function (err) {
@@ -441,7 +359,6 @@ const deleteBooking = (event) => {
       element = event.target.parentNode.parentNode.parentNode.parentNode
   }
 
-
   Swal.fire({
       title: "Wollen Sie diese Buchung wirklich löschen?",
       icon: 'warning',
@@ -453,6 +370,8 @@ const deleteBooking = (event) => {
       reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed) {
+
+        console.log(element.childNodes[0])
 
         $.ajax({
           url: "/home/deleteBooking",
@@ -470,7 +389,8 @@ const deleteBooking = (event) => {
               background: "#f6f8fa",
               timer: 2000,
             }).then(() => {
-              buildBookingTable();
+              hasPermission("3", "buildView")
+
             });
           },
           error: function (err) {
@@ -504,7 +424,7 @@ const deleteBooking = (event) => {
     })
 }
 
-const resetDatepicker = () =>{
+const resetDatepicker = () => {
   const currentDate = new Date();
 
   picker.setFullDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()));
@@ -541,7 +461,7 @@ const checkDates = (e, defaultDate) => {
     }
     else {
       $('.error-message-container').slideUp();
-
+      $('#from-date-picker').addClass('edit-field');
       return true
     }
   } else if (picker.el === '#to-date-picker') {
@@ -556,6 +476,8 @@ const checkDates = (e, defaultDate) => {
       else {
         $('.error-message-container').slideUp();
         selectedBeginDate = $('#from-date-picker').attr('placeholder');
+        $('#to-date-picker').addClass('edit-field');
+
         return true
       }
     } else {
@@ -571,6 +493,7 @@ const checkDates = (e, defaultDate) => {
       else {
         $('.error-message-container').slideUp();
         selectedEndDate = $('#to-date-picker').attr('placeholder');
+        $('#to-date-picker').addClass('edit-field');
         return true
       }
     }
@@ -752,6 +675,130 @@ const getMachines = (placeholderMachine) => {
   });
 
 }
+const buildBookingTable = (all) => {
+
+  $.ajax({
+    url: "/home/getUserBookings",
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({ data: all }),
+    success: function (response) {
+
+      if(response.length >= 1) {
+
+        $('#nobookings-info').hide();
+        $('thead tr').children().first().hide()
+        $(".booking-row").remove();
+
+        toggleEditMode();
+
+        $('#edit-btn').removeClass('edit-btn-disabled');
+
+        if(all) {
+          $('thead tr').children().first().show();
+        }
+
+        for(let booking of response) {
+
+          let bookingStartDate = new Date(booking.beginDate);
+          let bookingEndDate = new Date(booking.endDate);
+  
+          let bookingElement = '<tr class="booking-row active-row">'
+
+          if(all) 
+            bookingElement += `<td>${booking.userId}</td>`
+
+
+          bookingElement += `<td>${booking.bookingId}</td>`
+          + `   <td>${booking.machineId}</td>`
+          + `   <td>${String(bookingStartDate.getDate()).padStart(2, '0')}.${String(bookingStartDate.getMonth()).padStart(2, '0')}.${bookingStartDate.getFullYear()}</td>`
+          + `   <td>${String(bookingEndDate.getDate()).padStart(2, '0')}.${String(bookingEndDate.getMonth()).padStart(2, '0')}.${bookingEndDate.getFullYear()}</td>`
+          + '   <td class="edit-icons-cell">'
+          + '       <div class="edit-icons-container">'
+          + '           <div title="Diese Buchung bearbeiten" class="edit-icon"><ion-icon name="pencil-outline"></ion-icon></ion-icon></div>'
+          + '           <div title="Diese Buchung l&#246;schen" class="delete-icon"><ion-icon name="trash-outline"></ion-icon></ion-icon></div>'
+          + '       </div>'
+          + '   </td>'
+          + '</tr>'
+          
+          $('#table-body').append(bookingElement);
+        }
+        
+        
+        if($('#table-body')[0].rows.length > 1) {
+          if($('#edit-btn').hasClass('on')) {
+              $('.edit-icons-header').show();
+              $('.edit-icons-cell').show();
+          } 
+        } 
+
+        $('.edit-icon').click((event) => {  
+          editBooking(event);
+        })
+        
+        $('.delete-icon').click((event) => {
+          deleteBooking(event);
+        })
+
+      } else {
+        $(".booking-row").remove();
+        $('#nobookings-info').show();
+        $('#edit-btn').addClass('edit-btn-disabled');
+      }
+    },
+    error: function (err) {
+      console.log(err.responseJSON.msg);
+      try {
+        Swal.fire({
+          title: err.responseJSON.msg,
+          icon: "error",
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+        });
+      } catch {
+        Swal.fire({
+          title: "Es ist ein unerwarteter Fehler aufgetreten",
+          icon: "error",
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+        });
+      }
+    }
+  });
+}
+
+const hasPermission = (permissionClass, action) => {
+
+  $.ajax({
+    url: "/home/getUserPermissions",
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({ data: permissionClass }),
+    success: function () {
+      
+      if(action === "buildView") {
+        buildView(true);
+      }
+    },
+    error: function (err) {
+      if(action === "buildView") {
+        buildView(false);
+      }
+    }
+  }); 
+}
+
+const buildView = (isAdmin) => {
+  if(isAdmin) {
+    buildBookingTable(true);
+  }
+  else {
+    buildBookingTable(false);
+  }
+}
+
+hasPermission("3", "buildView")
+
 
 // Event listeners
 $('#help-btn').click(() => {
@@ -767,5 +814,5 @@ $('#edit-btn').click(() => {
 })
 
 $('#logout-btn').click(() => {
-  window.location.href = '/logout';
+  window.location.pathname = '/logout';
 })
