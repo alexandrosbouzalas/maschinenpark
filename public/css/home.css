@@ -409,12 +409,14 @@ select {
     padding: 20px;
     height: auto;
 }
+
 .machinen-container {
     margin: auto;
     justify-content: center;
 }
 
 .park-section-title {
+    margin-bottom: 10px;
     font-family: "VW Head", sans-serif;
     font-size: 22px;
     text-align: center;

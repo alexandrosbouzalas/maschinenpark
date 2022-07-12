@@ -23,6 +23,8 @@ router.post("/getMachines", async (req, res) => {
 
     try {
       const machines = await Machine.find({});
+      const bookings = await Booking.find({});
+      const users = await User.find({});
       
       let machinesObj = [];
       let currentMachineObj = {};
@@ -30,6 +32,27 @@ router.post("/getMachines", async (req, res) => {
       for (let machine of machines) {
         Object.assign(currentMachineObj, {machineId: machine.machineId});
         Object.assign(currentMachineObj, {status: machine.status});
+
+
+        if(machine.status === "O") {
+
+          for(let booking of bookings) {
+
+            if(booking.machineId === machine.machineId) {
+
+              for(let user of users) {
+
+                if(user.userId === booking.userId) {
+                  Object.assign(currentMachineObj, {firstname: user.firstname});
+                  Object.assign(currentMachineObj, {lastname: user.lastname});
+                  Object.assign(currentMachineObj, {endDate: booking.endDate});
+                  Object.assign(currentMachineObj, {timewindow: booking.timewindow});
+                }
+              }
+            }
+          }
+        }
+
         machinesObj.push(currentMachineObj);
         currentMachineObj = {};
       }
@@ -62,8 +85,8 @@ router.post("/createNewBooking", async (req, res) => {
         bookingId: parseInt(bookingsCount.allTimeBookings) + 1,
         userId: userId,
         machineId: machineId,
-        beginDate: new Date(beginYear, beginMonth, beginDay),
-        endDate: new Date(endYear, endMonth, endDay),
+        beginDate: new Date(`${beginYear}-${beginMonth}-${beginDay}`),
+        endDate: new Date(`${endYear}-${endMonth}-${endDay}`),
         activity: activity,
         timewindow: timewindow
       });
@@ -217,8 +240,8 @@ router.post("/updateBooking", async (req, res) => {
             { 
               $set: {
                 machineId: machines[0],
-                beginDate: new Date(beginYear, beginMonth, beginDay),
-                endDate: new Date(endYear, endMonth, endDay),
+                beginDate: new Date(`${beginYear}-${beginMonth}-${beginDay}`),
+                endDate: new Date(`${endYear}-${endMonth}-${endDay}`),
               }           
             })
 

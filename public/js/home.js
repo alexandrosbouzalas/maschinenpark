@@ -62,7 +62,7 @@ const openParkView = (placeholderMachine, editMode) => {
       }
     } else {
       if(editMode) {
-
+        editBooking(machines);
       } else {
         createBooking();
       }
@@ -225,6 +225,7 @@ const createBooking = (machines) => {
 }
 
 const editBooking = (event, machines) => {
+
   if($(event.target).is("div")) {
     element = event.target.parentNode.parentNode.parentNode
   } else if ($(event.target).is("ion-icon")) {
@@ -232,7 +233,6 @@ const editBooking = (event, machines) => {
   }
 
   currentEditElement = event;
-
 
   let currentMachine = element.children[element.children.length - 4];
   let currentFromDate = element.children[element.children.length - 3];
@@ -589,6 +589,10 @@ const getMachines = (placeholderMachine) => {
     method: "POST",
     contentType: "application/json",
     success: function (response) {
+
+      let infoContentHtml;
+      const weekDays = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+
       for(var i = 0; i < response.length; i++) {
         switch(response[i].machineId.charAt(0)) {
           case "F":
@@ -599,7 +603,7 @@ const getMachines = (placeholderMachine) => {
           case "B":
             let bohrMachineElement = `<div id="${response[i].machineId}" class="maschine bohrmaschine status-${response[i].status.toLowerCase()}"></div>`
             $('.bohr-maschinen-container').append(bohrMachineElement);
-            title = "Bohrmaschine " + response[i].machineId.substring(1)
+            title = "Bohrmaschine " + response[i].machineId.substring(1);
             break;
           case "D":
             let drehMachineElement = `<div id="${response[i].machineId}" class="maschine drehmaschine status-${response[i].status.toLowerCase()}"></div>`
@@ -610,20 +614,39 @@ const getMachines = (placeholderMachine) => {
             console.log("Unbekannte Maschine");
           }
 
-          let infoContentHtml = '<div class="info-content">'
-          + '   <div class="info-section">'
-          + `       <div class="status-bullet status-${response[i].status.toLowerCase()}-bullet"></div>`
-          + `       <p class="status-text">${checkStatus(response[i])}</p>`      
-          + '   </div>'
-          + '   <div class="info-section">'
-          + '       <p class="info-text">Benutzt von: </p>'
-          + `       <p class="current-user">Bouzalas, Alexandros</p>`
-          + '   </div>'
-          + '   <div class="info-section">'
-          + '       <p class="info-text">Besetzt bis: </p>'
-          + '       <p class="occupied-unti">Freitag 23.07.2022 - Nachmittags</p>'
-          + '   </div>'
-          + '</div>'
+          if(response[i].status === "O") {
+
+            const infoBubbleDate = new Date(response[i].endDate.replace(/-/g, '\/').replace(/T.+/, ''));
+
+            let timewindow;
+
+            if(response[i].timewindow === "BEFORE")
+              timewindow = " - Vormittags";
+            else 
+              timewindow = "";
+
+            infoContentHtml = '<div class="info-content">'
+            + '   <div class="info-section">'
+            + `       <div class="status-bullet status-${response[i].status.toLowerCase()}-bullet"></div>`
+            + `       <p class="status-text">${checkStatus(response[i])}</p>`      
+            + '   </div>'
+            + '   <div class="info-section">'
+            + '       <p class="info-text">Benutzt von: </p>'
+            + `       <p class="current-user">${response[i].lastname}, ${response[i].firstname}</p>`
+            + '   </div>'
+            + '   <div class="info-section">'
+            + '       <p class="info-text">Besetzt bis: </p>'
+            + `       <p class="occupied-unti">${weekDays[infoBubbleDate.getDay()]} - ${String(infoBubbleDate.getDate()).padStart(2, '0')}.${String(infoBubbleDate.getMonth() + 1).padStart(2, '0')}.${infoBubbleDate.getFullYear()}${timewindow}</p>`
+            + '   </div>'
+            + '</div>'
+          } else if(response[i].status === "F" || response[i].status === "B") {
+            infoContentHtml = '<div class="info-content">'
+            + '   <div class="info-section">'
+            + `       <div class="status-bullet status-${response[i].status.toLowerCase()}-bullet"></div>`
+            + `       <p class="status-text">${checkStatus(response[i])}</p>`      
+            + '   </div>'
+            + '</div>'
+          }
       
           new Opentip(`#${response[i].machineId}`, infoContentHtml, title, {style: "maschineInfoStyle"});
         }
@@ -714,8 +737,8 @@ const buildBookingTable = (all) => {
 
           bookingElement += `<td>${booking.bookingId}</td>`
           + `   <td>${booking.machineId}</td>`
-          + `   <td>${String(bookingStartDate.getDate()).padStart(2, '0')}.${String(bookingStartDate.getMonth()).padStart(2, '0')}.${bookingStartDate.getFullYear()}</td>`
-          + `   <td>${String(bookingEndDate.getDate()).padStart(2, '0')}.${String(bookingEndDate.getMonth()).padStart(2, '0')}.${bookingEndDate.getFullYear()}</td>`
+          + `   <td>${String(bookingStartDate.getDate()).padStart(2, '0')}.${String(bookingStartDate.getMonth() + 1).padStart(2, '0')}.${bookingStartDate.getFullYear()}</td>`
+          + `   <td>${String(bookingEndDate.getDate()).padStart(2, '0')}.${String(bookingEndDate.getMonth() + 1).padStart(2, '0')}.${bookingEndDate.getFullYear()}</td>`
           + '   <td class="edit-icons-cell">'
           + '       <div class="edit-icons-container">'
           + '           <div title="Diese Buchung bearbeiten" class="edit-icon"><ion-icon name="pencil-outline"></ion-icon></ion-icon></div>'
@@ -802,7 +825,6 @@ const buildView = (isAdmin) => {
 
 hasPermission("3", "buildView")
 
-
 // Event listeners
 $('#help-btn').click(() => {
   showHelpMenu();
@@ -818,4 +840,10 @@ $('#edit-btn').click(() => {
 
 $('#logout-btn').click(() => {
   window.location.pathname = '/logout';
+})
+
+$(document).keydown(function(event) {
+  if(event.key === "Escape" && $('#edit-btn').hasClass('on')) {
+    toggleEditMode();
+  }
 })
