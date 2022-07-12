@@ -4,6 +4,7 @@ let picker;
 let dates = {};
 let currentEditElement;
 let machines = []; // Container that is passed along holding all the selected machines
+let dateArray = [];
 
 // Content that has to be loaded first
 setInterval(() => {
@@ -234,9 +235,13 @@ const editBooking = (event, machines) => {
 
   currentEditElement = event;
 
+  
   let currentMachine = element.children[element.children.length - 4];
   let currentFromDate = element.children[element.children.length - 3];
   let currentToDate = element.children[element.children.length - 2];
+  
+  dates.beginDate = currentFromDate.innerText;
+  dates.endDate = currentToDate.innerText;
 
   Swal.fire({
     html: '<div class="edit-options-container">'
@@ -343,6 +348,7 @@ const editBooking = (event, machines) => {
         }
       }); 
     } else {
+      dates = {};
       if(picker)
         picker.close();
     }
@@ -428,29 +434,25 @@ const resetDatepicker = () => {
   picker.setFullDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()));
 }
 
-const checkDates = (e, defaultDate) => {
+const checkDates = (e) => {
 
   if(picker.el === "#from-date-picker")
     Object.assign(dates, {beginDate: picker.getFormatedDate()});
   else if(picker.el === "#to-date-picker")
     Object.assign(dates, {endDate: picker.getFormatedDate()});
 
-  const currentDate = defaultDate ? new Date() : picker.getFullDate();
-  const pickerDate = picker.getFullDate();
-  let fromDay, fromMonth, fromYear, toDay, toMonth, toYear;
 
-  if($('#to-date-picker').attr("placeholder")) {
-    let [fromDay, fromMonth, fromYear] =  $('#from-date-picker').attr("placeholder").split('.');
-    let [toDay, toMonth, toYear] =  $('#to-date-picker').attr("placeholder").split('.');
+  if(dates.endDate) {
+     dateArray = dates.endDate.split('.');
   }
 
   if(picker.el === '#from-date-picker') {
 
-    if(currentDate.setHours(0,0,0,0) - pickerDate.setHours(0, 0, 0, 0) > 0 || pickerDate.setHours(0, 0, 0, 0) - new Date(`${toYear}-${toMonth}-${toDay}`).setHours(0,0,0,0) > 0) {
+    if(new Date().setHours(0,0,0,0) - picker.getFullDate().setHours(0, 0, 0, 0) > 0 || picker.getFullDate().setHours(0, 0, 0, 0) - new Date(`${dateArray[2]}-${dateArray[1]}-${dateArray[0]}`).setHours(0,0,0,0) > 0) {
 
-      if (currentDate.setHours(0,0,0,0) - pickerDate.setHours(0, 0, 0, 0) > 0) 
+      if (new Date().setHours(0,0,0,0) - picker.getFullDate().setHours(0, 0, 0, 0) > 0) 
         $('.datepicker-error-message').text('Datum kann nicht in der Vergangenheit liegen!');
-      else if (pickerDate.setHours(0, 0, 0, 0) - new Date(`${toYear}-${toMonth}-${toDay}`).setHours(0,0,0,0) > 0) 
+      else if (picker.getFullDate().setHours(0, 0, 0, 0) - new Date(`${dateArray[2]}-${dateArray[1]}-${dateArray[0]}`).setHours(0,0,0,0) > 0) 
         $('.datepicker-error-message').text('Datum kann nicht älter als der bis Zeitpunkt sein!');
 
       $('.error-message-container').slideDown();
@@ -460,13 +462,16 @@ const checkDates = (e, defaultDate) => {
     else {
       $('.error-message-container').slideUp();
       $('#from-date-picker').addClass('edit-field');
+
       return true
     }
   } else if (picker.el === '#to-date-picker') {
 
-    if($('#from-date-picker').val() === '') {
-      if(new Date(`${fromYear}-${fromMonth}-${fromDay}`).setHours(0,0,0,0) - pickerDate.setHours(0, 0, 0, 0) > 0) {
-  
+    if(dates.beginDate) {
+
+      dateArray = dates.beginDate.split('.');
+
+      if(new Date(`${dateArray[2]}-${dateArray[1]}-${dateArray[0]}`).setHours(0,0,0,0) - picker.getFullDate().setHours(0, 0, 0, 0) > 0) {
         $('.datepicker-error-message').text('Datum kann nicht vor dem Startdatum liegen!');
         $('.error-message-container').slideDown();
         return false;
@@ -480,18 +485,17 @@ const checkDates = (e, defaultDate) => {
       }
     } else {
 
-      let [fromDay, fromMonth, fromYear] =  $('#from-date-picker').val().split('.');
-
-      if(new Date(`${fromYear}-${fromMonth}-${fromDay}`).setHours(0,0,0,0) - pickerDate.setHours(0, 0, 0, 0) > 0) {
+      if(new Date().setHours(0,0,0,0) - picker.getFullDate().setHours(0, 0, 0, 0) > 0) {
   
-        $('.datepicker-error-message').text('Datum kann nicht vor dem Startdatum liegen!');
+        $('.datepicker-error-message').text('Datum kann nicht in der Vergangenheit liegen!');
         $('.error-message-container').slideDown();
         return false;
       }
       else {
         $('.error-message-container').slideUp();
-        selectedEndDate = $('#to-date-picker').attr('placeholder');
+        selectedBeginDate = $('#from-date-picker').attr('placeholder');
         $('#to-date-picker').addClass('edit-field');
+
         return true
       }
     }
@@ -519,6 +523,7 @@ const openCalendar = (element, defaultDate) => {
 
 const closeCalendar = () => {
   $('.error-message-container').slideUp();
+  dateArray = [];
 }
 
 const toggleEditMode = () => {
