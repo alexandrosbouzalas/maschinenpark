@@ -17,6 +17,33 @@ router.get("/", (req, res) => {
   } 
 });
 
+router.post("/getMachines", async (req, res) => {
+  if (req.session.authenticated) {
+
+    try {
+      const machines = await Machine.find({});
+      
+      let machinesObj = [];
+      let currentMachineObj = {};
+
+      for (let machine of machines) {
+        Object.assign(currentMachineObj, {machineId: machine.machineId});
+        Object.assign(currentMachineObj, {status: machine.status});
+        machinesObj.push(currentMachineObj);
+        currentMachineObj = {};
+      }
+
+      res.status(200).json(machinesObj);
+    } catch (err) {
+      console.log(err)
+      res.status(500).json({msg: "Beim Laden der Maschinen ist ein Fehler aufgetreten"});
+    }
+    
+  } else {
+    res.status(403).send();
+  }
+});
+
 router.post("/createNewBooking", async (req, res) => {
   if (req.session.authenticated) {
     try{
@@ -64,19 +91,18 @@ router.post("/deleteBooking", async (req, res) => {
   if(req.session.authenticated) {
 
     try {
-      
-        const bookingId = req.params.data
-    
-        await Booking.deleteOne(bookingId);
-    
-        res.status(200).send();
-    
-      } catch(e) {
-        res.status(500).json({msg: "Beim Löschen Ihrer Buchung ist ein Fehler aufgetreten"});
-      }
-    } else {
-      res.send(403).send();
+      const bookingId = req.params.data
+  
+      await Booking.deleteOne(bookingId);
+  
+      res.status(200).send();
+  
+    } catch(e) {
+      res.status(500).json({msg: "Beim Löschen Ihrer Buchung ist ein Fehler aufgetreten"});
     }
+  } else {
+    res.status(403).send();
+  }
 
 })
 

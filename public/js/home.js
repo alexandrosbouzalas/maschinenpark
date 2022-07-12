@@ -3,6 +3,7 @@
 let picker;
 let dates = {};
 let currentEditElement;
+let machines = []; // Container that is passed along holding all the selected machines
 
 // Content that has to be loaded first
 setInterval(() => {
@@ -108,8 +109,6 @@ buildBookingTable();
 
 const openParkView = (placeholderMachine, editMode) => {
 
-  let machines = []; // Container that is passed along holding all the selected machines
-
   Swal.fire({
     html: '<div class="maschinenpark-container">'
     + '   <div class="left-park-section">'
@@ -162,84 +161,13 @@ const openParkView = (placeholderMachine, editMode) => {
     borderRadius: 10,
   };
   
-  const machineTypes = {Bohrmaschine: ['1', '2', '3', '4', '5', '6'], Drehmaschine: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'], Fräsmaschine: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']}
-
-  for(var i = 0; i < Object.keys(machineTypes).length; i++) {
-    for(var k = 0; k < machineTypes[Object.keys(machineTypes)[i]].length; k++) {
-      
-      let machineId = Object.keys(machineTypes)[i][0] + machineTypes[Object.keys(machineTypes)[i]][k];
-      let title = Object.keys(machineTypes)[i] + " " + machineTypes[Object.keys(machineTypes)[i]][k];
-
-      if(Object.keys(machineTypes)[i][0] === 'B') {
-        let bohrMachineElement = `<div id="${machineId}" class="maschine bohrmaschine status-free"></div>`
-    
-        $('.bohr-maschinen-container').append(bohrMachineElement);
-      }
-      else if(Object.keys(machineTypes)[i][0] === 'D') {
-        let drehMachineElement = `<div id="${machineId}" class="maschine drehmaschine status-free"></div>`
-        $('.dreh-maschinen-container').append(drehMachineElement);
-      }
-      else if(Object.keys(machineTypes)[i][0] === 'F') {
-        let fraesMachineElement = `<div id="${machineId}" class="maschine fraesmaschine status-free"></div>`
-    
-        $('.fraes-maschinen-container').append(fraesMachineElement);
-      }
-  
-      let infoContentHtml = '<div class="info-content">'
-      + '   <div class="info-section">'
-      + '       <div class="status-bullet status-free-bullet"></div>'
-      + '       <p class="status-text">Frei</p>'
-      + '   </div>'
-      + '   <div class="info-section">'
-      + '       <p class="info-text">Benutzt von: </p>'
-      + '       <p class="current-user">Bouzalas, Alexandros</p>'
-      + '   </div>'
-      + '   <div class="info-section">'
-      + '       <p class="info-text">Besetzt bis: </p>'
-      + '       <p class="occupied-unti">Freitag 23.07.2022 - Nachmittags</p>'
-      + '   </div>'
-      + '</div>'
-  
-      new Opentip(`#${machineId}`, infoContentHtml, title, {style: "maschineInfoStyle"});
-  
-    }
-  }
-
-  if(placeholderMachine !== '') {
-    $(`#${placeholderMachine}`).addClass('selected');
-
-    machines.push(placeholderMachine);
-
-  }
-
-  $('.status-free').click((e) => {
-    let element = $(`#${e.target.id}`);
-
-    let selectedMachines = $('.selected').length
-
-    if(selectedMachines > 0) {
-      if(element.hasClass('selected')) {
-        element.css('background-color', '#009879')
-        element.removeClass('selected');
-        machines = [];
-      } else {
-        $('.status-free').css('background-color', '#009879');
-        $('.status-free').removeClass('selected');
-        machines = [];
-        element.addClass('selected');
-        machines.push(element.attr('id'));
-      }
-    } else {
-      element.addClass('selected');
-      machines.push(element.attr('id'));
-    } 
-  })
+  getMachines(placeholderMachine)
 }
 
 const createBooking = (machines) => {
 
   machines ? machines : machines = "";
-
+  
   Swal.fire({
     html: '<div class="edit-options-container">'
     + ' <div class="edit-option">'
@@ -329,8 +257,7 @@ const createBooking = (machines) => {
       Object.assign(booking, {endDate: dates.endDate});
       Object.assign(booking, {activity: $('#activity').val()});
       Object.assign(booking, {timewindow: $('#timewindow').val()});
-      
-      
+
       dates = {};
 
       $.ajax({
@@ -720,6 +647,110 @@ const showHelpMenu = () => {
     showConfirmButton: false,
     showCloseButton: true
   }) 
+}
+
+const checkStatus = (machine) => {
+  switch(machine.status) {
+    case "B":
+      return "Außer Betrieb";
+    case "F":
+      return "Frei";
+    case "O":
+      return "Besetzt";
+    default:
+      return "Frei";
+  }
+}
+
+const getMachines = (placeholderMachine) => {
+  $.ajax({
+    url: "/home/getMachines",
+    method: "POST",
+    contentType: "application/json",
+    success: function (response) {
+      for(var i = 0; i < response.length; i++) {
+        switch(response[i].machineId.charAt(0)) {
+          case "F":
+            let fraesMachineElement = `<div id="${response[i].machineId}" class="maschine fraesmaschine status-${response[i].status.toLowerCase()}"></div>`
+            $('.fraes-maschinen-container').append(fraesMachineElement);
+            title = "Fräsmaschine " + response[i].machineId.substring(1);
+            break;
+          case "B":
+            let bohrMachineElement = `<div id="${response[i].machineId}" class="maschine bohrmaschine status-${response[i].status.toLowerCase()}"></div>`
+            $('.bohr-maschinen-container').append(bohrMachineElement);
+            title = "Bohrmaschine " + response[i].machineId.substring(1)
+            break;
+          case "D":
+            let drehMachineElement = `<div id="${response[i].machineId}" class="maschine drehmaschine status-${response[i].status.toLowerCase()}"></div>`
+            $('.dreh-maschinen-container').append(drehMachineElement);
+            title = "Drehmaschine " + response[i].machineId.substring(1);
+            break;
+          default:
+            console.log("Unbekannte Maschine");
+          }
+
+          let infoContentHtml = '<div class="info-content">'
+          + '   <div class="info-section">'
+          + `       <div class="status-bullet status-${response[i].status.toLowerCase()}-bullet"></div>`
+          + `       <p class="status-text">${checkStatus(response[i])}</p>`      
+          + '   </div>'
+          + '   <div class="info-section">'
+          + '       <p class="info-text">Benutzt von: </p>'
+          + `       <p class="current-user">Bouzalas, Alexandros</p>`
+          + '   </div>'
+          + '   <div class="info-section">'
+          + '       <p class="info-text">Besetzt bis: </p>'
+          + '       <p class="occupied-unti">Freitag 23.07.2022 - Nachmittags</p>'
+          + '   </div>'
+          + '</div>'
+      
+          new Opentip(`#${response[i].machineId}`, infoContentHtml, title, {style: "maschineInfoStyle"});
+        }
+
+        if(placeholderMachine !== '') {
+          $(`#${placeholderMachine}`).addClass('selected');
+      
+          machines.push(placeholderMachine);
+        }
+
+        $('.status-f').click((e) => {
+          let element = $(`#${e.target.id}`);
+      
+          let selectedMachines = $('.selected').length
+
+          if(selectedMachines > 0) {
+            if(element.hasClass('selected')) {
+              element.css('background-color', '#009879')
+              element.removeClass('selected');
+              machines = [];
+            } else {
+              $('.status-f').css('background-color', '#009879');
+              $('.status-f').removeClass('selected');
+              machines = [];
+              element.addClass('selected');
+              machines.push(element.attr('id'));
+            }
+          } else {
+            machines = [];
+            element.addClass('selected');
+            machines.push(element.attr('id'));
+          }
+        })
+
+    },
+    error: function (err) {
+      Swal.fire({
+        title: err.responseJSON.msg,
+        icon: "error",
+        allowOutsideClick: false,
+        confirmButtonText: "OK",
+        confirmButtonColor: "#007bff",
+        background: "#f6f8fa",
+        width: "50%",
+      });
+    },
+  });
+
 }
 
 // Event listeners

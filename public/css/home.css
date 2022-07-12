@@ -462,28 +462,28 @@ select {
     border-radius: 50%;
 }
 
-.status-occupied-bullet{
+.status-o-bullet{
     background-color: #f25902;
 }
 
-.status-free-bullet {
+.status-f-bullet {
     background-color: #009879;
 }
 
-.status-outoforder-bullet {
+.status-b-bullet {
     background-color: red;
 }
-.status-occupied{
+.status-o{
     background-color: #f25902;
     cursor: not-allowed;
 }
 
-.status-free {
+.status-f {
     background-color: #009879;
     cursor: pointer;
 }
 
-.status-outoforder {
+.status-b {
     background-color: red;
     cursor: not-allowed;
 }

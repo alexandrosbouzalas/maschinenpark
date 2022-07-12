@@ -4,10 +4,7 @@ const machineSchema = new mongoose.Schema({
   machineId: {
     type: String,
     required: true,
-  },
-  machineType: {
-    type: String,
-    required: true,
+    unique: true
   },
   status: {
     type: String,
