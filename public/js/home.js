@@ -233,10 +233,10 @@ const editBooking = (event, machines) => {
 
   currentEditElement = event;
 
-  let currentMachine = element.childNodes[3];
-  let currentFromDate = element.childNodes[5];
-  let currentToDate = element.childNodes[7];
 
+  let currentMachine = element.children[element.children.length - 4];
+  let currentFromDate = element.children[element.children.length - 3];
+  let currentToDate = element.children[element.children.length - 2];
 
   Swal.fire({
     html: '<div class="edit-options-container">'
@@ -294,7 +294,7 @@ const editBooking = (event, machines) => {
 
       const updateOptions = {};
 
-      Object.assign(updateOptions, {bookingId: element.childNodes[1].innerText});
+      Object.assign(updateOptions, {bookingId: element.children[element.children.length - 5].innerText});
       Object.assign(updateOptions, {machines: machines ? machines : [currentMachine.innerText]});
       Object.assign(updateOptions, {beginDate: dates.beginDate ? dates.beginDate: $('#from-date-picker').attr("placeholder")});
       Object.assign(updateOptions, {endDate: dates.endDate ? dates.endDate: $('#to-date-picker').attr("placeholder")});
@@ -371,13 +371,11 @@ const deleteBooking = (event) => {
     }).then((result) => {
       if (result.isConfirmed) {
 
-        console.log(element.childNodes[0])
-
         $.ajax({
           url: "/home/deleteBooking",
           method: "POST",
           contentType: "application/json",
-          data: JSON.stringify({ data: element.childNodes[1].innerText }),
+          data: JSON.stringify({ data: element.children[element.children.length - 5].innerText }),
           success: function (response) {
             Swal.fire({
               title: "Ihre Buchung wurde erfolgreich gelöscht",
@@ -687,19 +685,21 @@ const buildBookingTable = (all) => {
     data: JSON.stringify({ data: all }),
     success: function (response) {
 
+      if(all)
+        $('thead tr').children().first().show();
+      else
+        $('thead tr').children().first().hide()
+
       if(response.length >= 1) {
 
         $('#nobookings-info').hide();
-        $('thead tr').children().first().hide()
         $(".booking-row").remove();
 
         toggleEditMode();
 
         $('#edit-btn').removeClass('edit-btn-disabled');
 
-        if(all) {
-          $('thead tr').children().first().show();
-        }
+        
 
         for(let booking of response) {
 
