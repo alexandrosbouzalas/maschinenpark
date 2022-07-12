@@ -169,7 +169,7 @@ const createBooking = (machines) => {
       
       const booking = {};
       
-      Object.assign(booking, {maschineId: $('#current-machines').attr("placeholder")});
+      Object.assign(booking, {machineId: $('#current-machines').attr("placeholder")});
       Object.assign(booking, {beginDate: dates.beginDate});
       Object.assign(booking, {endDate: dates.endDate});
       Object.assign(booking, {activity: $('#activity').val()});
@@ -638,8 +638,11 @@ const getMachines = (placeholderMachine) => {
 
         $('.status-f').click((e) => {
           let element = $(`#${e.target.id}`);
-      
+          
           let selectedMachines = $('.selected').length
+
+          $('.status-o').removeClass('selected');
+          $('.status-b').removeClass('selected');
 
           if(selectedMachines > 0) {
             if(element.hasClass('selected')) {

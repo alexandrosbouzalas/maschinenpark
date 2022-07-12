@@ -5,6 +5,7 @@ const Booking = require("./../models/booking");
 const Machine = require("./../models/machine");
 const Statistic = require("./../models/statistic");
 const { response } = require("express");
+const { find } = require("./../models/user");
 
 
 router.use(express.json());
@@ -50,7 +51,7 @@ router.post("/createNewBooking", async (req, res) => {
 
       const { userId } = req.session.user;
   
-      const { maschineId, beginDate, endDate, activity, timewindow } = req.body.data;
+      const { machineId, beginDate, endDate, activity, timewindow } = req.body.data;
 
       const bookingsCount = await Statistic.findOne({});
       
@@ -60,7 +61,7 @@ router.post("/createNewBooking", async (req, res) => {
       const booking = new Booking({
         bookingId: parseInt(bookingsCount.allTimeBookings) + 1,
         userId: userId,
-        machineId: maschineId,
+        machineId: machineId,
         beginDate: new Date(beginYear, beginMonth, beginDay),
         endDate: new Date(endYear, endMonth, endDay),
         activity: activity,
@@ -68,8 +69,14 @@ router.post("/createNewBooking", async (req, res) => {
       });
 
       try {
+
         await booking.save();
 
+        await Machine.updateOne(
+          { machineId: booking.machineId},
+          { $set: {status: 'O'}}
+        ); 
+        
         await Statistic.updateOne(
           { statisticId: "1" },
           { $set: { allTimeBookings: parseInt(bookingsCount.allTimeBookings) + 1 } }
@@ -93,10 +100,39 @@ router.post("/deleteBooking", async (req, res) => {
     try {
       
         const bookingId = req.body.data
+
+        const userId = req.session.user.userId;
+
+        const user = await User.findOne({userId: userId});
+
+
+        if(user) {
+          const userBookings = await Booking.find({userId: userId});
+
+          const userBookingsId = [];
+
+          for(let booking of userBookings){
+             userBookingsId.push(booking.bookingId);
+          }
+
+          if(userBookingsId.includes(bookingId)) {
+
+            const booking = await Booking.findOne({bookingId: bookingId});
+
+            await Booking.deleteOne({bookingId: bookingId})
     
-        await Booking.deleteOne({bookingId: bookingId});
-    
-        res.status(200).send();
+            await Machine.updateOne(
+              { machineId: booking.machineId},
+              { $set: {status: 'F'}}
+            );
+        
+            res.status(200).send();
+
+          } else {
+            throw new Error();
+          }
+
+        }
     
       } catch(e) {
         res.status(500).json({msg: "Beim Löschen Ihrer Buchung ist ein Fehler aufgetreten"});
@@ -173,6 +209,7 @@ router.post("/updateBooking", async (req, res) => {
 
       if(booking) {
         try {
+
           await Booking.updateMany(
             {
                 bookingId: booking.bookingId,
@@ -184,6 +221,16 @@ router.post("/updateBooking", async (req, res) => {
                 endDate: new Date(endYear, endMonth, endDay),
               }           
             })
+
+            await Machine.updateOne(
+              { machineId: booking.machineId},
+              { $set: {status: 'F'}}
+            );
+
+            await Machine.updateOne(
+              { machineId: machines[0]},
+              { $set: {status: 'O'}}
+            );
 
             res.status(200).send();
         } catch(err) {
