@@ -844,10 +844,111 @@ const buildView = (isAdmin) => {
     $('.option-button-container').prepend(adminButtons);
     $('#edit-btn').text("Buchungen bearbeiten");
 
+
+
+
+
+    $('#user-btn').click(() => {
+      openUserView();
+    })
+
   }
   else {
     buildBookingTable(false);
   }
+}
+
+const openUserView = () => {
+  
+  Swal.fire({
+    html: '<div class="user-content">'
+    + '<div class="user-search-field-container">'
+    + '   <input title="Suchen" id="user-search-field" type="text"></input>'
+    + '   <ion-icon name="search-outline"></ion-icon>'
+    + '</div>'
+    + '<div class="user-table-container">'
+    + ' <div>'
+    + '   <table class="user-table" cellspacing="0" cellpadding="0">'
+    + '       <caption>Maschinenpark Nutzer</caption>'
+    + '       <thead>'
+    + '           <tr>'
+    + '               <th>Nachname</th>'
+    + '               <th>Vorname</th>'
+    + '               <th>UserID</th>'
+    + '               <th>Role</th>'
+    + '               <th>Beruf</th>'
+    + '               <th>Einstellungsjahr</th>'
+    + '               <th class="edit-icons-header"></th>'
+    + '           </tr>'
+    + '       </thead>'
+    + '       <tbody id="user-table-body">'
+    + '       </tbody>'
+    + '   </table>'
+    + ' </div>'
+    + '</div>'
+    + '</div>',
+    width: '90%',
+    customClass: 'swal-user',
+    showConfirmButton: false
+  });
+
+  $('#user-search-field').blur();
+
+  $.ajax({
+    url: "/home/getAllUsers",
+    method: "POST",
+    contentType: "application/json",
+    success: function (response) {
+      for(let user of response) {
+
+        let userElement = '<tr class="user-row">'
+        + `   <td>${user.lastname}</td>`
+        + `   <td>${user.firstname}</td>`
+        + `   <td>${user.userId}</td>`
+        + `   <td>${user.role}</td>`
+        + `   <td>${user.profession}</td>`
+        + `   <td>${user.apprenticeyear}</td>`
+        + '   <td class="edit-icons-cell">'
+        + '       <div class="edit-icons-container">'
+        + '           <div title="Diese Buchung bearbeiten" class="edit-icon"><ion-icon name="pencil-outline"></ion-icon></div>'
+        + '           <div title="Diese Buchung l&#246;schen" class="delete-icon"><ion-icon name="trash-outline"></ion-icon></div>'
+        + '       </div>'
+        + '   </td>'
+        + '</tr>'
+        
+        $('#user-table-body').append(userElement);
+      }
+
+      $('#user-search-field').click(() => {
+        $('#user-search-field').css('width', '25%');
+        $('#user-search-field').attr('placeholder', "Suchen...");
+      })
+
+      $('#user-search-field').focusout(() => {
+        $('#user-search-field').css('width', '45px');
+        $('#user-search-field').attr('placeholder', "");
+      })
+
+    },
+    error: function (err) {
+      console.log(err.responseJSON.msg);
+      try {
+        Swal.fire({
+          title: err.responseJSON.msg,
+          icon: "error",
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+        });
+      } catch {
+        Swal.fire({
+          title: "Es ist ein unerwarteter Fehler aufgetreten",
+          icon: "error",
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+        });
+      }
+    }
+  })
 }
 
 hasPermission("3", "buildView")

@@ -20,15 +20,20 @@
     color: rgb(0, 30, 80);
 }
 
-.my-bookings-table tbody tr {
+.my-bookings-table tbody tr,
+.user-table tbody tr {
     border-bottom: 1px solid #dddddd;
+    font-weight: bold;
+    color: rgb(0, 30, 80);
 }
 
-.my-bookings-table tbody tr:nth-of-type(odd) {
+.my-bookings-table tbody tr:nth-of-type(odd),
+.user-table tbody tr:nth-of-type(odd) {
     background-color: white;
 }
 
-.my-bookings-table  {
+.my-bookings-table,
+.user-table  {
     width: 100%;
     margin: 0;
 }
@@ -63,20 +68,80 @@ caption {
 
 }
 
+.user-table-container {
+    width: 80%;
+    height: 70vh;
+    border: 3px solid rgb(0, 30, 80);
+    border-radius: 15px;
+    overflow: hidden;
+    overflow-x: auto;
+    margin: auto;
+}
+
+.my-bookings-table td,
 .my-bookings-table th,
-.my-bookings-table td {
+.user-table th {
     padding: 12px 15px;
     font-size: 18px;
     font-family: "VW Head", sans-serif;
 }
 
-.my-bookings-table td {
+.user-table td {
+    padding-top: 10px;
+    font-size: 18px;
+    font-family: "VW Head", sans-serif;
+}
+
+.my-bookings-table th {
+    color: #434343;
+}
+
+.user-table td {
+    color: rgb(0, 30, 80);
+}
+
+.user-table th {
+    color: #434343;
+    text-align: center;
+}
+
+.my-bookings-table td,
+.user-table td {
     height: 40px;
 }
 
-.my-bookings-table thead tr {
+.my-bookings-table thead tr,
+.user-table thead tr {
     text-align: left;
     background-color: lightgrey;
+}
+
+.user-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-search-field-container {
+    width: 80%;
+    margin: auto;
+    float: right;
+    transform: translateY(42px);
+    height: 45px;
+}
+
+#user-search-field {
+    transition: all .5s;
+    height: 45px;
+    float: right;
+    width: 45px;
+    text-align: start;
+}
+
+.user-search-field-container ion-icon {
+    color: rgb(0, 30, 80);
+    font-size: 25px;
+    float: right;
+    transform: translate(45px, 13px);
 }
 
 .container-secondary {
@@ -528,6 +593,15 @@ select {
 }
 
 .swal-park {
+    height: 95vh;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 2 !important;
+    margin: 0 !important;
+}
+
+.swal-user {
     height: 95vh;
     display: flex !important;
     flex-direction: column;
