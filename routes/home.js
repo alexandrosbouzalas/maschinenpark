@@ -141,29 +141,52 @@ router.post("/deleteBooking", async (req, res) => {
 
 
         if(user) {
-          const userBookings = await Booking.find({userId: userId});
 
-          const userBookingsId = [];
+          if(user.permissionClass === "3") {
 
-          for(let booking of userBookings){
-             userBookingsId.push(booking.bookingId);
-          }
+            try{
 
-          if(userBookingsId.includes(bookingId)) {
-
-            const booking = await Booking.findOne({bookingId: bookingId});
-
-            await Booking.deleteOne({bookingId: bookingId})
-    
-            await Machine.updateOne(
-              { machineId: booking.machineId},
-              { $set: {status: 'F'}}
-            );
-        
-            res.status(200).send();
+              const booking = await Booking.findOne({bookingId: bookingId});
+  
+              await Booking.deleteOne({bookingId: bookingId})
+      
+              await Machine.updateOne(
+                { machineId: booking.machineId},
+                { $set: {status: 'F'}}
+              );
+          
+              res.status(200).send();
+            } catch(e) {
+              console.log(e.message);
+              throw new Error();
+            }
 
           } else {
-            throw new Error();
+
+            const userBookings = await Booking.find({userId: userId});
+  
+            const userBookingsId = [];
+  
+            for(let booking of userBookings){
+               userBookingsId.push(booking.bookingId);
+            }
+  
+            if(userBookingsId.includes(bookingId)) {
+  
+              const booking = await Booking.findOne({bookingId: bookingId});
+  
+              await Booking.deleteOne({bookingId: bookingId})
+      
+              await Machine.updateOne(
+                { machineId: booking.machineId},
+                { $set: {status: 'F'}}
+              );
+          
+              res.status(200).send();
+  
+            } else {
+              throw new Error();
+            }
           }
 
         }
