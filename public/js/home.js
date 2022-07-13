@@ -1,4 +1,3 @@
-
 // Global variables
 let picker;
 let dates = {};
@@ -733,21 +732,30 @@ const buildBookingTable = (all) => {
 
           let bookingStartDate = new Date(booking.beginDate);
           let bookingEndDate = new Date(booking.endDate);
-  
+          let status;
+
+          if(new Date().setHours(0,0,0,0) - bookingStartDate.setHours(0, 0, 0, 0) >= 0) {
+            status = "active";
+          } else {
+            status = "not-active";
+          }
+
+
+
           let bookingElement = '<tr class="booking-row active-row">'
 
           if(all) 
-            bookingElement += `<td>${booking.userId}</td>`
+            bookingElement += `<td class="${status}">${booking.userId}</td>`
 
 
-          bookingElement += `<td>${booking.bookingId}</td>`
-          + `   <td>${booking.machineId}</td>`
-          + `   <td>${String(bookingStartDate.getDate()).padStart(2, '0')}.${String(bookingStartDate.getMonth() + 1).padStart(2, '0')}.${bookingStartDate.getFullYear()}</td>`
-          + `   <td>${String(bookingEndDate.getDate()).padStart(2, '0')}.${String(bookingEndDate.getMonth() + 1).padStart(2, '0')}.${bookingEndDate.getFullYear()}</td>`
+          bookingElement += `<td class="${status}">${booking.bookingId}</td>`
+          + `   <td class="${status}">${booking.machineId}</td>`
+          + `   <td class="${status}">${String(bookingStartDate.getDate()).padStart(2, '0')}.${String(bookingStartDate.getMonth() + 1).padStart(2, '0')}.${bookingStartDate.getFullYear()}</td>`
+          + `   <td class="${status}">${String(bookingEndDate.getDate()).padStart(2, '0')}.${String(bookingEndDate.getMonth() + 1).padStart(2, '0')}.${bookingEndDate.getFullYear()}</td>`
           + '   <td class="edit-icons-cell">'
           + '       <div class="edit-icons-container">'
-          + '           <div title="Diese Buchung bearbeiten" class="edit-icon"><ion-icon name="pencil-outline"></ion-icon></ion-icon></div>'
-          + '           <div title="Diese Buchung l&#246;schen" class="delete-icon"><ion-icon name="trash-outline"></ion-icon></ion-icon></div>'
+          + '           <div title="Diese Buchung bearbeiten" class="edit-icon"><ion-icon name="pencil-outline"></ion-icon></div>'
+          + '           <div title="Diese Buchung l&#246;schen" class="delete-icon"><ion-icon name="trash-outline"></ion-icon></div>'
           + '       </div>'
           + '   </td>'
           + '</tr>'

@@ -152,3 +152,11 @@ select:focus {
 .swal2-confirm:hover {
     background-color: #02ccfd !important;
 }
+
+.not-active {
+    color: rgb(0, 30, 80);
+}
+
+.active {
+    color: #009879;
+}
