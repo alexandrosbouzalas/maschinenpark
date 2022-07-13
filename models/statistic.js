@@ -5,6 +5,10 @@ const statisticSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    statisticProfession: {
+        type: String,
+        required: true,
+    },
     allTimeBookings: {
         type: String,
         required: true,

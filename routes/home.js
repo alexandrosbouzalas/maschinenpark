@@ -4,8 +4,6 @@ const User = require("./../models/user");
 const Booking = require("./../models/booking");
 const Machine = require("./../models/machine");
 const Statistic = require("./../models/statistic");
-const { response } = require("express");
-const { find } = require("./../models/user");
 
 
 router.use(express.json());
@@ -76,44 +74,57 @@ router.post("/createNewBooking", async (req, res) => {
   
       const { machineId, beginDate, endDate, activity, timewindow } = req.body.data;
 
-      const bookingsCount = await Statistic.findOne({});
-      
-      const [beginDay, beginMonth, beginYear] = beginDate.split('.')
-      const [endDay, endMonth, endYear] = endDate.split('.')
+      const user = await User.findOne({userId: userId});
+
+      if(user) {
+
+        const [beginDay, beginMonth, beginYear] = beginDate.split('.')
+        const [endDay, endMonth, endYear] = endDate.split('.')
+
+        const bookingsProfession = await Statistic.find({statisticProfession: user.profession});
+
+        const bookingsAll = await Statistic.findOne({statisticId: "1"});
+    
+        const booking = new Booking({
+          bookingId: parseInt(bookingsAll.allTimeBookings) + 1,
+          userId: userId,
+          machineId: machineId,
+          beginDate: new Date(`${beginYear}-${beginMonth}-${beginDay}`),
+          endDate: new Date(`${endYear}-${endMonth}-${endDay}`),
+          activity: activity,
+          timewindow: timewindow
+        });
   
-      const booking = new Booking({
-        bookingId: parseInt(bookingsCount.allTimeBookings) + 1,
-        userId: userId,
-        machineId: machineId,
-        beginDate: new Date(`${beginYear}-${beginMonth}-${beginDay}`),
-        endDate: new Date(`${endYear}-${endMonth}-${endDay}`),
-        activity: activity,
-        timewindow: timewindow
-      });
+        try {
+  
+          await booking.save();
+  
+          await Machine.updateOne(
+            { machineId: booking.machineId},
+            { $set: {status: 'O'}}
+          ); 
+          
+          await Statistic.updateOne(
+            { statisticProfession: user.profession},
+            { $set: { allTimeBookings: parseInt(bookingsProfession[0].allTimeBookings) + 1 } }
+          );
 
-      try {
-
-        await booking.save();
-
-        await Machine.updateOne(
-          { machineId: booking.machineId},
-          { $set: {status: 'O'}}
-        ); 
-        
-        await Statistic.updateOne(
-          { statisticId: "1" },
-          { $set: { allTimeBookings: parseInt(bookingsCount.allTimeBookings) + 1 } }
-        );
-
-        res.status(200).send();
-      } catch (e) {
-        console.log(e.message);
+          await Statistic.updateOne(
+            { statisticId: "1"},
+            { $set: { allTimeBookings: parseInt(bookingsAll.allTimeBookings) + 1 } }
+          );
+  
+          res.status(200).send();
+        } catch (e) {
+          console.log(e.message);
+        }
       }
 
     } catch (e) {
       console.log(e.message);
       res.status(500).json({msg: "Beim Speichern Ihrer Buchung ist ein Fehler aufgetreten"});
     }
+
   } 
 })
 
