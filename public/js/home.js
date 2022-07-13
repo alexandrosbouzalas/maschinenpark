@@ -830,6 +830,20 @@ const hasPermission = (permissionClass, action) => {
 const buildView = (isAdmin) => {
   if(isAdmin) {
     buildBookingTable(true);
+
+    const adminButtons = '<div class="button-container">'
+    +   '<button class="option-button" id="user-btn">Nutzer verwalten</button>'
+    + '</div>'
+    + '<div class="button-container">'
+    +   '<button class="option-button" id="machine-btn">Maschinen verwalten</button>'
+    + '</div>'
+    + '<div class="button-container">'
+    +   '<button class="option-button" id="statistic-btn">Statistiken</button>'
+    + '</div>'
+
+    $('.option-button-container').prepend(adminButtons);
+    $('#edit-btn').text("Buchungen bearbeiten");
+
   }
   else {
     buildBookingTable(false);

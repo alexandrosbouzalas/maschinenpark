@@ -110,8 +110,8 @@ caption {
     font-family: "VW Head", sans-serif;
 }
 
-#edit-btn,
-#add-btn {
+
+.option-button {
     height: 70px;
     width: 50%;
     color: #f6f8fa;
@@ -124,8 +124,7 @@ caption {
     font-family: "VW Head", sans-serif;
 }
 
-#edit-btn:hover,
-#add-btn:hover {
+.option-button:hover {
     cursor: pointer;
     background-color: #02ccfd;
 }
