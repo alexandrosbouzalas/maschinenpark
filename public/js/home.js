@@ -355,11 +355,193 @@ const editBooking = (event, machines) => {
   })
 }
 
-
-$('#user-table-body tr').each(function() {console.log($(this))})
-
 const editUser = (event) => {
-  console.log(event.target);
+  if($(event.target).is("div")) {
+    element = event.target.parentNode.parentNode.parentNode
+  } else if ($(event.target).is("ion-icon")) {
+      element = event.target.parentNode.parentNode.parentNode.parentNode
+  }
+
+  Swal.fire({
+    html: '<div class="edit-options-container">'
+    + ' <div class="edit-option">'
+    + '     <div class="edit-option-row">'
+    + '         <div class="label-container">'
+    + '             <label for="nachname">Nachname:</label>'
+    + '         </div>'
+    + '         <div>'
+    + `             <input id="nachname" type="text" name="nachname" placeholder="${element.children[0].innerText}"/>`
+    + '         </div>'
+    + '     </div>'
+    + ' </div>'
+    + ' <div class="edit-option">'
+    + '     <div class="edit-option-row">'
+    + '         <div class="label-container">'
+    + '             <label for="vorname">Vorname:</label>'
+    + '         </div>'
+    + '         <div>'
+    + `             <input id="vorname" type="text" name="vorname" placeholder="${element.children[1].innerText}"/>`
+    + '         </div>'
+    + '     </div>'
+    + ' </div>'
+    + ' <div class="edit-option">'
+    + '     <div class="edit-option-row">'
+    + '         <div class="label-container">'
+    + '             <label for="userId">UserID:</label>'
+    + '         </div>'
+    + '         <div>'
+    + `             <input id="userId" type="text" name="userId" minLength="7" maxLength="7" style="text-transform:uppercase" placeholder="${element.children[2].innerText}"/>`
+    + '         </div>'
+    + '     </div>'
+    + ' </div>'
+    + ' <div class="edit-option">'
+    + '     <div class="edit-option-row">'
+    + '         <div class="label-container">'
+    + '             <label for="role">Role:</label>'
+    + '         </div>'
+    + '         <div>'
+    + '             <select id="role" name="role">'
+    + '                 <option value="AZB">Auszubildender</option>'
+    + '                 <option value="ABBA">Ausbilder - Meister</option>'
+    + '                 <option value="FACH">Facharbeiter</option>'
+    + '             </select>'
+    + '         </div>'
+    + '     </div>'
+    + ' </div>'
+    + ' <div class="edit-option">'
+    + '     <div class="edit-option-row">'
+    + '         <div class="label-container">'
+    + '             <label for="profession">Beruf:</label>'
+    + '         </div>'
+    + '         <div>'
+    + '             <select id="profession" name="profession">'
+    + '                 <option value="MECH">Mechatroniker/-in</option>'
+    + '                 <option value="IM">Industriemechaniker/-in</option>'
+    + '                 <option value="ZM">Zerspannungsmechaniker/-in</option>'
+    + '                 <option value="TPD">Technischer Produktdesigner/-in</option>'
+    + '                 <option value="PT">Produktionstechnologe/-in</option>'
+    + '                 <option value="WZM">Werkzeugmechaniker/-in</option>'
+    + '                 <option value="OTHER">Andere</option>'
+    + '             </select>'
+    + '         </div>'
+    + '     </div>'
+    + ' </div>'
+    + ' <div class="edit-option">'
+    + '     <div class="edit-option-row">'
+    + '         <div class="label-container">'
+    + '             <label for="apprenticeyear">Einstellungsjahr:</label>'
+    + '         </div>'
+    + '         <div>'
+    + '             <select id="apprenticeyear" name="apprenticeyear">'
+    + '             </select>'
+    + '         </div>'
+    + '     </div>'
+    + ' </div>'
+    + '</div>',
+    showCancelButton: true,
+    width: '90%',
+    customClass: 'swal',
+    cancelButtonColor: 'lightgrey',
+    cancelButtonText: 'Abbrechen', 
+    confirmButtonText: 'Speichern',
+    confirmButtonColor: 'rgb(0, 30, 80)',
+    reverseButtons: true,
+  }).then((result) => {
+    if (result.isConfirmed) {
+
+      const updateOptions = {};
+
+      Object.assign(updateOptions, {bookingId: element.children[element.children.length - 5].innerText});
+      Object.assign(updateOptions, {machines: machines ? machines : [currentMachine.innerText]});
+      Object.assign(updateOptions, {beginDate: dates.beginDate ? dates.beginDate: $('#from-date-picker').attr("placeholder")});
+      Object.assign(updateOptions, {endDate: dates.endDate ? dates.endDate: $('#to-date-picker').attr("placeholder")});
+
+      dates = {};
+
+      $.ajax({
+        url: "/home/updateBooking",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ data: updateOptions }),
+        success: function (response) {
+          Swal.fire({
+            title: "Ihre Buchung wurde erfolgreich aktualisiert",
+            icon: "success",
+            allowOutsideClick: false,
+            showCloseButton: false,
+            showCancelButton: false,
+            showConfirmButton: false,
+            background: "#f6f8fa",
+            timer: 2000,
+          }).then(() => {
+            hasPermission("3", "buildView")
+
+          });
+        },
+        error: function (err) {
+          console.log(err.responseJSON.msg);
+          try {
+            Swal.fire({
+              title: err.responseJSON.msg,
+              icon: "error",
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+            });
+          } catch {
+            Swal.fire({
+              title: "Es ist ein unerwarteter Fehler aufgetreten",
+              icon: "error",
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+              allowOutsideClick: false,
+              background: "#f6f8fa",
+            });
+          }
+        }
+      }); 
+    } else {
+      openUserView(true);
+    }
+  })
+
+  const currentYear = new Date().getFullYear();
+
+  for (var i = currentYear; i >= currentYear - 5; i--) {
+    $('#apprenticeyear').append(`<option value="${i}">${i}</option>`)
+  }
+
+  $('.edit-options-container select').css('color', '#757575');
+
+  if(element.children[3].innerText === "ABBA" || element.children[3].innerText === "FACH") {
+    $("#role").val(element.children[3].innerText);
+    $("#profession").parents().closest('.edit-option').hide();
+    $("#apprenticeyear").parents().closest('.edit-option').hide();
+  } else {
+    $("#role").val(element.children[3].innerText);
+
+    if(element.children[4].innerText === "ANDERE")
+      $("#profession").val("OTHER");
+    else
+      $("#profession").val(element.children[4].innerText);
+
+    $("#apprenticeyear").val(element.children[5].innerText);
+  }
+
+  $('.edit-options-container input').css('color', '#009879');
+
+  $('.edit-options-container select').change((e) => {
+    $(e.target).css('color', '#009879');
+
+    if($("#role").val() === "AZB") {
+      $("#profession").parents().closest('.edit-option').slideDown();
+      $("#apprenticeyear").parents().closest('.edit-option').slideDown();
+    } else if($("#role").val() === "ABBA" || $("#role").val() === "FACH"){
+      $("#profession").parents().closest('.edit-option').slideUp();
+      $("#apprenticeyear").parents().closest('.edit-option').slideUp();
+    }
+  })
+
+
 }
 
 const deleteBooking = (event) => {
@@ -576,6 +758,8 @@ const checkDates = (e) => {
 }
 
 const openCalendar = (element, defaultDate) => {
+
+  dateArray = [];
 
   const elementId = element[0].parentNode.children[1].children[0].id;
 
@@ -1062,9 +1246,6 @@ const buildUserTable = (edit) => {
         deleteUser(event);
       })
 
-      $('.user-table th').click((e) => {
-        console.log(e.target);
-      })
     },
     error: function (err) {
       console.log(err.responseJSON.msg);
@@ -1284,13 +1465,14 @@ const openUserView = (edit) => {
     + '</div>'
     + '<div>'
     + '<div>'
-    + ' <p id="nothing-found-info-text">Es konnten keine Daten gefunden werden!</p>'
+    + ' <p id="nothing-found-info-text"><b>Es konnten keine Daten gefunden werden!</b></p>'
     + '</div>'
     + '<button class="off" id="user-edit-btn">Nutzer bearbeiten<button>'
     + '</button>',
+    showConfirmButton: false,
+    showCancelButton: false,
     width: '90%',
     customClass: 'swal-user',
-    showConfirmButton: false
   });
 
   $('#user-search-field').blur();
