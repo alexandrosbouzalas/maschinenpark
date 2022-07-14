@@ -806,6 +806,169 @@ const buildBookingTable = (all) => {
   });
 }
 
+const openStatisticView = () => {
+  Swal.fire({
+    html: '<div id="container">'
+    + '       <p class="chart-title">Buchungen der Maschinen pro Beruf</p>'
+    + '       <div class="edit-icons-container">'
+    + '           <div title="Balkendiagramm anzeigen" class="bar-icon active-chart"><ion-icon name="bar-chart-outline"></ion-icon></div>'
+    + '           <div title="Tortendiagramm anzeigen" class="pie-icon inactive-chart"><ion-icon name="pie-chart-outline"></ion-icon></div>'
+    + '       </div>' 
+    + '       <div id="chart-container">'     
+    + '           <canvas id="chart" width="400" height="400"></canvas>'
+    + '       </div>'
+    + '    </div>',
+    showCancelButton: false,
+    showConfirmButton: false,
+    width: '90%',
+    customClass: 'swal',
+  })
+
+  $('.bar-icon').click(() => {    
+    if($('.bar-icon').hasClass('inactive-chart')) {
+      $('.bar-icon').addClass('active-chart').removeClass('inactive-chart');
+      $('.pie-icon').addClass('inactive-chart').removeClass('active-chart');
+
+      getStatisticsData("bar", false);
+    }
+  })
+  
+  $('.pie-icon').click(() => {    
+    if($('.pie-icon').hasClass('inactive-chart')) {
+      $('.pie-icon').addClass('active-chart').removeClass('inactive-chart');
+      $('.bar-icon').addClass('inactive-chart').removeClass('active-chart');
+
+      getStatisticsData("pie", true);
+    }
+  })  
+
+  getStatisticsData("bar", false);
+};
+
+const getStatisticsData = (chartType, displayLabel) => {
+  if($(event.target).is("div")) {
+    element = event.target.parentNode.parentNode.parentNode
+  } else if ($(event.target).is("ion-icon")) {
+      element = event.target.parentNode.parentNode.parentNode.parentNode
+  }
+
+  $.ajax({
+    url: "/home/getStatisticsData",
+    method: "POST",
+    contentType: "application/json",
+    success: function (response) {
+      let labeltext = " Genutzt";
+      let data = [];
+      let labels = [];
+
+      response.statisticsNumbers.shift();
+      response.statisticsNumbers.forEach(function (element, i) {
+        data[i] = element.allTimeBookings;
+      });
+
+      response.statisticsProfessions.shift();
+      response.statisticsProfessions.forEach(function (element, i) {
+        labels[i] = " " + element.statisticProfession;
+      });
+
+      labels[labels.length - 1] = " ANDERE";
+
+      buildChart(chartType, labels, data, labeltext, displayLabel);
+    },
+    error: function (err) {
+      console.log(err.responseJSON.msg);
+      try {
+        Swal.fire({
+          title: err.responseJSON.msg,
+          icon: "error",
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+        });
+      } catch {
+        Swal.fire({
+          title: "Es ist ein unerwarteter Fehler aufgetreten",
+          icon: "error",
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+        });
+      }
+    }
+  });
+};
+
+const buildChart = (type, labels, data, labeltext, displayLabel) => {
+  let chartStatus = Chart.getChart("chart"); // <canvas> id
+    if (chartStatus != undefined) {
+      chartStatus.destroy();
+    }
+  const ctx = $('#chart')[0].getContext('2d');
+  const chart = new Chart(ctx, {
+    type: type,
+    data: {
+        labels: labels,
+        datasets: [{
+            label: labeltext,
+            data: data,
+            backgroundColor: [
+              'rgb(0, 30, 80)',
+              '#123C61',
+              '#185183',
+              '#206AAC',
+              '#2782D2',
+              '#2C93EE',
+              '#02ccfd'
+            ],
+            borderRadius: 10,
+            borderSkipped: false
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: displayLabel
+          },
+          tooltip: {
+            titleFont: {
+              size: 20,
+              family: 'VW Head, sans-serif'
+            },
+            bodyFont: {
+              size: 20,
+              family: 'VW Head, sans-serif'
+            }
+          }
+        },
+        scales: {
+            y: {
+              display: !displayLabel,
+                beginAtZero: true,
+                grid: {
+                  display: !displayLabel
+                },
+                ticks: {
+                  display: !displayLabel,
+                  color: 'rgb(0, 30, 80)',
+                  font: {
+                    size: 15,
+                    family: 'VW Head, sans-serif'
+                  },
+                },
+            },
+            x: {
+              display: !displayLabel,
+              ticks: {
+                display: !displayLabel
+              },
+              grid: {
+                lineWidth: 0
+              }
+            }
+        }
+    }
+  })
+};
+
 const hasPermission = (permissionClass, action) => {
 
   $.ajax({
@@ -844,6 +1007,9 @@ const buildView = (isAdmin) => {
     $('.option-button-container').prepend(adminButtons);
     $('#edit-btn').text("Buchungen bearbeiten");
 
+    $('#statistic-btn').click(() => {
+      openStatisticView();
+    });
   }
   else {
     buildBookingTable(false);

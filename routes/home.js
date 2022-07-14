@@ -4,6 +4,7 @@ const User = require("./../models/user");
 const Booking = require("./../models/booking");
 const Machine = require("./../models/machine");
 const Statistic = require("./../models/statistic");
+const statistic = require("./../models/statistic");
 
 
 router.use(express.json());
@@ -246,6 +247,40 @@ router.post("/getUserBookings", async (req, res) => {
       res.status(200).json(userBookings);
     } catch (err) {
       res.status(500).json({msg: "Beim Laden Ihrer Buchungen ist ein Fehler aufgetreten"});
+    }
+    
+  } else {
+    res.status(403).send();
+  }
+})
+
+router.post("/getStatisticsData", async (req, res) => {
+  if (req.session.authenticated) {
+
+    try {
+      const statisticData = await statistic.find();
+
+      let dataObj = {};
+      let statisticsNumbers = [];
+      let statisticsProfessions = [];
+      let currentProfessionStatisticsObj = {};
+      let currentNumberStatisticsObj = {};
+          
+      for (let statistic of statisticData) {
+        Object.assign(currentProfessionStatisticsObj, {statisticProfession: statistic.statisticProfession});
+        Object.assign(currentNumberStatisticsObj, {allTimeBookings: statistic.allTimeBookings});
+
+        statisticsProfessions.push(currentProfessionStatisticsObj);
+        statisticsNumbers.push(currentNumberStatisticsObj);
+
+        currentProfessionStatisticsObj = {};
+        currentNumberStatisticsObj = {};
+      }
+      
+      dataObj = {statisticsProfessions, statisticsNumbers};
+      res.status(200).json(dataObj);
+    } catch (err) {
+      res.status(500).json({msg: "Beim Laden der Daten ist ein Fehler aufgetreten"});
     }
     
   } else {

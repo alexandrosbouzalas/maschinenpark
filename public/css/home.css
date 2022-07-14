@@ -172,6 +172,8 @@ caption {
 }
 
 .edit-icon,
+.pie-icon,
+.bar-icon,
 .delete-icon {
     border-radius: 10px;
     height: 40px;
@@ -190,6 +192,23 @@ caption {
 .delete-icon {
     margin-left: 5px;
     background-color: #f25902;
+}
+
+.bar-icon {
+    margin-left: 5px;
+}
+
+.pie-icon {
+    margin-left: 5px;
+ 
+}
+
+.active-chart {
+    background-color: rgb(0, 30, 80);
+}
+
+.inactive-chart {
+    background-color: lightgrey;
 }
 
 .edit-icon:hover,
@@ -221,6 +240,13 @@ caption {
     flex-direction: nowrap;
     flex-direction: row;
     justify-content: center;
+    padding: 15px;
+}
+
+.chart-title {
+    font-size: 30px;
+    color: rgb(0, 30, 80);
+    font-family: 'VW Head';
 }
 
 ion-icon {
@@ -573,6 +599,12 @@ select {
 .edit-btn-disabled {
     pointer-events: none;
     background-color: grey !important;
+}
+
+#chart-container {
+    height: 70vh;
+    margin-right: 100px;
+    margin-left: 100px;
 }
 
 @media screen and (max-width: 1000px) { 
