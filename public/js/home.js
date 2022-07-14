@@ -904,7 +904,7 @@ const openStatisticView = () => {
   Swal.fire({
     html: '<div id="container">'
     + '       <p class="chart-title">Buchungen der Maschinen pro Beruf</p>'
-    + '       <div class="edit-icons-container">'
+    + '       <div class="chart-icons-container">'
     + '           <div title="Balkendiagramm anzeigen" class="bar-icon active-chart"><ion-icon name="bar-chart-outline"></ion-icon></div>'
     + '           <div title="Tortendiagramm anzeigen" class="pie-icon inactive-chart"><ion-icon name="pie-chart-outline"></ion-icon></div>'
     + '       </div>' 

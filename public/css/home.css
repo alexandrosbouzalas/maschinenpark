@@ -321,11 +321,15 @@ caption {
     position: relative;
   }
 
-.edit-icons-container {
+.edit-icons-container,
+.chart-icons-container {
     display: flex;
     flex-direction: nowrap;
     flex-direction: row;
     justify-content: center;
+}
+
+.chart-icons-container {
     padding: 15px;
 }
 
