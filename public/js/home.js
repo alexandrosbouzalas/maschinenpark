@@ -82,7 +82,7 @@ const openParkView = (placeholderMachine, editMode) => {
   getMachines(placeholderMachine)
 }
 
-const createBooking = (machines) => {
+const createBooking = (machines, edit) => {
 
   machines ? machines : machines = "";
   
@@ -400,8 +400,7 @@ const deleteBooking = (event) => {
               background: "#f6f8fa",
               timer: 2000,
             }).then(() => {
-              hasPermission("3", "buildView")
-
+              hasPermission("3", "buildView");
             });
           },
           error: function (err) {
@@ -497,7 +496,7 @@ const deleteUser = (event) => {
         $('#edit-btn').addClass('edit-btn-disabled');
       }
     } else {
-      openUserView();
+      openUserView(true);
     }
   })
 }
@@ -606,20 +605,20 @@ const toggleBookingEditMode = () => {
         $('#edit-btn').removeClass('off');
         $('#edit-btn').addClass('on')
         $('.edit-icons-header').show();
-        $('.edit-icons-cell').show();
+        $('.booking-edit-icons-cell').show();
         $('#edit-btn').text('Bearbeitungsmodus beenden');
     } else if($('#edit-btn').hasClass('on')){
         $('#edit-btn').removeClass('on');
         $('#edit-btn').addClass('off')
         $('.edit-icons-header').hide();
-        $('.edit-icons-cell').hide();
+        $('.booking-edit-icons-cell').hide();
         $('#edit-btn').text('Buchung bearbeiten');
     }
   } else {
     $('#edit-btn').removeClass('on');
     $('#edit-btn').addClass('off')
     $('.edit-icons-header').hide();
-    $('.edit-icons-cell').hide();
+    $('.booking-edit-icons-cell').hide();
     $('#edit-btn').text('Buchung bearbeiten');
   }
 }
@@ -630,13 +629,13 @@ const toggleUserEditMode = () => {
         $('#user-edit-btn').removeClass('off');
         $('#user-edit-btn').addClass('on')
         $('.edit-icons-header').show();
-        $('.edit-icons-cell').show();
+        $('.user-edit-icons-cell').show();
         $('#user-edit-btn').text('Bearbeitungsmodus beenden');
     } else if($('#user-edit-btn').hasClass('on')){
         $('#user-edit-btn').removeClass('on');
         $('#user-edit-btn').addClass('off')
         $('.edit-icons-header').hide();
-        $('.edit-icons-cell').hide();
+        $('.user-edit-icons-cell').hide();
         $('#user-edit-btn').text('Nutzer bearbeiten');
     }
   }
@@ -846,7 +845,7 @@ const buildBookingTable = (all) => {
           + `   <td class="${status}">${booking.machineId}</td>`
           + `   <td class="${status}">${String(bookingStartDate.getDate()).padStart(2, '0')}.${String(bookingStartDate.getMonth() + 1).padStart(2, '0')}.${bookingStartDate.getFullYear()}</td>`
           + `   <td class="${status}">${String(bookingEndDate.getDate()).padStart(2, '0')}.${String(bookingEndDate.getMonth() + 1).padStart(2, '0')}.${bookingEndDate.getFullYear()}</td>`
-          + '   <td class="edit-icons-cell">'
+          + '   <td class="booking-edit-icons-cell">'
           + '       <div class="edit-icons-container">'
           + '           <div title="Diese Buchung bearbeiten" class="edit-icon"><ion-icon name="pencil-outline"></ion-icon></div>'
           + '           <div title="Diese Buchung l&#246;schen" class="delete-icon"><ion-icon name="trash-outline"></ion-icon></div>'
@@ -861,7 +860,7 @@ const buildBookingTable = (all) => {
         if($('#table-body')[0].rows.length > 1) {
           if($('#edit-btn').hasClass('on')) {
               $('.edit-icons-header').show();
-              $('.edit-icons-cell').show();
+              $('.booking-edit-icons-cell').show();
           } 
         } 
 
@@ -985,16 +984,19 @@ const getStatisticsData = (chartType, displayLabel) => {
   });
 }
 
-const buildUserTable = () => {
-
-  $('#user-table-body tr').remove();
+const buildUserTable = (edit) => {
 
   $.ajax({
     url: "/home/getAllUsers",
     method: "POST",
     contentType: "application/json",
     success: function (response) {
+      $('#user-table-body tr').remove();
       for(let user of response) {
+
+        if(user.profession === "OTHER") {
+          user.profession = "ANDERE";
+        }
 
         let userElement = '<tr class="user-row">'
         + `   <td>${user.lastname}</td>`
@@ -1003,7 +1005,7 @@ const buildUserTable = () => {
         + `   <td>${user.role}</td>`
         + `   <td>${user.profession === "ABBA" || user.profession === "FACH" ? user.profession = "---" : user.profession}</td>`
         + `   <td>${user.apprenticeyear === "0" ? user.apprenticeyear = "---" : user.apprenticeyear}</td>`
-        + '   <td class="edit-icons-cell">'
+        + '   <td class="user-edit-icons-cell">'
         + '       <div class="edit-icons-container">'
         + '           <div title="Diesen Nutzer bearbeiten" class="user-edit-icon"><ion-icon name="pencil-outline"></ion-icon></div>'
         + '           <div title="Diesen Nutzer l&#246;schen" class="user-delete-icon"><ion-icon name="trash-outline"></ion-icon></div>'
@@ -1013,6 +1015,9 @@ const buildUserTable = () => {
         
         $('#user-table-body').append(userElement);
       }
+
+      if(edit)
+        toggleUserEditMode();
 
       $('#user-search-field').on('input', function() {
         let searchText = $('#user-search-field').val();
@@ -1189,7 +1194,7 @@ const searchTable = (table, searchText) => {
     $('#user-table-body tr').each(function() {
 
       $(this).children().each(function() {
-        if(!$(this).hasClass('edit-icons-cell')) {
+        if(!$(this).hasClass('user-edit-icons-cell')) {
           if($(this).text().toLowerCase().trim().startsWith(searchText.toLowerCase().trim(), 0)) {
 
             somethingFound = true;
@@ -1227,7 +1232,11 @@ const buildView = (isAdmin) => {
     +   '<button class="option-button" id="statistic-btn">Statistiken</button>'
     + '</div>'
 
-    $('.option-button-container').prepend(adminButtons);
+    
+    if($('#user-btn').length < 1)
+      $('.option-button-container').prepend(adminButtons);
+  
+
     $('#edit-btn').text("Buchungen bearbeiten");
 
     $('#statistic-btn').click(() => {
@@ -1244,7 +1253,7 @@ const buildView = (isAdmin) => {
   }
 }
 
-const openUserView = () => {
+const openUserView = (edit) => {
   
   Swal.fire({
     html: '<div class="user-content">'
@@ -1289,10 +1298,14 @@ const openUserView = () => {
     toggleUserEditMode();
   })
 
-  buildUserTable();
+  if(edit) {
+    buildUserTable(edit);
+  } else {
+    buildUserTable();
+  }
 }
 
-hasPermission("3", "buildView")
+hasPermission("3", "buildView");
 
 // Event listeners
 $('#help-btn').click(() => {

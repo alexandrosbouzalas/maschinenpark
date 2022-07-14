@@ -34,40 +34,46 @@ router.use(function (req, res, next) {
 
 router.post("/", async (req, res) => {
   req.body = sanitize(req.body);
-
-  const { lastname, firstname, userId, password, role, profession, apprenticeyear} = req.body.data;
-
-  if (!validatePassword(password.toString()))
-    throw new Error("Falsches Passwort");
-
-  if (!validateUserId(userId.toString()))
-    throw new Error("Falsche UserID");
-
-  const user = new User({
-    lastname: lastname,
-    firstname: firstname,
-    userId: userId.toUpperCase(),
-    password: await bcryptHash(password),
-    role: role,
-    profession: profession,
-    apprenticeyear: apprenticeyear,
-  });
-
   try {
-    await user.save();
+    const { lastname, firstname, userId, password, role, profession, apprenticeyear} = req.body.data;
 
-    res.status(200).json({ msg: "Success" });
-  } catch (e) {
-    var status = res.status(500);
-    if (e.message.includes("userId")) {
-      status.json({
-        msg: `Diese UserID wurde bereits registriert`,
-      });
-    } else {
-      status.json({ msg: "There was a problem processing your request" });
+    if (!validatePassword(password.toString()))
+      throw new Error("Falsches Passwort");
+
+    if (!validateUserId(userId.toString()))
+      throw new Error("Falsche UserID");
+
+    const user = new User({
+      lastname: lastname,
+      firstname: firstname,
+      userId: userId.toUpperCase(),
+      password: await bcryptHash(password),
+      role: role,
+      profession: profession,
+      apprenticeyear: apprenticeyear,
+    });
+
+    try {
+      await user.save();
+
+      res.status(200).json({ msg: "Success" });
+    } catch (e) {
+      var status = res.status(500);
+      if (e.message.includes("userId")) {
+        status.json({
+          msg: `Diese UserID wurde bereits registriert`,
+        });
+      } else {
+        status.json({ msg: "There was a problem processing your request" });
+      }
+      console.log(e.message);
     }
-    console.log(e.message);
+  } catch(e) {
+
+    console.log("Falsches Passwort Format");
+    res.status(400).send("Falsches Passwort Format");
   }
+  
 });
 
 module.exports = router;

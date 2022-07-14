@@ -90,8 +90,8 @@ function checkInput() {
         $("#password").removeClass("inputBorder");
         $("#password").addClass("errorBorder");
       } else {
-        $("#password").removeClass("inputBorder");
-        $("#password").addClass("errorBorder");
+        $("#password").addClass("inputBorder");
+        $("#password").removeClass("errorBorder");
         valid = true;
       }
     }

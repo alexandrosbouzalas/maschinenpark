@@ -90,10 +90,10 @@ function checkInput() {
   $("[required]").each(function () {
     valid = true;
     if ($(this).attr("id") === "password") {
-      valid = false;
       var message;
-
+      
       if ($(this).val().length < 8) {
+        valid = false;
 
         message = "Bitte benutze mindestens 8 Zeichen";
   
@@ -103,10 +103,10 @@ function checkInput() {
       }
     }
     if ($(this).attr("id") === "passwordRepeat") {
-      valid = false;
       var message;
-
+      
       if ($('#password').val().length < 8) {
+        valid = false;
 
         message = "Bitte benutze mindestens 8 Zeichen";
   
@@ -124,15 +124,15 @@ function checkInput() {
       $("#password").addClass("errorBorder");
       $("#passwordRepeat").removeClass("inputBorder");
       $("#passwordRepeat").addClass("errorBorder");
-    } else {
-      valid = true;
-    }
-  });
+    } 
 
+  });
   if (valid) verifySuccess();
 }
 
 const verifySuccess = () => {
+
+  console.log('test')
 
   $("#message").html("").removeClass("errorText");
 
