@@ -20,15 +20,20 @@
     color: rgb(0, 30, 80);
 }
 
-.my-bookings-table tbody tr {
+.my-bookings-table tbody tr,
+.user-table tbody tr {
     border-bottom: 1px solid #dddddd;
+    font-weight: bold;
+    color: rgb(0, 30, 80);
 }
 
-.my-bookings-table tbody tr:nth-of-type(odd) {
+.my-bookings-table tbody tr:nth-of-type(odd),
+.user-table tbody tr:nth-of-type(odd) {
     background-color: white;
 }
 
-.my-bookings-table  {
+.my-bookings-table,
+.user-table  {
     width: 100%;
     margin: 0;
 }
@@ -63,20 +68,95 @@ caption {
 
 }
 
+.user-table-container {
+    white-space: nowrap;
+    width: 80%;
+    height: 70vh;
+    border: 3px solid rgb(0, 30, 80);
+    border-radius: 15px;
+    overflow: hidden;
+    overflow-x: auto;
+    margin: auto;
+}
+
+.my-bookings-table td,
 .my-bookings-table th,
-.my-bookings-table td {
+.user-table th {
     padding: 12px 15px;
     font-size: 18px;
     font-family: "VW Head", sans-serif;
 }
 
-.my-bookings-table td {
+.user-table td {
+    padding: 10px 5px 0 5px;
+    font-size: 18px;
+    font-family: "VW Head", sans-serif;
+}
+
+.my-bookings-table th {
+    color: #434343;
+}
+
+.user-table td {
+    color: rgb(0, 30, 80);
+}
+
+.user-table th {
+    color: #434343;
+    text-align: center;
+}
+
+.my-bookings-table td,
+.user-table td {
     height: 40px;
 }
 
-.my-bookings-table thead tr {
+.my-bookings-table thead tr,
+.user-table thead tr {
     text-align: left;
     background-color: lightgrey;
+}
+
+.user-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-search-field-container {
+    width: 80%;
+    margin: auto;
+    float: right;
+    transform: translateY(42px);
+    height: 45px;
+}
+
+#user-search-field {
+    transition: all .5s;
+    height: 45px;
+    float: right;
+    width: 45px;
+    text-align: start;
+}
+
+
+#nothing-found-info-text {
+    display: none;
+    position: absolute;
+    font-size: 25px;
+    color: #f25902;
+    top: 50%;
+    right: 0;
+    left: 0;
+    margin-right: auto;
+    margin-left: auto;
+    width: 600px;
+}
+
+.user-search-field-container ion-icon {
+    color: rgb(0, 30, 80);
+    font-size: 25px;
+    float: right;
+    transform: translate(45px, 13px);
 }
 
 .container-secondary {
@@ -174,7 +254,9 @@ caption {
 .edit-icon,
 .pie-icon,
 .bar-icon,
-.delete-icon {
+.delete-icon,
+.user-edit-icon,
+.user-delete-icon {
     border-radius: 10px;
     height: 40px;
     width: 40px;
@@ -184,12 +266,14 @@ caption {
     cursor: pointer;
 }
 
-.edit-icon {
+.edit-icon,
+.user-edit-icon {
     margin-right: 5px;
     background-color: rgb(0, 30, 80);
 }
 
-.delete-icon {
+.delete-icon,
+.user-delete-icon {
     margin-left: 5px;
     background-color: #f25902;
 }
@@ -212,7 +296,9 @@ caption {
 }
 
 .edit-icon:hover,
-.delete-icon:hover {
+.user-edit-icon:hover,
+.delete-icon:hover,
+.user-delete-icon:hover {
     opacity: 0.8;
 }
 
@@ -562,6 +648,15 @@ select {
     margin: 0 !important;
 }
 
+.swal-user {
+    height: 95vh;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 2 !important;
+    margin: 0 !important;
+}
+
 .swal2-html-container {
     margin: 0 !important;
 }
@@ -605,6 +700,21 @@ select {
     height: 70vh;
     margin-right: 100px;
     margin-left: 100px;
+}
+
+#user-edit-btn {
+    height: 50px;
+    margin-top: 20px;
+    width: 250px;
+    background-color: rgb(0, 30, 80);
+    font-family: "VW Text", sans-serif;
+    font-size: 20px;
+    border-radius: 100px;
+    color: #f6f8fa;
+}
+
+#user-edit-btn:hover {
+    background-color: #02ccfd;
 }
 
 @media screen and (max-width: 1000px) { 

@@ -62,43 +62,60 @@ $("#submit-btn").on("click", function () {
   let valid = true;
   $("[required]").each(function () {
     if ($(this).is(":invalid") || !$(this).val()) {
+     
       valid = false;
-      $(this).removeClass("inputBorder");
-      $(this).addClass("errorBorder");
-      $("#message")
-        .html("Bitte fülle alle Felder aus")
-        .addClass("errorText");
+      if($(this).attr("id") === "userId") {
+        if ($("#userId").val().length < 7) {
+          $("#message").html("Die UserID besteht aus 7 Zeichen").addClass("errorText");
+          $("#userId").removeClass("inputBorder");
+          $("#userId").addClass("errorBorder");
+        }
+      } else {
+        $(this).removeClass("inputBorder");
+        $(this).addClass("errorBorder");
+        $("#message")
+          .html("Bitte fülle alle Felder aus")
+          .addClass("errorText");
+      }
     } else {
       $(this).removeClass("errorBorder");
     }
   });
-  if ($("#userId").val().length < 7) {
-    valid = false;
-    $("#message").html("Die UserID besteht aus 7 Zeichen").addClass("errorText");
-    $("#userId").removeClass("inputBorder");
-    $("#userId").addClass("errorBorder");
-  }
   if (valid) checkInput();
 });
 
 function checkInput() {
   var valid = true;
+
   $("[required]").each(function () {
-    if (
-      $(this).attr("id") === "email" &&
-      (!$(this).val() || !checkPattern($(this).attr("id")))
-    ) {
+    valid = true;
+    if ($(this).attr("id") === "password") {
       valid = false;
       var message;
 
-      if ($(this).val().length < 8)
-        message = "Bitte benutze mindestens 8 Zeichen";
+      if ($(this).val().length < 8) {
 
-      $("#message").html(message).addClass("errorText");
-      $("#password").removeClass("inputBorder");
-      $("#password").addClass("errorBorder");
-      $("#passwordRepeat").removeClass("inputBorder");
-      $("#passwordRepeat").addClass("errorBorder");
+        message = "Bitte benutze mindestens 8 Zeichen";
+  
+        $("#message").html(message).addClass("errorText");
+        $("#password").removeClass("inputBorder");
+        $("#password").addClass("errorBorder");
+      }
+    }
+    if ($(this).attr("id") === "passwordRepeat") {
+      valid = false;
+      var message;
+
+      if ($('#password').val().length < 8) {
+
+        message = "Bitte benutze mindestens 8 Zeichen";
+  
+        $("#message").html(message).addClass("errorText");
+        $("#password").removeClass("inputBorder");
+        $("#password").addClass("errorBorder");
+        $("#passwordRepeat").removeClass("inputBorder");
+        $("#passwordRepeat").addClass("errorBorder");
+      }
     }
     if ($("#password").val() !== $("#passwordRepeat").val()) {
       valid = false;
@@ -107,15 +124,21 @@ function checkInput() {
       $("#password").addClass("errorBorder");
       $("#passwordRepeat").removeClass("inputBorder");
       $("#passwordRepeat").addClass("errorBorder");
+    } else {
+      valid = true;
     }
   });
+
   if (valid) verifySuccess();
 }
 
 const verifySuccess = () => {
+
   $("#message").html("").removeClass("errorText");
 
   data = {};
+
+  let role;
 
   const formData = new FormData(document.querySelector("form"));
   for (var pair of formData.entries()) {
@@ -123,9 +146,32 @@ const verifySuccess = () => {
     if (pair[0] === "firstname") Object.assign(data, { firstname: pair[1] });
     if (pair[0] === "userId") Object.assign(data, { userId: pair[1].toUpperCase() });
     if (pair[0] === "password") Object.assign(data, { password: pair[1] });
-    if (pair[0] === "role") Object.assign(data, { role: pair[1] });
-    if (pair[0] === "profession") Object.assign(data, { profession : pair[1] });
-    if (pair[0] === "apprenticeyear") Object.assign(data, { apprenticeyear: pair[1] }); 
+    if (pair[0] === "role") {
+      Object.assign(data, { role: pair[1] });
+      role = pair[1];
+    }
+    if (pair[0] === "profession") {
+
+      let profession = "AZB";
+
+      if(role === "AZB")
+        profession = pair[1];
+      else if (role === "ABBA" || role === "FACH")
+        profession = role;
+
+      Object.assign(data, { profession : profession });
+    }
+    if (pair[0] === "apprenticeyear") {
+
+      let apprenticeyear;
+
+      if(role === "AZB")
+        apprenticeyear = pair[1];
+      else if (role === "ABBA" || role === "FACH")
+        apprenticeyear = "0";
+
+      Object.assign(data, { apprenticeyear: apprenticeyear }); 
+    }
   }
 
   $.ajax({
@@ -161,8 +207,19 @@ const verifySuccess = () => {
   });
 };
 
+$('#role').change(() => {
+
+  if($('#role').val() === "ABBA" || $('#role').val() === "FACH") {
+    $('#profession').parents().closest('.input-field').slideUp();
+    $('#apprenticeyear').parents().closest('.input-field').slideUp();
+  } else if($('#role').val() === "AZB") {
+    $('#profession').parents().closest('.input-field').slideDown();
+    $('#apprenticeyear').parents().closest('.input-field').slideDown();
+  }
+})
+
 $(document).keydown(function(event) {
-  if(event.key === "Enter" && ($("#userId").is(":focus") || $("#password").is(":focus"))) {
+  if(event.key === "Enter" && ($('input').is(":focus"))) {
     $('#submit-btn').click();
   }
 })

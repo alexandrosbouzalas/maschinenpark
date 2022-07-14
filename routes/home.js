@@ -367,5 +367,90 @@ router.post("/getUserPermissions", async (req, res) => {
   }
 })
 
+router.post("/getAllUsers", async (req, res) => {
+  if (req.session.authenticated) {
+    try {
+      const { userId } = req.session.user;
+
+      const user = await User.findOne({userId: userId});
+      const users = await User.find({});
+
+      if(user) {
+
+        if(users.length >= 1) {
+          if(user.permissionClass === "3") {
+            
+            let usersArr = [];
+            let currentUser = {};
+  
+            for(let user of users) {
+              Object.assign(currentUser, {firstname: user.firstname});
+              Object.assign(currentUser, {lastname: user.lastname});
+              Object.assign(currentUser, {userId: user.userId});
+              Object.assign(currentUser, {role: user.role});
+              Object.assign(currentUser, {profession: user.profession});
+              Object.assign(currentUser, {apprenticeyear: user.apprenticeyear});
+              
+  
+              usersArr.push(currentUser);
+              currentUser = {};
+            }
+  
+            res.status(200).send(usersArr);
+          } else 
+            res.status(403).send();
+        } else {
+          throw new Error("Keine Nutzer gefunden");
+        }
+
+      }
+        
+    } catch (err) {
+      res.status(403).send();
+    }
+    
+  } else {
+    res.status(403).send();
+  }
+})
+
+router.post("/deleteUser", async (req, res) => {
+  if (req.session.authenticated) {
+    try {
+
+      const { userId } = req.session.user;
+      const  userIdToDelete = req.body.data;
+
+      const user = await User.findOne({userId: userId});
+      const userToDelete = await User.findOne({userId: userIdToDelete})
+
+      if(user) {
+
+        if(userToDelete) {
+
+          if(user.permissionClass === "3") {
+            
+            await User.deleteOne({userId: userIdToDelete});
+
+            res.status(200).send();
+          } else 
+            res.status(403).send();
+        } else {
+          throw new Error("Keine Nutzer gefunden");
+        }
+
+      } else {
+        res.status(403).send();
+      }
+        
+    } catch (err) {
+      throw new Error("Beim Löschen des Nutzers ist ein Problem aufgetreten");
+    }
+    
+  } else {
+    res.status(403).send();
+  }
+})
+
 
 module.exports = router;

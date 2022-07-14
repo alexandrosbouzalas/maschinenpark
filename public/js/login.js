@@ -41,53 +41,59 @@ $('#password-forgot').click(() => {
 $("#submit-btn").on("click", function () {
   let valid = true;
   $("[required]").each(function () {
-    if ($(this).is(":invalid") || !$(this).val()) {
+    if ($(this).is(":invalid")) {
       valid = false;
-      $(this).removeClass("inputBorder");
-      $(this).addClass("errorBorder");
-      $("#message")
-        .html("Bitte fülle alle Felder aus")
-        .addClass("errorText");
+      if($(this).attr("id") === "userId" && $("#userId").val().length >= 1) {
+
+          $("#message").html("Die UserID besteht aus 7 Zeichen").addClass("errorText");
+          $("#userId").removeClass("inputBorder");
+          $("#userId").addClass("errorBorder");
+      } 
+      else if ($(this).attr("id") === "userId" && $("#userId").val().length == 0){
+        $("#userId").removeClass("inputBorder");
+        $("#userId").addClass("errorBorder");
+        $("#password").removeClass("inputBorder");
+        $("#password").addClass("errorBorder");
+        $("#message")
+          .html("Bitte fülle alle Felder aus")
+          .addClass("errorText");
+      }
     } else {
       $(this).removeClass("errorBorder");
-    }
+    }   
   });
-
-  if ($("#userId").val().length < 7) {
-      valid = false;
-      $("#message").html("Die UserId besteht aus 7 Zeichen").addClass("errorText");
-      $("#userId").removeClass("inputBorder");
-      $("#userId").addClass("errorBorder");
-  }
   if (valid) checkInput();
-  });
+});
+
 
 function checkInput() {
+
   var valid = true;
 
   $("[required]").each(function () {
-    if (
-      $(this).attr("id") === "userId" && (!$(this).val())
-    ) {
-      $("#message").addClass("errorText");
-
+    valid = true;
+    if ($(this).attr("id") === "password") {
       valid = false;
-      $("#message").html("Invalid format");
-      $(this).removeClass("inputBorder");
-      $(this).addClass("errorBorder");
-    }
-    if (
-      $(this).attr("id") === "password" &&
-      (!$(this).val() || $(this).val().length < 8)
-    ) {
-      $("#message").addClass("errorText");
+      var message;
 
-      valid = false;
-      var message = "Das Passwort besteht aus mindestens 8 Zeichen";
+      if ($(this).val().length < 8 && $(this).val().length >= 1) {
 
-      $("#message").html(message);
-      $("#password").removeClass("inputBorder");
-      $("#password").addClass("errorBorder");
+        message = "Das Passwort besteht aus mindestens 8 Zeichen";
+  
+        $("#message").html(message).addClass("errorText");
+        $("#password").removeClass("inputBorder");
+        $("#password").addClass("errorBorder");
+      } else if($(this).val().length == 0){
+        message = "Bitte fülle aller Felder aus";
+  
+        $("#message").html(message).addClass("errorText");
+        $("#password").removeClass("inputBorder");
+        $("#password").addClass("errorBorder");
+      } else {
+        $("#password").removeClass("inputBorder");
+        $("#password").addClass("errorBorder");
+        valid = true;
+      }
     }
   });
   if (valid) verifySuccess();

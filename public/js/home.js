@@ -1,3 +1,4 @@
+
 // Global variables
 let picker;
 let dates = {};
@@ -354,6 +355,13 @@ const editBooking = (event, machines) => {
   })
 }
 
+
+$('#user-table-body tr').each(function() {console.log($(this))})
+
+const editUser = (event) => {
+  console.log(event.target);
+}
+
 const deleteBooking = (event) => {
 
   let element;
@@ -425,6 +433,73 @@ const deleteBooking = (event) => {
         }
       }
     })
+}
+
+const deleteUser = (event) => {
+  const userIdToDelete = $(event.target).closest('tr').children().eq(2).text();
+
+  Swal.fire({
+    title: `Wollen Sie den Nutzer ${userIdToDelete} wirklich löschen?`,
+    icon: 'warning',
+    showCancelButton: true,
+    cancelButtonColor: 'lightgrey',
+    confirmButtonText: 'Löschen',
+    confirmButtonColor: 'rgb(0, 30, 80)',
+    cancelButtonText: 'Abbrechen', 
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+
+      $.ajax({
+        url: "/home/deleteUser",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ data: userIdToDelete}),
+        success: function (response) {
+          Swal.fire({
+            title: "Der Nutzer wurde erfolgreich gelöscht",
+            icon: "success",
+            allowOutsideClick: false,
+            showCloseButton: false,
+            showCancelButton: false,
+            showConfirmButton: false,
+            background: "#f6f8fa",
+            timer: 2000,
+          }).then(() => {
+            openUserView();
+          });
+        },
+        error: function (err) {
+          console.log(err.responseJSON.msg);
+          try {
+            Swal.fire({
+              title: err.responseJSON.msg,
+              icon: "error",
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+            });
+          } catch {
+            Swal.fire({
+              title: "Es ist ein unerwarteter Fehler aufgetreten",
+              icon: "error",
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+              allowOutsideClick: false,
+              background: "#f6f8fa",
+            });
+          }
+        }
+      });
+
+      if($('#table-body')[0].rows.length == 1) {
+        $('#nobookings-info').show();
+        $('#edit-btn').text('Buchung bearbeiten');
+        $('#edit-btn').addClass('edit-btn-disabled');
+      }
+    } else {
+      openUserView();
+    }
+  })
 }
 
 const resetDatepicker = () => {
@@ -525,7 +600,7 @@ const closeCalendar = () => {
   dateArray = [];
 }
 
-const toggleEditMode = () => {
+const toggleBookingEditMode = () => {
   if($('#table-body')[0].rows.length > 1) {
     if($('#edit-btn').hasClass('off')) {
         $('#edit-btn').removeClass('off');
@@ -546,6 +621,24 @@ const toggleEditMode = () => {
     $('.edit-icons-header').hide();
     $('.edit-icons-cell').hide();
     $('#edit-btn').text('Buchung bearbeiten');
+  }
+}
+
+const toggleUserEditMode = () => {
+  if($('#user-table-body')[0].rows.length >= 1) {
+    if($('#user-edit-btn').hasClass('off')) {
+        $('#user-edit-btn').removeClass('off');
+        $('#user-edit-btn').addClass('on')
+        $('.edit-icons-header').show();
+        $('.edit-icons-cell').show();
+        $('#user-edit-btn').text('Bearbeitungsmodus beenden');
+    } else if($('#user-edit-btn').hasClass('on')){
+        $('#user-edit-btn').removeClass('on');
+        $('#user-edit-btn').addClass('off')
+        $('.edit-icons-header').hide();
+        $('.edit-icons-cell').hide();
+        $('#user-edit-btn').text('Nutzer bearbeiten');
+    }
   }
 }
 
@@ -703,6 +796,7 @@ const getMachines = (placeholderMachine) => {
   });
 
 }
+
 const buildBookingTable = (all) => {
 
   $.ajax({
@@ -722,7 +816,7 @@ const buildBookingTable = (all) => {
         $('#nobookings-info').hide();
         $(".booking-row").remove();
 
-        toggleEditMode();
+        toggleBookingEditMode();
 
         $('#edit-btn').removeClass('edit-btn-disabled');
 
@@ -771,7 +865,7 @@ const buildBookingTable = (all) => {
           } 
         } 
 
-        $('.edit-icon').click((event) => {  
+        $('.edit-icon').click((event) => {
           editBooking(event);
         })
         
@@ -846,11 +940,6 @@ const openStatisticView = () => {
 };
 
 const getStatisticsData = (chartType, displayLabel) => {
-  if($(event.target).is("div")) {
-    element = event.target.parentNode.parentNode.parentNode
-  } else if ($(event.target).is("ion-icon")) {
-      element = event.target.parentNode.parentNode.parentNode.parentNode
-  }
 
   $.ajax({
     url: "/home/getStatisticsData",
@@ -894,7 +983,104 @@ const getStatisticsData = (chartType, displayLabel) => {
       }
     }
   });
-};
+}
+
+const buildUserTable = () => {
+
+  $('#user-table-body tr').remove();
+
+  $.ajax({
+    url: "/home/getAllUsers",
+    method: "POST",
+    contentType: "application/json",
+    success: function (response) {
+      for(let user of response) {
+
+        let userElement = '<tr class="user-row">'
+        + `   <td>${user.lastname}</td>`
+        + `   <td>${user.firstname}</td>`
+        + `   <td>${user.userId}</td>`
+        + `   <td>${user.role}</td>`
+        + `   <td>${user.profession === "ABBA" || user.profession === "FACH" ? user.profession = "---" : user.profession}</td>`
+        + `   <td>${user.apprenticeyear === "0" ? user.apprenticeyear = "---" : user.apprenticeyear}</td>`
+        + '   <td class="edit-icons-cell">'
+        + '       <div class="edit-icons-container">'
+        + '           <div title="Diesen Nutzer bearbeiten" class="user-edit-icon"><ion-icon name="pencil-outline"></ion-icon></div>'
+        + '           <div title="Diesen Nutzer l&#246;schen" class="user-delete-icon"><ion-icon name="trash-outline"></ion-icon></div>'
+        + '       </div>'
+        + '   </td>'
+        + '</tr>'
+        
+        $('#user-table-body').append(userElement);
+      }
+
+      $('#user-search-field').on('input', function() {
+        let searchText = $('#user-search-field').val();
+
+        setTimeout(() => {
+
+          if($('#user-search-field').val().trim() === "") {
+            $('#nothing-found-info-text').hide();
+            $('#user-table-body tr').show();
+            $('#user-edit-btn').removeClass('edit-btn-disabled');
+          } else if(searchText === $('#user-search-field').val()){
+            searchTable("user", searchText);
+          }
+        }, 1000)
+
+      });
+
+      $('#user-search-field').click(() => {
+        $('#search-icon').hide();
+        $('#user-search-field').css('width', '25%');
+        $('#user-search-field').attr('placeholder', "Suchen...");
+      })
+
+      $('#search-icon').click(() => {
+        $('#user-search-field').click();
+        $('#user-search-field').focus();
+      })
+
+      $('#user-search-field').focusout(() => {
+        if($('#user-search-field').val() === '') {
+          $('#search-icon').show();
+          $('#user-search-field').css('width', '45px');
+          $('#user-search-field').attr('placeholder', "");
+        } 
+      })
+
+      $('.user-edit-icon').click((event) => {
+        editUser(event);
+      })
+
+      $('.user-delete-icon').click((event) => {
+        deleteUser(event);
+      })
+
+      $('.user-table th').click((e) => {
+        console.log(e.target);
+      })
+    },
+    error: function (err) {
+      console.log(err.responseJSON.msg);
+      try {
+        Swal.fire({
+          title: err.responseJSON.msg,
+          icon: "error",
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+        });
+      } catch {
+        Swal.fire({
+          title: "Es ist ein unerwarteter Fehler aufgetreten",
+          icon: "error",
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+        });
+      }
+    }
+  })
+}
 
 const buildChart = (type, labels, data, labeltext, displayLabel) => {
   let chartStatus = Chart.getChart("chart"); // <canvas> id
@@ -967,7 +1153,7 @@ const buildChart = (type, labels, data, labeltext, displayLabel) => {
         }
     }
   })
-};
+}
 
 const hasPermission = (permissionClass, action) => {
 
@@ -990,6 +1176,43 @@ const hasPermission = (permissionClass, action) => {
   }); 
 }
 
+const searchTable = (table, searchText) => {
+
+  if(table === "user") {
+
+    let somethingFound;
+
+    $('#user-table-body tr').hide();
+    $('#nothing-found-info-text').hide();
+
+
+    $('#user-table-body tr').each(function() {
+
+      $(this).children().each(function() {
+        if(!$(this).hasClass('edit-icons-cell')) {
+          if($(this).text().toLowerCase().trim().startsWith(searchText.toLowerCase().trim(), 0)) {
+
+            somethingFound = true;
+
+            $('#user-edit-btn').removeClass('edit-btn-disabled');
+
+            $(this).closest('tr').show();
+
+          }
+        }
+      })
+    })
+
+    if(!somethingFound) {
+
+      $('#nothing-found-info-text').show();
+      $('#user-edit-btn').addClass('edit-btn-disabled');
+    
+    }
+
+  }
+}
+
 const buildView = (isAdmin) => {
   if(isAdmin) {
     buildBookingTable(true);
@@ -1010,10 +1233,63 @@ const buildView = (isAdmin) => {
     $('#statistic-btn').click(() => {
       openStatisticView();
     });
+
+
+    $('#user-btn').click(() => {
+      openUserView();
+    })
   }
   else {
     buildBookingTable(false);
   }
+}
+
+const openUserView = () => {
+  
+  Swal.fire({
+    html: '<div class="user-content">'
+    + '<div class="user-search-field-container">'
+    + ' <input title="Suchen" id="user-search-field" type="text"></input>'
+    + ' <ion-icon id="search-icon" name="search-outline"></ion-icon>'
+    + '</div>'
+    + '<div class="user-table-container">'
+    + ' <div>'
+    + '   <table class="user-table" cellspacing="0" cellpadding="0">'
+    + '       <caption>Maschinenpark Nutzer</caption>'
+    + '       <thead>'
+    + '           <tr>'
+    + '               <th>Nachname</th>'
+    + '               <th>Vorname</th>'
+    + '               <th>UserID</th>'
+    + '               <th>Role</th>'
+    + '               <th>Beruf</th>'
+    + '               <th>Einstellungsjahr</th>'
+    + '               <th class="edit-icons-header"></th>'
+    + '           </tr>'
+    + '       </thead>'
+    + '       <tbody id="user-table-body">'
+    + '       </tbody>'
+    + '   </table>'
+    + ' </div>'
+    + '</div>'
+    + '</div>'
+    + '<div>'
+    + '<div>'
+    + ' <p id="nothing-found-info-text">Es konnten keine Daten gefunden werden!</p>'
+    + '</div>'
+    + '<button class="off" id="user-edit-btn">Nutzer bearbeiten<button>'
+    + '</button>',
+    width: '90%',
+    customClass: 'swal-user',
+    showConfirmButton: false
+  });
+
+  $('#user-search-field').blur();
+  $('#user-edit-btn').click(() => {
+    toggleUserEditMode();
+  })
+
+  buildUserTable();
 }
 
 hasPermission("3", "buildView")
@@ -1028,7 +1304,7 @@ $('#add-btn').click(() => {
 });
 
 $('#edit-btn').click(() => {    
-    toggleEditMode();
+    toggleBookingEditMode();
 })
 
 $('#logout-btn').click(() => {
@@ -1037,6 +1313,6 @@ $('#logout-btn').click(() => {
 
 $(document).keydown(function(event) {
   if(event.key === "Escape" && $('#edit-btn').hasClass('on')) {
-    toggleEditMode();
+    toggleBookingEditMode();
   }
 })
