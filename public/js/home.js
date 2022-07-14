@@ -436,7 +436,70 @@ const deleteBooking = (event) => {
 }
 
 const deleteUser = (event) => {
-  console.log(event.target)
+  const userIdToDelete = $(event.target).closest('tr').children().eq(2).text();
+
+  Swal.fire({
+    title: `Wollen Sie den Nutzer ${userIdToDelete} wirklich löschen?`,
+    icon: 'warning',
+    showCancelButton: true,
+    cancelButtonColor: 'lightgrey',
+    confirmButtonText: 'Löschen',
+    confirmButtonColor: 'rgb(0, 30, 80)',
+    cancelButtonText: 'Abbrechen', 
+    reverseButtons: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+
+      $.ajax({
+        url: "/home/deleteUser",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ data: userIdToDelete}),
+        success: function (response) {
+          Swal.fire({
+            title: "Der Nutzer wurde erfolgreich gelöscht",
+            icon: "success",
+            allowOutsideClick: false,
+            showCloseButton: false,
+            showCancelButton: false,
+            showConfirmButton: false,
+            background: "#f6f8fa",
+            timer: 2000,
+          }).then(() => {
+            openUserView();
+          });
+        },
+        error: function (err) {
+          console.log(err.responseJSON.msg);
+          try {
+            Swal.fire({
+              title: err.responseJSON.msg,
+              icon: "error",
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+            });
+          } catch {
+            Swal.fire({
+              title: "Es ist ein unerwarteter Fehler aufgetreten",
+              icon: "error",
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+              allowOutsideClick: false,
+              background: "#f6f8fa",
+            });
+          }
+        }
+      });
+
+      if($('#table-body')[0].rows.length == 1) {
+        $('#nobookings-info').show();
+        $('#edit-btn').text('Buchung bearbeiten');
+        $('#edit-btn').addClass('edit-btn-disabled');
+      }
+    } else {
+      openUserView();
+    }
+  })
 }
 
 const resetDatepicker = () => {
@@ -853,8 +916,8 @@ const buildUserTable = () => {
         + `   <td>${user.firstname}</td>`
         + `   <td>${user.userId}</td>`
         + `   <td>${user.role}</td>`
-        + `   <td>${user.profession}</td>`
-        + `   <td>${user.apprenticeyear}</td>`
+        + `   <td>${user.profession === "ABBA" || user.profession === "FACH" ? user.profession = "---" : user.profession}</td>`
+        + `   <td>${user.apprenticeyear === "0" ? user.apprenticeyear = "---" : user.apprenticeyear}</td>`
         + '   <td class="edit-icons-cell">'
         + '       <div class="edit-icons-container">'
         + '           <div title="Diesen Nutzer bearbeiten" class="user-edit-icon"><ion-icon name="pencil-outline"></ion-icon></div>'
@@ -872,11 +935,13 @@ const buildUserTable = () => {
         setTimeout(() => {
 
           if($('#user-search-field').val().trim() === "") {
+            $('#nothing-found-info-text').hide();
             $('#user-table-body tr').show();
+            $('#user-edit-btn').removeClass('edit-btn-disabled');
           } else if(searchText === $('#user-search-field').val()){
             searchTable("user", searchText);
           }
-        }, 2000)
+        }, 1000)
 
       });
 
@@ -958,7 +1023,10 @@ const searchTable = (table, searchText) => {
 
   if(table === "user") {
 
+    let somethingFound;
+
     $('#user-table-body tr').hide();
+    $('#nothing-found-info-text').hide();
 
 
     $('#user-table-body tr').each(function() {
@@ -969,12 +1037,22 @@ const searchTable = (table, searchText) => {
 
             somethingFound = true;
 
+            $('#user-edit-btn').removeClass('edit-btn-disabled');
+
             $(this).closest('tr').show();
 
           }
         }
       })
     })
+
+    if(!somethingFound) {
+
+      $('#nothing-found-info-text').show();
+      $('#user-edit-btn').addClass('edit-btn-disabled');
+    
+    }
+
   }
 }
 
@@ -1038,6 +1116,9 @@ const openUserView = () => {
     + '</div>'
     + '</div>'
     + '<div>'
+    + '<div>'
+    + ' <p id="nothing-found-info-text">Es konnten keine Daten gefunden werden!</p>'
+    + '</div>'
     + '<button class="off" id="user-edit-btn">Nutzer bearbeiten<button>'
     + '</button>',
     width: '90%',

@@ -128,7 +128,7 @@ select:focus {
 
 .errorText {
     color: #ff3a3a;
-    padding-top: 12px;
+    padding-bottom: 10px;
     text-align: center;
     font-family: 'Trebuchet MS', sans-serif;
     font-size: 20px;

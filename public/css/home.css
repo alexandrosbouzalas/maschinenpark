@@ -138,6 +138,20 @@ caption {
     text-align: start;
 }
 
+
+#nothing-found-info-text {
+    display: none;
+    position: absolute;
+    font-size: 25px;
+    color: #f25902;
+    top: 50%;
+    right: 0;
+    left: 0;
+    margin-right: auto;
+    margin-left: auto;
+    width: 600px;
+}
+
 .user-search-field-container ion-icon {
     color: rgb(0, 30, 80);
     font-size: 25px;

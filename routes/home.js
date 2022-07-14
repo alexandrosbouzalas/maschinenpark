@@ -379,5 +379,43 @@ router.post("/getAllUsers", async (req, res) => {
   }
 })
 
+router.post("/deleteUser", async (req, res) => {
+  if (req.session.authenticated) {
+    try {
+
+      const { userId } = req.session.user;
+      const  userIdToDelete = req.body.data;
+
+      const user = await User.findOne({userId: userId});
+      const userToDelete = await User.findOne({userId: userIdToDelete})
+
+      if(user) {
+
+        if(userToDelete) {
+
+          if(user.permissionClass === "3") {
+            
+            await User.deleteOne({userId: userIdToDelete});
+
+            res.status(200).send();
+          } else 
+            res.status(403).send();
+        } else {
+          throw new Error("Keine Nutzer gefunden");
+        }
+
+      } else {
+        res.status(403).send();
+      }
+        
+    } catch (err) {
+      throw new Error("Beim Löschen des Nutzers ist ein Problem aufgetreten");
+    }
+    
+  } else {
+    res.status(403).send();
+  }
+})
+
 
 module.exports = router;
