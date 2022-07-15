@@ -357,30 +357,37 @@ const editBooking = (event, machines) => {
 
 const editUser = (event) => {
   if($(event.target).is("div")) {
-    element = event.target.parentNode.parentNode.parentNode
+    element = event.target.parentNode.parentNode.parentNode;
   } else if ($(event.target).is("ion-icon")) {
-      element = event.target.parentNode.parentNode.parentNode.parentNode
+    element = event.target.parentNode.parentNode.parentNode.parentNode;
   }
+
+  const currentUserLastname = element.children[0].innerText;
+  const currentUserFirstname = element.children[1].innerText;
+  const currentUserUserId = element.children[2].innerText;
+  const currentUserRole = element.children[3].innerText;
+  const currentUserProfession = element.children[4].innerText;
+  const currentUserApprenticeyear = element.children[5].innerText;
 
   Swal.fire({
     html: '<div class="edit-options-container">'
     + ' <div class="edit-option">'
     + '     <div class="edit-option-row">'
     + '         <div class="label-container">'
-    + '             <label for="nachname">Nachname:</label>'
+    + '             <label for="lastname">Nachname:</label>'
     + '         </div>'
     + '         <div>'
-    + `             <input id="nachname" type="text" name="nachname" placeholder="${element.children[0].innerText}"/>`
+    + `             <input id="lastname" type="text" name="lastname" placeholder="${currentUserLastname}"/>`
     + '         </div>'
     + '     </div>'
     + ' </div>'
     + ' <div class="edit-option">'
     + '     <div class="edit-option-row">'
     + '         <div class="label-container">'
-    + '             <label for="vorname">Vorname:</label>'
+    + '             <label for="firstname">Vorname:</label>'
     + '         </div>'
     + '         <div>'
-    + `             <input id="vorname" type="text" name="vorname" placeholder="${element.children[1].innerText}"/>`
+    + `             <input id="firstname" type="text" name="firstname" placeholder="${currentUserFirstname}"/>`
     + '         </div>'
     + '     </div>'
     + ' </div>'
@@ -390,7 +397,7 @@ const editUser = (event) => {
     + '             <label for="userId">UserID:</label>'
     + '         </div>'
     + '         <div>'
-    + `             <input id="userId" type="text" name="userId" minLength="7" maxLength="7" style="text-transform:uppercase" placeholder="${element.children[2].innerText}"/>`
+    + `             <input id="userId" type="text" name="userId" minLength="7" maxLength="7" style="text-transform:uppercase" placeholder="${currentUserUserId}"/>`
     + '         </div>'
     + '     </div>'
     + ' </div>'
@@ -451,54 +458,87 @@ const editUser = (event) => {
 
       const updateOptions = {};
 
-      Object.assign(updateOptions, {bookingId: element.children[element.children.length - 5].innerText});
-      Object.assign(updateOptions, {machines: machines ? machines : [currentMachine.innerText]});
-      Object.assign(updateOptions, {beginDate: dates.beginDate ? dates.beginDate: $('#from-date-picker').attr("placeholder")});
-      Object.assign(updateOptions, {endDate: dates.endDate ? dates.endDate: $('#to-date-picker').attr("placeholder")});
+      Object.assign(updateOptions, {userIdToEdit: currentUserUserId});
 
-      dates = {};
+      if($('#lastname').val().length >= 1 && $('#lastname').val() !== $('#lastname').attr('placeholder')) {
+        Object.assign(updateOptions, {lastname: $('#lastname').val()});
+      }
+      if($('#firstname').val().length >= 1 && $('#firstname').val() !== $('#firstname').attr('placeholder')) {
+        Object.assign(updateOptions, {firstname: $('#firstname').val()});
+      }
+      if($('#userId').val().length >= 1 && $('#userId').val() !== $('#userId').attr('placeholder')) {
+        Object.assign(updateOptions, {userId: $('#userId').val().toUpperCase()});
+      }
+      if(currentUserRole !== $('#role').val()) {
+        Object.assign(updateOptions, {role: $('#role').val()});
+      }
+      if(currentUserProfession !== $('#profession').val()) {
+        if($('#profession').val() === 'ANDERE')
+          Object.assign(updateOptions, {profession: "OTHER"});
+        else
+          Object.assign(updateOptions, {profession: $('#profession').val()});
 
-      $.ajax({
-        url: "/home/updateBooking",
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify({ data: updateOptions }),
-        success: function (response) {
-          Swal.fire({
-            title: "Ihre Buchung wurde erfolgreich aktualisiert",
-            icon: "success",
-            allowOutsideClick: false,
-            showCloseButton: false,
-            showCancelButton: false,
-            showConfirmButton: false,
-            background: "#f6f8fa",
-            timer: 2000,
-          }).then(() => {
-            hasPermission("3", "buildView")
+      }
+      if(currentUserApprenticeyear !== $('#apprenticeyear').val()) {
+        Object.assign(updateOptions, {apprenticeyear: $('#apprenticeyear').val()});
+      }
 
-          });
-        },
-        error: function (err) {
-          console.log(err.responseJSON.msg);
-          try {
+      if(Object.keys(updateOptions).length >= 2) {
+        $.ajax({
+          url: "/home/updateUser",
+          method: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({ data: updateOptions }),
+          success: function (response) {
             Swal.fire({
-              title: err.responseJSON.msg,
-              icon: "error",
+              title: "Die Nutzerdaten wurde erfolgreich aktualisiert",
+              icon: "success",
               allowOutsideClick: false,
-              confirmButtonText: "OK",
-            });
-          } catch {
-            Swal.fire({
-              title: "Es ist ein unerwarteter Fehler aufgetreten",
-              icon: "error",
-              allowOutsideClick: false,
-              confirmButtonText: "OK",
-              allowOutsideClick: false,
+              showCloseButton: false,
+              showCancelButton: false,
+              showConfirmButton: false,
               background: "#f6f8fa",
+              timer: 2000,
+            }).then(() => {
+              openUserView();
+
             });
+          },
+          error: function (err) {
+            console.log(err.responseJSON.msg);
+            try {
+              Swal.fire({
+                title: err.responseJSON.msg,
+                icon: "error",
+                allowOutsideClick: false,
+                confirmButtonText: "OK",
+              });
+            } catch {
+              Swal.fire({
+                title: "Es ist ein unerwarteter Fehler aufgetreten",
+                icon: "error",
+                allowOutsideClick: false,
+                confirmButtonText: "OK",
+                allowOutsideClick: false,
+                background: "#f6f8fa",
+              });
+            }
           }
-        }
-      }); 
+        });
+      } else {
+        Swal.fire({
+          title: "Es wurden keine Änderungen vorgenommen",
+          icon: "info",
+          allowOutsideClick: false,
+          showCloseButton: false,
+          showCancelButton: false,
+          showConfirmButton: false,
+          background: "#f6f8fa",
+          timer: 2000,
+        }).then(() => {
+          openUserView(true);
+        });
+      }
     } else {
       openUserView(true);
     }
@@ -555,7 +595,7 @@ const deleteBooking = (event) => {
   }
 
   Swal.fire({
-      title: "Wollen Sie diese Buchung wirklich löschen?",
+      title: `Wollen Sie Buchung ${element.children[element.children.length - 5].innerText} wirklich löschen?`,
       icon: 'warning',
       showCancelButton: true,
       cancelButtonColor: 'lightgrey',
@@ -1473,6 +1513,8 @@ const openUserView = (edit) => {
     showCancelButton: false,
     width: '90%',
     customClass: 'swal-user',
+  }).then(() => {
+    $('.edit-icons-header').hide();
   });
 
   $('#user-search-field').blur();

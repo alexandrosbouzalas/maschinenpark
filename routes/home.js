@@ -414,6 +414,47 @@ router.post("/getAllUsers", async (req, res) => {
   }
 })
 
+router.post("/updateUser", async (req, res) => {
+  if (req.session.authenticated) {
+    try {
+
+      const { userId } = req.session.user;
+      const updateOptions = req.body.data;
+
+      const userIdToEdit = updateOptions.userIdToEdit;
+
+      delete updateOptions.userIdToEdit;
+
+      const user = await User.findOne({userId: userId});
+      const userToEdit = await User.findOne({userId: userIdToEdit});
+
+      if(user && userToEdit) {
+          if(user.permissionClass === "3") {
+            
+            await User.updateMany(
+              {
+                  userId: userIdToEdit,
+              },
+              { 
+                $set: updateOptions     
+              })
+
+            res.status(200).send();
+          } else 
+            res.status(403).send();
+      } else {
+        res.status(403).send();
+      }
+        
+    } catch (err) {
+      throw new Error("Beim Bearbeiten der Nutzerdaten ist ein Problem aufgetreten");
+    }
+    
+  } else {
+    res.status(403).send();
+  }
+})
+
 router.post("/deleteUser", async (req, res) => {
   if (req.session.authenticated) {
     try {
