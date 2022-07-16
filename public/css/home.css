@@ -15,6 +15,12 @@
     color: #f25902;
 }
 
+#user-edit-error {
+    display: none;
+    color: red;
+    font-family: 'VW Head', sans-serif;
+}
+
 .my-bookings-table tbody tr.soon-row {
     font-weight: bold;
     color: rgb(0, 30, 80);
@@ -65,11 +71,13 @@ caption {
     width: 80%;
     border: 3px solid rgb(0, 30, 80);
     border-radius: 15px;
-    overflow-x: auto;
+    height: 80vh;
+    overflow: scroll;
 
 }
 
 .user-table-container {
+    overflow-y: scroll !important;
     white-space: nowrap;
     width: 80%;
     height: 70vh;
@@ -123,7 +131,12 @@ caption {
     flex-direction: column;
 }
 
+th {
+    cursor: pointer;
+}
+
 .user-search-field-container {
+    z-index: 99;
     width: 80%;
     margin: auto;
     float: right;
@@ -163,10 +176,11 @@ caption {
 
 .container-secondary {
     width: 50%;
+    margin-top: 5%;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 80vh;
+    height: 75vh;
     overflow: hidden;
 }
 
@@ -238,6 +252,15 @@ caption {
    opacity: 1;
 }
 
+.option-field {
+    color: black !important;
+ }
+
+.option-field::placeholder {
+    color: black !important;
+    opacity: 1;
+ }
+ 
 #nobookings-info {
     display: none;
 }
@@ -722,6 +745,11 @@ select {
 
 #user-edit-btn:hover {
     background-color: #02ccfd;
+}
+
+.active-sort-header
+{
+  color: #02ccfd !important;
 }
 
 @media screen and (max-width: 1000px) { 

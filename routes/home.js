@@ -428,28 +428,33 @@ router.post("/updateUser", async (req, res) => {
       const user = await User.findOne({userId: userId});
       const userToEdit = await User.findOne({userId: userIdToEdit});
 
-      if(user && userToEdit) {
-          if(user.permissionClass === "3") {
-            
-            await User.updateMany(
-              {
-                  userId: userIdToEdit,
-              },
-              { 
-                $set: updateOptions     
-              })
+      const userIdPrevious = await User.findOne({userId: updateOptions.userId})
 
-            res.status(200).send();
-          } else 
-            res.status(403).send();
+      if(userIdPrevious) {
+        throw new Error('Die eingegebene UserID existiert bereits und kann nicht nochmal benutzt werden')
       } else {
-        res.status(403).send();
+        if(user && userToEdit) {
+            if(user.permissionClass === "3") {
+              
+              await User.updateMany(
+                {
+                    userId: userIdToEdit,
+                },
+                { 
+                  $set: updateOptions     
+                })
+  
+              res.status(200).send();
+            } else 
+              res.status(403).json({msg: "Beim Bearbeiten der Nutzerdaten ist ein Problem aufgetreten"});
+        } else {
+          res.status(400).json({msg: "Beim Bearbeiten der Nutzerdaten ist ein Problem aufgetreten"});
+        }
       }
-        
+       
     } catch (err) {
-      throw new Error("Beim Bearbeiten der Nutzerdaten ist ein Problem aufgetreten");
+      res.status(400).json({msg: err.message});
     }
-    
   } else {
     res.status(403).send();
   }

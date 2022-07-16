@@ -94,7 +94,7 @@ const createBooking = (machines, edit) => {
     + '             <label for="maschine">Maschine:</label>'
     + '         </div>'
     + '         <div>'
-    + `             <input class="edit-field" id="current-machines" type="text" placeholder="${machines}" name="maschine" disabled/>`
+    + `             <input class="option-field" id="current-machines" type="text" placeholder="${machines}" name="maschine" disabled/>`
     + '         </div>'
     + '         <div>'
     + `             <button id="maschine-change-btn" type="button" onClick="openParkView('${machines}')">Auswählen</button>`
@@ -107,7 +107,7 @@ const createBooking = (machines, edit) => {
     + '             <label for="from">Von:</label>'
     + '         </div>'
     + '         <div>'
-    + `             <input class="edit-field" type="text" id="from-date-picker" name="from" disabled/>`
+    + `             <input class="option-field" type="text" id="from-date-picker" name="from" disabled/>`
     + '         </div>'
     + '         <div class="icon-container" onClick="openCalendar($(this), true)">'
     + '             <ion-icon id="from-calendar" name="calendar-outline" ></ion-icon>'
@@ -120,7 +120,7 @@ const createBooking = (machines, edit) => {
     + '             <label for="to">Bis:</label>'
     + '         </div>'
     + '         <div>'
-    + `             <input class="edit-field" type="text" id="to-date-picker" name="to" disabled />`
+    + `             <input class="option-field" type="text" id="to-date-picker" name="to" disabled />`
     + '         </div>'
     + '         <div class="icon-container" onClick="openCalendar($(this), true)">'
     + '             <ion-icon id="from-calendar" name="calendar-outline"></ion-icon>'
@@ -353,6 +353,7 @@ const editBooking = (event, machines) => {
         picker.close();
     }
   })
+
 }
 
 const editUser = (event) => {
@@ -444,6 +445,7 @@ const editUser = (event) => {
     + '         </div>'
     + '     </div>'
     + ' </div>'
+    + ' <p id="user-edit-error"></p>'
     + '</div>',
     showCancelButton: true,
     width: '90%',
@@ -453,6 +455,46 @@ const editUser = (event) => {
     confirmButtonText: 'Speichern',
     confirmButtonColor: 'rgb(0, 30, 80)',
     reverseButtons: true,
+    preConfirm: () => {
+      valid = true;
+      if($('#lastname').val().length >= 1 && $('#lastname').val() !== $('#lastname').attr('placeholder')) {
+        if(!/^[a-zA-Z]+$/.test($('#lastname').val())) {
+          valid = false;
+          $('#user-edit-error').text('Der Nachname darf nur Buchstaben enthalten');
+          $('#lastname').addClass('errorBorder');
+          $('#user-edit-error').slideDown();
+        } else {
+          $('#lastname').removeClass('errorBorder');
+        }
+      }
+      if($('#firstname').val().length >= 1 && $('#firstname').val() !== $('#firstname').val() !== $('#firstname').attr('placeholder')) {
+        if(!/^[a-zA-Z]+$/.test($('#firstname').val())) {
+          valid = false;
+          $('#user-edit-error').text('Der Vorname darf nur Buchstaben enthalten');
+          $('#firstname').addClass('errorBorder');
+          $('#user-edit-error').slideDown();
+        } else {
+          $('#firstname').removeClass('errorBorder');
+        }
+      }
+      if($('#userId').val().length >= 1 && $('#userId').val() !== $('#userId').attr('placeholder')) {
+        if($('#userId').val().length < 7) {
+          valid = false;
+          $('#user-edit-error').text('Die UserID muss 7 Zeichen lang sein');
+          $('#userId').addClass('errorBorder');
+          $('#user-edit-error').slideDown();
+        } else if(!/^[a-zA-Z0-9]+$/.test($('#userId').val())) {
+          $('#user-edit-error').text('Die UserID darf nur Buchstaben und Zahlen enthalten');
+          $('#userId').addClass('errorBorder');
+          $('#user-edit-error').slideDown();
+        } else {
+          $('#userId').removeClass('errorBorder');
+        }
+      }
+
+      if(valid) return true;
+      else return false;
+    },
   }).then((result) => {
     if (result.isConfirmed) {
 
@@ -469,9 +511,6 @@ const editUser = (event) => {
       if($('#userId').val().length >= 1 && $('#userId').val() !== $('#userId').attr('placeholder')) {
         Object.assign(updateOptions, {userId: $('#userId').val().toUpperCase()});
       }
-      if(currentUserRole !== $('#role').val()) {
-        Object.assign(updateOptions, {role: $('#role').val()});
-      }
       if(currentUserProfession !== $('#profession').val()) {
         if($('#profession').val() === 'ANDERE')
           Object.assign(updateOptions, {profession: "OTHER"});
@@ -482,6 +521,24 @@ const editUser = (event) => {
       if(currentUserApprenticeyear !== $('#apprenticeyear').val()) {
         Object.assign(updateOptions, {apprenticeyear: $('#apprenticeyear').val()});
       }
+      if(currentUserRole !== $('#role').val()) {
+        if($('#role').val() === "ABBA" || $('#role').val() === "FACH") {
+          Object.assign(updateOptions, {role: $('#role').val()});
+          Object.assign(updateOptions, {profession: $('#role').val()});
+          Object.assign(updateOptions, {apprenticeyear: "0"});
+        } else if($('#role').val() === "AZB"){
+          if(currentUserProfession !== $('#profession').val()) {
+            if($('#profession').val() === 'ANDERE')
+              Object.assign(updateOptions, {profession: "OTHER"});
+            else
+              Object.assign(updateOptions, {profession: $('#profession').val()});
+    
+          }
+          if(currentUserApprenticeyear !== $('#apprenticeyear').val()) {
+            Object.assign(updateOptions, {apprenticeyear: $('#apprenticeyear').val()});
+          }
+        }
+      }
 
       if(Object.keys(updateOptions).length >= 2) {
         $.ajax({
@@ -491,7 +548,7 @@ const editUser = (event) => {
           data: JSON.stringify({ data: updateOptions }),
           success: function (response) {
             Swal.fire({
-              title: "Die Nutzerdaten wurde erfolgreich aktualisiert",
+              title: "Die Nutzerdaten wurden erfolgreich aktualisiert",
               icon: "success",
               allowOutsideClick: false,
               showCloseButton: false,
@@ -501,7 +558,6 @@ const editUser = (event) => {
               timer: 2000,
             }).then(() => {
               openUserView();
-
             });
           },
           error: function (err) {
@@ -582,6 +638,16 @@ const editUser = (event) => {
   })
 
 
+}
+
+const comparer = (index) => {
+  return function(a, b) {
+      var valA = getCellValue(a, index), valB = getCellValue(b, index)
+      return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB)
+  }
+}
+const getCellValue = (row, index) => { 
+  return $(row).children('td').eq(index).text() 
 }
 
 const deleteBooking = (event) => {
@@ -1043,8 +1109,6 @@ const buildBookingTable = (all) => {
 
         $('#edit-btn').removeClass('edit-btn-disabled');
 
-        
-
         for(let booking of response) {
 
           let bookingStartDate = new Date(booking.beginDate);
@@ -1056,8 +1120,6 @@ const buildBookingTable = (all) => {
           } else {
             status = "not-active";
           }
-
-
 
           let bookingElement = '<tr class="booking-row active-row">'
 
@@ -1095,12 +1157,13 @@ const buildBookingTable = (all) => {
         $('.delete-icon').click((event) => {
           deleteBooking(event);
         })
-
+        
       } else {
         $(".booking-row").remove();
         $('#nobookings-info').show();
         $('#edit-btn').addClass('edit-btn-disabled');
       }
+
     },
     error: function (err) {
       console.log(err.responseJSON.msg);
@@ -1435,7 +1498,6 @@ const searchTable = (table, searchText) => {
       $('#user-edit-btn').addClass('edit-btn-disabled');
     
     }
-
   }
 }
 
@@ -1488,12 +1550,12 @@ const openUserView = (edit) => {
     + '       <caption>Maschinenpark Nutzer</caption>'
     + '       <thead>'
     + '           <tr>'
-    + '               <th>Nachname</th>'
-    + '               <th>Vorname</th>'
-    + '               <th>UserID</th>'
-    + '               <th>Role</th>'
-    + '               <th>Beruf</th>'
-    + '               <th>Einstellungsjahr</th>'
+    + '               <th title="Nach Nachname Sortieren">Nachname</th>'
+    + '               <th title="Nach Vorname Sortieren">Vorname</th>'
+    + '               <th title="Nach UserID Sortieren">UserID</th>'
+    + '               <th title="Nach Role Sortieren">Role</th>'
+    + '               <th title="Nach Beruf Sortieren">Beruf</th>'
+    + '               <th title="Nach Einstellungsjahr Sortieren">Einstellungsjahr</th>'
     + '               <th class="edit-icons-header"></th>'
     + '           </tr>'
     + '       </thead>'
@@ -1517,6 +1579,8 @@ const openUserView = (edit) => {
     $('.edit-icons-header').hide();
   });
 
+  addThEventListeners('user-table');
+
   $('#user-search-field').blur();
   $('#user-edit-btn').click(() => {
     toggleUserEditMode();
@@ -1529,7 +1593,28 @@ const openUserView = (edit) => {
   }
 }
 
+const addThEventListeners = (table) => {
+  $(`.${table} th`).click(function(e){
+
+    let currentTableClass = $(e.target).parents().closest('table').attr('class')
+
+    if(!$(this).hasClass('active-sort-header')) {
+      $(`.${currentTableClass} th`).removeClass('active-sort-header');
+      $(this).addClass('active-sort-header');
+    }
+    
+    var table = $(this).parents('table').eq(0)
+    var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()))
+    this.asc = !this.asc
+    if (!this.asc){rows = rows.reverse()}
+    for (var i = 0; i < rows.length; i++){table.append(rows[i])}
+  })
+}
+
+// Function calls
 hasPermission("3", "buildView");
+
+addThEventListeners('my-bookings-table');
 
 // Event listeners
 $('#help-btn').click(() => {
