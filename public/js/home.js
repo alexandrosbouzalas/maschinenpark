@@ -24,7 +24,7 @@ setInterval(() => {
 
 // Functions
 
-const openParkView = (placeholderMachine, editMode) => {
+const openParkView = (isAdmin, placeholderMachine, editMode) => {
 
   Swal.fire({
     html: '<div class="maschinenpark-container">'
@@ -64,11 +64,36 @@ const openParkView = (placeholderMachine, editMode) => {
     } else {
       if(editMode) {
         editBooking(machines);
+      } else if(isAdmin) {
+        Swal.close()
       } else {
         createBooking();
       }
     }
   })
+
+  if(isAdmin) {
+    const machinesEditElement = '<div class="edit-icons-container">'
+    + '    <div title="Eine neue Maschine hinzufügen" class="machine-add-icon"><ion-icon name="add-outline"></ion-icon></div>'
+    + '    <div title="Maschine bearbeiten" class="machine-edit-icon"><ion-icon name="pencil-outline"></ion-icon></div>'
+    + '    <div title="Maschine löschen" class="machine-delete-icon"><ion-icon name="trash-outline"></ion-icon></div>'
+    + '</div>'
+
+    $('.swal2-confirm').hide();
+
+    $('.swal2-html-container').append(machinesEditElement);
+
+    $('.machine-delete-icon').click(() => {
+      if($('.machine-delete-bubble:visible').length == 0)
+      {
+        $('.machine-delete-bubble').show();
+      } else {
+        $('.machine-delete-bubble').hide();
+      }
+    })
+
+    
+  }
 
   Opentip.styles.maschineInfoStyle = {
     extends: "alert",
@@ -79,7 +104,7 @@ const openParkView = (placeholderMachine, editMode) => {
     borderRadius: 10,
   };
   
-  getMachines(placeholderMachine)
+  getMachines(placeholderMachine);
 }
 
 const createBooking = (machines, edit) => {
@@ -99,7 +124,7 @@ const createBooking = (machines, edit) => {
     + `             <input class="option-field" id="current-machines" type="text" placeholder="${machines}" name="maschine" disabled/>`
     + '         </div>'
     + '         <div>'
-    + `             <button id="maschine-change-btn" type="button" onClick="openParkView('${machines}')">Auswählen</button>`
+    + `             <button id="maschine-change-btn" type="button" onClick="openParkView(false, '${machines}')">Auswählen</button>`
     + '         </div>'
     + '     </div>'
     + ' </div>'
@@ -279,7 +304,7 @@ const editBooking = (event, machines) => {
   dates.endDate = currentToDate.innerText;
 
   Swal.fire({
-    html: `<p class="edit-title"><u>Buchung ${element.children[element.children.length - 5].innerText} bearbeiten</u></p>`
+    html: `<p class="edit-title">Buchung ${element.children[element.children.length - 5].innerText} bearbeiten</p>`
     +'<div class="edit-options-container">'
     + ' <div class="edit-option">'
     + '     <div class="edit-option-row">'
@@ -290,7 +315,7 @@ const editBooking = (event, machines) => {
     + `             <input id="current-machines" type="text" name="maschine" placeholder="${machines ? machines : currentMachine.innerText}" disabled/>`
     + '         </div>'
     + '         <div>'
-    + `             <button id="maschine-change-btn" type="button" onClick="openParkView('${machines ? machines : currentMachine.innerText}', true)">Ändern</button>`
+    + `             <button id="maschine-change-btn" type="button" onClick="openParkView(false, '${machines ? machines : currentMachine.innerText}', true)">Ändern</button>`
     + '         </div>'
     + '     </div>'
     + ' </div>'
@@ -427,7 +452,7 @@ const editUser = (event) => {
   const currentUserPermission = element.children[6].innerText;
 
   Swal.fire({
-    html: `<p class="edit-title"><u>${currentUserUserId}'s Nutzerdaten bearbeiten</u></p>`
+    html: `<p class="edit-title">${currentUserUserId}'s Nutzerdaten bearbeiten</p>`
     + '<div class="edit-options-container">'
     + ' <div class="edit-option">'
     + '     <div class="edit-option-row">'
@@ -704,7 +729,7 @@ const editUserPassword = (event) => {
   const currentUserUserId = element.children[2].innerText;
 
   Swal.fire({
-    html: `<p class="edit-title"><u>${currentUserUserId}'s Passwort zurücksetzen</u></p>`
+    html: `<p class="edit-title">${currentUserUserId}'s Passwort zurücksetzen</p>`
     + '<div class="edit-options-container">'
     + ' <div class="edit-option">'
     + '     <div class="edit-option-row">'
@@ -889,7 +914,7 @@ const deleteBooking = (event) => {
 
         if($('#table-body')[0].rows.length == 1) {
           $('#nobookings-info').show();
-          $('#edit-btn').text('Buchung bearbeiten');
+          $('#edit-btn').text('Buchungen verwalten');
           $('#edit-btn').addClass('edit-btn-disabled');
         }
       }
@@ -954,7 +979,7 @@ const deleteUser = (event) => {
 
       if($('#table-body')[0].rows.length == 1) {
         $('#nobookings-info').show();
-        $('#edit-btn').text('Buchung bearbeiten');
+        $('#edit-btn').text('Buchungen verwalten');
         $('#edit-btn').addClass('edit-btn-disabled');
       }
     } else {
@@ -1076,14 +1101,14 @@ const toggleBookingEditMode = () => {
         $('#edit-btn').addClass('off')
         $('.edit-icons-header').hide();
         $('.booking-edit-icons-cell').hide();
-        $('#edit-btn').text('Buchung bearbeiten');
+        $('#edit-btn').text('Buchungen verwalten');
     }
   } else {
     $('#edit-btn').removeClass('on');
     $('#edit-btn').addClass('off')
     $('.edit-icons-header').hide();
     $('.booking-edit-icons-cell').hide();
-    $('#edit-btn').text('Buchung bearbeiten');
+    $('#edit-btn').text('Buchungen verwalten');
   }
 }
 
@@ -1174,6 +1199,8 @@ const getMachines = (placeholderMachine) => {
             console.log("Unbekannte Maschine");
           }
 
+          $(`#${response[i].machineId}`).append('<div class="machine-delete-bubble"></div>');
+
           if(response[i].status === "O") {
 
             const infoBubbleDate = new Date(response[i].endDate.replace(/-/g, '\/').replace(/T.+/, ''));
@@ -1211,6 +1238,39 @@ const getMachines = (placeholderMachine) => {
           new Opentip(`#${response[i].machineId}`, infoContentHtml, title, {style: "maschineInfoStyle"});
         }
 
+        $('.machine-delete-bubble').append('<ion-icon name="close-outline"></ion-icon>');
+
+        $('.machine-delete-bubble').click((event) => {
+          let targetMachine = $(event.target).parents().closest('.maschine');
+
+          Swal.fire({
+            html: `<p class="edit-title">Maschine ${targetMachine.attr('id')} bearbeiten</p>`
+            +'<div class="edit-options-container">'
+            + ' <div class="edit-option">'
+            + '     <div class="edit-option-row">'
+            + '         <div>'
+            + `             <input id="current-machine-number" type="number" name="maschine-number" placeholder="${targetMachine.attr('id').substring(1)}"/>`
+            + '         </div>'
+            + '     </div>'
+            + ' </div>'
+            + '</div>',
+            showCancelButton: true,
+            width: '90%',
+            customClass: 'swal',
+            cancelButtonColor: 'lightgrey',
+            cancelButtonText: 'Abbrechen', 
+            confirmButtonText: 'Speichern',
+            confirmButtonColor: 'rgb(0, 30, 80)',
+            reverseButtons: true,
+          }).then((result) => {
+            if(result.isConfirmed) {
+              console.log('test');
+            } else {
+              openParkView(true);
+            }
+          })
+        })
+
         if(placeholderMachine !== '') {
           $(`#${placeholderMachine}`).addClass('selected');
       
@@ -1218,29 +1278,31 @@ const getMachines = (placeholderMachine) => {
         }
 
         $('.status-f').click((e) => {
-          let element = $(`#${e.target.id}`);
-          
-          let selectedMachines = $('.selected').length
-
-          $('.status-o').removeClass('selected');
-          $('.status-b').removeClass('selected');
-
-          if(selectedMachines > 0) {
-            if(element.hasClass('selected')) {
-              element.css('background-color', '#009879')
-              element.removeClass('selected');
-              machines = [];
+          if($(e.target).hasClass('status-f')) {   
+            let element = $(`#${e.target.id}`);
+            
+            let selectedMachines = $('.selected').length
+  
+            $('.status-o').removeClass('selected');
+            $('.status-b').removeClass('selected');
+  
+            if(selectedMachines > 0) {
+              if(element.hasClass('selected')) {
+                element.css('background-color', '#009879')
+                element.removeClass('selected');
+                machines = [];
+              } else {
+                $('.status-f').css('background-color', '#009879');
+                $('.status-f').removeClass('selected');
+                machines = [];
+                element.addClass('selected');
+                machines.push(element.attr('id'));
+              }
             } else {
-              $('.status-f').css('background-color', '#009879');
-              $('.status-f').removeClass('selected');
               machines = [];
               element.addClass('selected');
               machines.push(element.attr('id'));
             }
-          } else {
-            machines = [];
-            element.addClass('selected');
-            machines.push(element.attr('id'));
           }
         })
 
@@ -1701,6 +1763,10 @@ const buildView = (isAdmin) => {
   
 
     $('#edit-btn').text("Buchungen bearbeiten");
+
+    $('#machine-btn').click(() => {
+      openParkView(true)
+    })
 
     $('#statistic-btn').click(() => {
       openStatisticView();

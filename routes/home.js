@@ -453,17 +453,18 @@ router.post("/getAllUsers", async (req, res) => {
             let currentUser = {};
   
             for(let user of users) {
-              Object.assign(currentUser, {firstname: user.firstname});
-              Object.assign(currentUser, {lastname: user.lastname});
-              Object.assign(currentUser, {userId: user.userId});
-              Object.assign(currentUser, {role: user.role});
-              Object.assign(currentUser, {profession: user.profession});
-              Object.assign(currentUser, {apprenticeyear: user.apprenticeyear});
-              Object.assign(currentUser, {permissionClass: user.permissionClass});
-              
-  
-              usersArr.push(currentUser);
-              currentUser = {};
+              if(user.userId !== userId) {
+                Object.assign(currentUser, {firstname: user.firstname});
+                Object.assign(currentUser, {lastname: user.lastname});
+                Object.assign(currentUser, {userId: user.userId});
+                Object.assign(currentUser, {role: user.role});
+                Object.assign(currentUser, {profession: user.profession});
+                Object.assign(currentUser, {apprenticeyear: user.apprenticeyear});
+                Object.assign(currentUser, {permissionClass: user.permissionClass});
+
+                usersArr.push(currentUser);
+                currentUser = {};
+              }
             }
   
             res.status(200).send(usersArr);
