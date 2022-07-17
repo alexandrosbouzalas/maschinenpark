@@ -85,6 +85,8 @@ const openParkView = (placeholderMachine, editMode) => {
 const createBooking = (machines, edit) => {
 
   machines ? machines : machines = "";
+
+  dates = {};
   
   Swal.fire({
     html: '<div class="edit-options-container">'
@@ -156,6 +158,7 @@ const createBooking = (machines, edit) => {
     + '     </div>'
     + ' </div>'
     + ' </div>'
+    + ' <p id="booking-create-error"></p>'
     + '</div>',
     showCancelButton: true,
     width: '90%',
@@ -165,6 +168,44 @@ const createBooking = (machines, edit) => {
     confirmButtonText: 'Speichern',
     confirmButtonColor: 'rgb(0, 30, 80)',
     reverseButtons: true,
+    preConfirm: () => {
+      valid = true;
+      
+      if($('#current-machines').attr('placeholder') === "" && !dates.beginDate && !dates.endDate) {
+        valid = false;
+        $('.edit-options-container input').addClass('errorBorder');
+        $('#booking-create-error').text("Bitte füllen Sie alle Felder aus");
+        $('#booking-create-error').slideDown();
+      } else {
+        if(!dates.endDate) {
+          valid = false;
+          $('#to-date-picker').addClass('errorBorder');
+          $('#booking-create-error').text("Bitte wählen Sie ein Enddatum aus");
+          $('#booking-create-error').slideDown();
+        } else {
+          $('#to-date-picker').removeClass('errorBorder');
+        }
+        if(!dates.beginDate) {
+          valid = false;
+          $('#from-date-picker').addClass('errorBorder');
+          $('#booking-create-error').text("Bitte wählen Sie ein Startdatum aus");
+          $('#booking-create-error').slideDown();
+        } else {
+          $('#from-date-picker').removeClass('errorBorder');
+        }
+        if(!$('#current-machines').attr('placeholder')) {
+          valid = false;
+          $('#current-machines').addClass('errorBorder');
+          $('#booking-create-error').text("Bitte wählen Sie eine Maschine aus");
+          $('#booking-create-error').slideDown();
+        } else {
+          $('#current-machines').removeClass('errorBorder');
+        }
+      }
+
+      if(valid) return true;
+      else return false; 
+    }
   }).then((result) => {
     if (result.isConfirmed) {
       
@@ -227,24 +268,19 @@ const createBooking = (machines, edit) => {
 
 const editBooking = (event, machines) => {
 
-  if($(event.target).is("div")) {
-    element = event.target.parentNode.parentNode.parentNode
-  } else if ($(event.target).is("ion-icon")) {
-      element = event.target.parentNode.parentNode.parentNode.parentNode
-  }
-
-  currentEditElement = event;
-
+  currentEditElement = checkEventType(event);
+  const element = checkEventType(event);
   
-  let currentMachine = element.children[element.children.length - 4];
-  let currentFromDate = element.children[element.children.length - 3];
-  let currentToDate = element.children[element.children.length - 2];
+  const currentMachine = element.children[element.children.length - 4];
+  const currentFromDate = element.children[element.children.length - 3];
+  const currentToDate = element.children[element.children.length - 2];
   
   dates.beginDate = currentFromDate.innerText;
   dates.endDate = currentToDate.innerText;
 
   Swal.fire({
-    html: '<div class="edit-options-container">'
+    html: `<p class="edit-title"><u>Buchung ${element.children[element.children.length - 5].innerText} bearbeiten</u></p>`
+    +'<div class="edit-options-container">'
     + ' <div class="edit-option">'
     + '     <div class="edit-option-row">'
     + '         <div class="label-container">'
@@ -300,53 +336,75 @@ const editBooking = (event, machines) => {
       const updateOptions = {};
 
       Object.assign(updateOptions, {bookingId: element.children[element.children.length - 5].innerText});
-      Object.assign(updateOptions, {machines: machines ? machines : [currentMachine.innerText]});
-      Object.assign(updateOptions, {beginDate: dates.beginDate ? dates.beginDate: $('#from-date-picker').attr("placeholder")});
-      Object.assign(updateOptions, {endDate: dates.endDate ? dates.endDate: $('#to-date-picker').attr("placeholder")});
 
+      if($('#current-machines').attr('placeholder') !== currentMachine.innerText)
+        Object.assign(updateOptions, {machines : $('#current-machines').attr('placeholder')});
+      if(dates.beginDate !== $('#from-date-picker').attr("placeholder")) {
+        Object.assign(updateOptions, {beginDate: dates.beginDate});
+      }
+      if(dates.endDate !== $('#to-date-picker').attr("placeholder")) {
+        Object.assign(updateOptions, {endDate: dates.endDate});
+      }
       dates = {};
 
-      $.ajax({
-        url: "/home/updateBooking",
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify({ data: updateOptions }),
-        success: function (response) {
-          Swal.fire({
-            title: "Ihre Buchung wurde erfolgreich aktualisiert",
-            icon: "success",
-            allowOutsideClick: false,
-            showCloseButton: false,
-            showCancelButton: false,
-            showConfirmButton: false,
-            background: "#f6f8fa",
-            timer: 2000,
-          }).then(() => {
-            hasPermission("3", "buildView")
+      if(Object.keys(updateOptions).length >= 2) {
 
-          });
-        },
-        error: function (err) {
-          console.log(err.responseJSON.msg);
-          try {
+        $.ajax({
+          url: "/home/updateBooking",
+          method: "POST",
+          contentType: "application/json",
+          data: JSON.stringify({ data: updateOptions }),
+          success: function (response) {
             Swal.fire({
-              title: err.responseJSON.msg,
-              icon: "error",
+              title: "Ihre Buchung wurde erfolgreich aktualisiert",
+              icon: "success",
               allowOutsideClick: false,
-              confirmButtonText: "OK",
-            });
-          } catch {
-            Swal.fire({
-              title: "Es ist ein unerwarteter Fehler aufgetreten",
-              icon: "error",
-              allowOutsideClick: false,
-              confirmButtonText: "OK",
-              allowOutsideClick: false,
+              showCloseButton: false,
+              showCancelButton: false,
+              showConfirmButton: false,
               background: "#f6f8fa",
+              timer: 2000,
+            }).then(() => {
+              hasPermission("3", "buildView")
             });
+          },
+          error: function (err) {
+            console.log(err.responseJSON.msg);
+            try {
+              Swal.fire({
+                title: err.responseJSON.msg,
+                icon: "error",
+                allowOutsideClick: false,
+                confirmButtonText: "OK",
+              });
+            } catch {
+              Swal.fire({
+                title: "Es ist ein unerwarteter Fehler aufgetreten",
+                icon: "error",
+                allowOutsideClick: false,
+                confirmButtonText: "OK",
+                allowOutsideClick: false,
+                background: "#f6f8fa",
+              });
+            }
           }
-        }
-      }); 
+        }); 
+      } else {
+        Swal.fire({
+          title: "Es wurden keine Änderungen vorgenommen",
+          icon: "info",
+          allowOutsideClick: false,
+          showCloseButton: false,
+          showCancelButton: false,
+          showConfirmButton: false,
+          background: "#f6f8fa",
+          timer: 2000,
+        }).then(() => {
+          if($('#edit-btn').hasClass('off')) {
+            toggleBookingEditMode();
+          }
+        }); 
+      }
     } else {
       dates = {};
       if(picker)
@@ -357,26 +415,22 @@ const editBooking = (event, machines) => {
 }
 
 const editUser = (event) => {
-  if($(event.target).is("div")) {
-    element = event.target.parentNode.parentNode.parentNode;
-  } else if ($(event.target).is("ion-icon")) {
-    element = event.target.parentNode.parentNode.parentNode.parentNode;
-  }
+  
+  const element = checkEventType(event);
 
   const currentUserLastname = element.children[0].innerText;
   const currentUserFirstname = element.children[1].innerText;
   const currentUserUserId = element.children[2].innerText;
   const currentUserRole = element.children[3].innerText;
-  const currentUserProfession = element.children[4].innerText;
+  let currentUserProfession = element.children[4].innerText;
   const currentUserApprenticeyear = element.children[5].innerText;
+  const currentUserPermission = element.children[6].innerText;
 
   Swal.fire({
-    html: '<div class="edit-options-container">'
+    html: `<p class="edit-title"><u>${currentUserUserId}'s Nutzerdaten bearbeiten</u></p>`
+    + '<div class="edit-options-container">'
     + ' <div class="edit-option">'
     + '     <div class="edit-option-row">'
-    + '         <div class="label-container">'
-    + '             <label for="lastname">Nachname:</label>'
-    + '         </div>'
     + '         <div>'
     + `             <input id="lastname" type="text" name="lastname" placeholder="${currentUserLastname}"/>`
     + '         </div>'
@@ -384,9 +438,6 @@ const editUser = (event) => {
     + ' </div>'
     + ' <div class="edit-option">'
     + '     <div class="edit-option-row">'
-    + '         <div class="label-container">'
-    + '             <label for="firstname">Vorname:</label>'
-    + '         </div>'
     + '         <div>'
     + `             <input id="firstname" type="text" name="firstname" placeholder="${currentUserFirstname}"/>`
     + '         </div>'
@@ -394,9 +445,6 @@ const editUser = (event) => {
     + ' </div>'
     + ' <div class="edit-option">'
     + '     <div class="edit-option-row">'
-    + '         <div class="label-container">'
-    + '             <label for="userId">UserID:</label>'
-    + '         </div>'
     + '         <div>'
     + `             <input id="userId" type="text" name="userId" minLength="7" maxLength="7" style="text-transform:uppercase" placeholder="${currentUserUserId}"/>`
     + '         </div>'
@@ -404,9 +452,6 @@ const editUser = (event) => {
     + ' </div>'
     + ' <div class="edit-option">'
     + '     <div class="edit-option-row">'
-    + '         <div class="label-container">'
-    + '             <label for="role">Role:</label>'
-    + '         </div>'
     + '         <div>'
     + '             <select id="role" name="role">'
     + '                 <option value="AZB">Auszubildender</option>'
@@ -418,9 +463,6 @@ const editUser = (event) => {
     + ' </div>'
     + ' <div class="edit-option">'
     + '     <div class="edit-option-row">'
-    + '         <div class="label-container">'
-    + '             <label for="profession">Beruf:</label>'
-    + '         </div>'
     + '         <div>'
     + '             <select id="profession" name="profession">'
     + '                 <option value="MECH">Mechatroniker/-in</option>'
@@ -436,15 +478,24 @@ const editUser = (event) => {
     + ' </div>'
     + ' <div class="edit-option">'
     + '     <div class="edit-option-row">'
-    + '         <div class="label-container">'
-    + '             <label for="apprenticeyear">Einstellungsjahr:</label>'
-    + '         </div>'
     + '         <div>'
     + '             <select id="apprenticeyear" name="apprenticeyear">'
     + '             </select>'
     + '         </div>'
     + '     </div>'
     + ' </div>'
+    + ' <div class="edit-option">'
+    + '     <div class="edit-option-row">'
+    + '         <div>'
+    + '             <select id="permissionclass" name="permissionclass">'
+    + '                 <option value="3">Alle Rechte</option>'
+    + '                 <option value="2">Begrenzte Rechte</option>'
+    + '                 <option value="1">Standard Rechte</option>'
+    + '             </select>'
+    + '         </div>'
+    + '     </div>'
+    + ' </div>'
+    + ' <p id="permission-edit-warning"><b>VORSICHT: Inkorrekte Rechtevergabe kann zu Missbrauch des Systems führen!</b></p>'
     + ' <p id="user-edit-error"></p>'
     + '</div>',
     showCancelButton: true,
@@ -500,6 +551,8 @@ const editUser = (event) => {
 
       const updateOptions = {};
 
+      if(currentUserProfession === "ANDERE") currentUserProfession = "OTHER";
+
       Object.assign(updateOptions, {userIdToEdit: currentUserUserId});
 
       if($('#lastname').val().length >= 1 && $('#lastname').val() !== $('#lastname').attr('placeholder')) {
@@ -512,11 +565,7 @@ const editUser = (event) => {
         Object.assign(updateOptions, {userId: $('#userId').val().toUpperCase()});
       }
       if(currentUserProfession !== $('#profession').val()) {
-        if($('#profession').val() === 'ANDERE')
-          Object.assign(updateOptions, {profession: "OTHER"});
-        else
           Object.assign(updateOptions, {profession: $('#profession').val()});
-
       }
       if(currentUserApprenticeyear !== $('#apprenticeyear').val()) {
         Object.assign(updateOptions, {apprenticeyear: $('#apprenticeyear').val()});
@@ -538,6 +587,9 @@ const editUser = (event) => {
             Object.assign(updateOptions, {apprenticeyear: $('#apprenticeyear').val()});
           }
         }
+      }
+      if(currentUserPermission !== $('#permissionclass').val()) {
+        Object.assign(updateOptions, {permissionClass: $('#permissionclass').val()});
       }
 
       if(Object.keys(updateOptions).length >= 2) {
@@ -623,6 +675,8 @@ const editUser = (event) => {
     $("#apprenticeyear").val(element.children[5].innerText);
   }
 
+  $('#permissionclass').val(element.children[6].innerText);
+
   $('.edit-options-container input').css('color', '#009879');
 
   $('.edit-options-container select').change((e) => {
@@ -637,7 +691,133 @@ const editUser = (event) => {
     }
   })
 
+  $('#permissionclass').change(() => {
+    $('#permission-edit-warning').slideDown();
+  })
 
+}
+
+const editUserPassword = (event) => {
+
+  const element = checkEventType(event);  
+
+  const currentUserUserId = element.children[2].innerText;
+
+  Swal.fire({
+    html: `<p class="edit-title"><u>${currentUserUserId}'s Passwort zurücksetzen</u></p>`
+    + '<div class="edit-options-container">'
+    + ' <div class="edit-option">'
+    + '     <div class="edit-option-row">'
+    + '         <div>'
+    + `             <input id="password" type="password" name="password" placeholder="Neues Passwort"/>`
+    + '         </div>'
+    + '     </div>'
+    + ' </div>'
+    + ' <div class="edit-option">'
+    + '     <div class="edit-option-row">'
+    + '         <div>'
+    + `             <input id="passwordrepeat" type="password" name="passwordrepeat" placeholder="Neues Passwort wiederholen"/>`
+    + '         </div>'
+    + '     </div>'
+    + ' </div>'
+    + ' <p id="user-edit-error"></p>'
+    + '</p>',
+    showCancelButton: true,
+    width: '90%',
+    customClass: 'swal',
+    cancelButtonColor: 'lightgrey',
+    cancelButtonText: 'Abbrechen', 
+    confirmButtonText: 'Speichern',
+    confirmButtonColor: 'rgb(0, 30, 80)',
+    reverseButtons: true,
+    preConfirm: () => {
+      valid = true;
+
+      if($('#password').val().length < 8) {
+        valid = false;
+        $('#user-edit-error').text("Bitte Benutze mindestens 8 Zeichen");
+        $('#password').addClass('errorBorder');
+        $('#user-edit-error').slideDown();
+      }
+      if($('#passwordrepeat').val().length < 8) {
+        valid = false;
+        $('#user-edit-error').text("Bitte Benutze mindestens 8 Zeichen");
+        $('#passwordrepeat').addClass('errorBorder');
+        $('#user-edit-error').slideDown();
+      }
+      if($('#password').val() !== $('#passwordrepeat').val()) {
+        valid = false;
+        $('#user-edit-error').text("Die Passwörter stimmen nicht überein");
+        $('#password').addClass('errorBorder');
+        $('#passwordrepeat').addClass('errorBorder');
+        $('#user-edit-error').slideDown();
+      } 
+      
+      if(valid)return true
+      else return false;
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+
+      const updateOptions = {};
+
+      Object.assign(updateOptions, {userIdToEdit: currentUserUserId});
+      Object.assign(updateOptions, {password: $('#password').val()});
+
+      $.ajax({
+        url: "/home/updateUserPassword",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ data: updateOptions}),
+        success: function (response) {
+          Swal.fire({
+            title: "Das Passwort wurde erfolgreich aktualisiert",
+            icon: "success",
+            allowOutsideClick: false,
+            showCloseButton: false,
+            showCancelButton: false,
+            showConfirmButton: false,
+            background: "#f6f8fa",
+            timer: 2000,
+          }).then(() => {
+            openUserView();
+          });
+        },
+        error: function (err) {
+          console.log(err.responseJSON.msg);
+          try {
+            Swal.fire({
+              title: err.responseJSON.msg,
+              icon: "error",
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+            });
+          } catch {
+            Swal.fire({
+              title: "Es ist ein unerwarteter Fehler aufgetreten",
+              icon: "error",
+              allowOutsideClick: false,
+              confirmButtonText: "OK",
+              allowOutsideClick: false,
+              background: "#f6f8fa",
+            });
+          }
+        }
+      });
+    } else {
+      openUserView(true);
+    }
+  })
+}
+
+const checkEventType = (event) => {
+  if($(event.target).is("div")) {
+    element = event.target.parentNode.parentNode.parentNode;
+  } else if ($(event.target).is("ion-icon")) {
+    element = event.target.parentNode.parentNode.parentNode.parentNode;
+  }
+
+  return element;
 }
 
 const comparer = (index) => {
@@ -652,13 +832,7 @@ const getCellValue = (row, index) => {
 
 const deleteBooking = (event) => {
 
-  let element;
-
-  if($(event.target).is("div")) {
-      element = event.target.parentNode.parentNode.parentNode
-  } else if ($(event.target).is("ion-icon")) {
-      element = event.target.parentNode.parentNode.parentNode.parentNode
-  }
+  const element = checkEventType(event);
 
   Swal.fire({
       title: `Wollen Sie Buchung ${element.children[element.children.length - 5].innerText} wirklich löschen?`,
@@ -1292,8 +1466,10 @@ const buildUserTable = (edit) => {
         + `   <td>${user.role}</td>`
         + `   <td>${user.profession === "ABBA" || user.profession === "FACH" ? user.profession = "---" : user.profession}</td>`
         + `   <td>${user.apprenticeyear === "0" ? user.apprenticeyear = "---" : user.apprenticeyear}</td>`
+        + `   <td style="display: none;">${user.permissionClass}</td>`
         + '   <td class="user-edit-icons-cell">'
         + '       <div class="edit-icons-container">'
+        + '           <div title="Passwort des Nutzers ändern" class="user-password-icon"><ion-icon name="keypad-outline"></ion-icon></div>'
         + '           <div title="Diesen Nutzer bearbeiten" class="user-edit-icon"><ion-icon name="pencil-outline"></ion-icon></div>'
         + '           <div title="Diesen Nutzer l&#246;schen" class="user-delete-icon"><ion-icon name="trash-outline"></ion-icon></div>'
         + '       </div>'
@@ -1341,6 +1517,10 @@ const buildUserTable = (edit) => {
         } 
       })
 
+      $('.user-password-icon').click((event) => {
+        editUserPassword(event);
+      })
+      
       $('.user-edit-icon').click((event) => {
         editUser(event);
       })
@@ -1556,6 +1736,7 @@ const openUserView = (edit) => {
     + '               <th title="Nach Role Sortieren">Role</th>'
     + '               <th title="Nach Beruf Sortieren">Beruf</th>'
     + '               <th title="Nach Einstellungsjahr Sortieren">Einstellungsjahr</th>'
+    + '               <th style="display: none;"></th>'
     + '               <th class="edit-icons-header"></th>'
     + '           </tr>'
     + '       </thead>'

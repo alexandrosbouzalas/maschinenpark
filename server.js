@@ -34,20 +34,20 @@ app.use(express.urlencoded({ extended: false }));
 app.use(
   session({
     secret: "Fkdj^45ci@Jad", // This is not a password
-    cookie: {
-      maxAge: 604800000,
-    },
     store: new redisStore({
       host: "localhost",
       port: 6379,
       client: redisClient,
       ttl: 260,
     }),
+    rolling: true,
     secure: false, // if true only transmit cookie over https
     httpOnly: false, // if true prevent client side JS
-    resave: false,
-
+    resave: true,
     saveUninitialized: false,
+    cookie: {
+      maxAge: 900000 // 15 minutes
+    },
   })
 );
 

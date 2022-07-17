@@ -5,6 +5,7 @@ const Booking = require("./../models/booking");
 const Machine = require("./../models/machine");
 const Statistic = require("./../models/statistic");
 const statistic = require("./../models/statistic");
+const { bcryptHash } = require("../public/js/utils");
 
 
 router.use(express.json());
@@ -292,11 +293,22 @@ router.post("/updateBooking", async (req, res) => {
   if (req.session.authenticated) {
 
     try {
+      const updateOptions = {};
+
       const {bookingId, machines, beginDate, endDate} = req.body.data;
 
-      const [beginDay, beginMonth, beginYear] = beginDate.split('.')
-      const [endDay, endMonth, endYear] = endDate.split('.')
-
+      if(beginDate) {
+        const [beginDay, beginMonth, beginYear] = beginDate.split('.');
+        Object.assign(updateOptions, {beginDate: new Date(`${beginYear}-${beginMonth}-${beginDay}`)});
+      }
+      if(endDate) {
+        const [endDay, endMonth, endYear] = endDate.split('.')
+        Object.assign(updateOptions, {endDate: new Date(`${endYear}-${endMonth}-${endDay}`)});
+      }
+      if(machines) {
+        Object.assign(updateOptions, {machineId: machines});
+      }
+      
       const booking = await Booking.findOne({bookingId: bookingId});
 
       if(booking) {
@@ -307,11 +319,7 @@ router.post("/updateBooking", async (req, res) => {
                 bookingId: booking.bookingId,
             },
             { 
-              $set: {
-                machineId: machines[0],
-                beginDate: new Date(`${beginYear}-${beginMonth}-${beginDay}`),
-                endDate: new Date(`${endYear}-${endMonth}-${endDay}`),
-              }           
+              $set: updateOptions         
             })
 
             await Machine.updateOne(
@@ -320,7 +328,7 @@ router.post("/updateBooking", async (req, res) => {
             );
 
             await Machine.updateOne(
-              { machineId: machines[0]},
+              { machineId: machines},
               { $set: {status: 'O'}}
             );
 
@@ -390,6 +398,7 @@ router.post("/getAllUsers", async (req, res) => {
               Object.assign(currentUser, {role: user.role});
               Object.assign(currentUser, {profession: user.profession});
               Object.assign(currentUser, {apprenticeyear: user.apprenticeyear});
+              Object.assign(currentUser, {permissionClass: user.permissionClass});
               
   
               usersArr.push(currentUser);
@@ -450,6 +459,51 @@ router.post("/updateUser", async (req, res) => {
         } else {
           res.status(400).json({msg: "Beim Bearbeiten der Nutzerdaten ist ein Problem aufgetreten"});
         }
+      }
+       
+    } catch (err) {
+      res.status(400).json({msg: err.message});
+    }
+  } else {
+    res.status(403).send();
+  }
+})
+
+router.post("/updateUserPassword", async (req, res) => {
+  if (req.session.authenticated) {
+    try {
+
+      const { userId } = req.session.user;
+
+      const updateOptions = req.body.data;
+
+      const userIdToEdit = updateOptions.userIdToEdit;
+      const newPassword = updateOptions.password;
+      
+      delete updateOptions.userIdToEdit;
+
+      const user = await User.findOne({userId: userId});
+      const userToEdit = await User.findOne({userId: userIdToEdit});
+
+
+      if(user && userToEdit) {
+          if(user.permissionClass === "3") {
+
+            updateOptions.password = await bcryptHash(newPassword),
+            
+            await User.updateMany(
+              {
+                  userId: userIdToEdit,
+              },
+              { 
+                $set: updateOptions     
+              })
+
+            res.status(200).send();
+          } else 
+            res.status(403).json({msg: "Beim Bearbeiten der Nutzerdaten ist ein Problem aufgetreten"});
+      } else {
+        res.status(400).json({msg: "Beim Bearbeiten der Nutzerdaten ist ein Problem aufgetreten"});
       }
        
     } catch (err) {
