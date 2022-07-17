@@ -7,6 +7,8 @@ const Statistic = require("./../models/statistic");
 const statistic = require("./../models/statistic");
 const { bcryptHash } = require("../public/js/utils");
 
+const apiKey = "jfa9lkm30eKJ2SdlKS";
+
 
 router.use(express.json());
 
@@ -20,7 +22,6 @@ router.get("/", (req, res) => {
 
 router.post("/getMachines", async (req, res) => {
   if (req.session.authenticated) {
-
     try {
       const machines = await Machine.find({});
       const bookings = await Booking.find({});
@@ -86,13 +87,34 @@ router.post("/createNewBooking", async (req, res) => {
         const bookingsProfession = await Statistic.find({statisticProfession: user.profession});
 
         const bookingsAll = await Statistic.findOne({statisticId: "1"});
+
+
+        /* Depending on the timewindow that the user selected when creating the booking, the 
+        booking object endDate is constructed accordingly  */
+
+        let hoursToAdd;
+
+        switch(timewindow) {
+          case "FULL":
+            hoursToAdd = 23;
+            break;
+          case "BEFORE":
+            hoursToAdd = 11;
+            break;
+          case "AFTER":
+            hoursToAdd = 15;
+            break;
+          default:
+            hoursToAdd = 23; 
+            break;
+        }
     
         const booking = new Booking({
           bookingId: parseInt(bookingsAll.allTimeBookings) + 1,
           userId: userId,
           machineId: machineId,
           beginDate: new Date(`${beginYear}-${beginMonth}-${beginDay}`),
-          endDate: new Date(`${endYear}-${endMonth}-${endDay}`),
+          endDate: new Date(`${endYear}-${endMonth}-${endDay}`).setHours(hoursToAdd, 59, 59, 0),
           activity: activity,
           timewindow: timewindow
         });
@@ -203,55 +225,94 @@ router.post("/deleteBooking", async (req, res) => {
 
 })
 
-router.post("/getUserBookings", async (req, res) => {
-  if (req.session.authenticated) {
-
+router.post("/deleteBookingsApi", async (req, res) => {
+  if(req.body.apiKey === apiKey) {
     try {
-      const { userId } = req.session.user;
 
-      const getAllBookings = req.body.data;
-
-      let bookings;
-
-      if(getAllBookings) {
-
-        const user = await User.findOne({userId: userId});
-
-        if(user.permissionClass !== "3") {
-          console.log("Insufficient permissions")
-          throw new Error("Insufficient permissions")
-        } 
-
-        bookings = await Booking.find({});
+      const bookingsToDelete = req.body.bookingsToDelete;
+  
+      for(let booking of bookingsToDelete) {
         
+        const bookingToDelete = await Booking.findOne({bookingId: booking.bookingId});
+
+        if(bookingToDelete) {
+          await Booking.deleteOne({bookingId: bookingToDelete.bookingId})
+  
+          await Machine.updateOne(
+            { machineId: bookingToDelete.machineId},
+            { $set: {status: 'F'}}
+            );
+
+        } else {
+          throw new Error("Booking does not exist");
+        }
+      }
+
+      res.status(200).send("Booking(s) deleted successfully");
+
+    } catch(err) {
+      console.log(err);
+      res.status(400).send("Wrong data supplied")
+    }
+  } else {
+    res.status(403).send("ACCESS DENIED");
+  }
+})
+
+router.post("/getUserBookings", async (req, res) => {
+  if (req.session.authenticated || req.body.apiKey === apiKey) {
+    try {
+      if(req.body.apiKey === apiKey) {
+        const bookings = await Booking.find({});
+        res.status(200).json(bookings);
       } else {
+
+        const { userId } = req.session.user;
+        const getAllBookings = req.body.data;
+  
         
-        bookings = await Booking.find({userId: userId});
-
-      }
-      
-
-      let userBookings = [];
-      let currentBookingObj = {};
+        let bookings;
+  
+        if(getAllBookings) {
+        
+          const user = await User.findOne({userId: userId});
+  
+          if(user.permissionClass !== "3") {
+            console.log("Insufficient permissions")
+            throw new Error("Insufficient permissions")
+          } 
+  
+          bookings = await Booking.find({});
           
-      for (let booking of bookings) {
-        Object.assign(currentBookingObj, {bookingId: booking.bookingId});
-        Object.assign(currentBookingObj, {userId: booking.userId});
-        Object.assign(currentBookingObj, {machineId: booking.machineId});
-        Object.assign(currentBookingObj, {beginDate: booking.beginDate});
-        Object.assign(currentBookingObj, {endDate: booking.endDate});
-
-        userBookings.push(currentBookingObj);
-        currentBookingObj = {};
+        } else {
+          
+          bookings = await Booking.find({userId: userId});
+  
+        }
+        
+  
+        let userBookings = [];
+        let currentBookingObj = {};
+            
+        for (let booking of bookings) {
+          Object.assign(currentBookingObj, {bookingId: booking.bookingId});
+          Object.assign(currentBookingObj, {userId: booking.userId});
+          Object.assign(currentBookingObj, {machineId: booking.machineId});
+          Object.assign(currentBookingObj, {beginDate: booking.beginDate});
+          Object.assign(currentBookingObj, {endDate: booking.endDate});
+  
+          userBookings.push(currentBookingObj);
+          currentBookingObj = {};
+        }
+  
+        res.status(200).json(userBookings);
       }
-
-      res.status(200).json(userBookings);
     } catch (err) {
       res.status(500).json({msg: "Beim Laden Ihrer Buchungen ist ein Fehler aufgetreten"});
     }
     
   } else {
-    res.status(403).send();
+    res.status(403).send("ACCESS DENIED");
   }
 })
 

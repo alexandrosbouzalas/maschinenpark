@@ -21,7 +21,6 @@ const bookingSchema = new mongoose.Schema({
   },
   endDate: {
     type: Date,
-    expires: 0,
     required: true,
   },
   activity: {
