@@ -4,6 +4,7 @@ let picker;
 let dates = {};
 let currentEditElement;
 let machines = []; // Container that is passed along holding all the selected machines
+let allMachines = [];
 let dateArray = [];
 
 // Content that has to be loaded first
@@ -26,74 +27,223 @@ setInterval(() => {
 
 const openParkView = (isAdmin, placeholderMachine, editMode) => {
 
-  Swal.fire({
-    html: '<div class="maschinenpark-container">'
-    + '   <div class="left-park-section">'
-    + '       <div class="maschine-type-container bohr-container">'
-    + '           <p class="park-section-title"><b>Bohrmaschinen</b></p>'
-    + '           <div class="machinen-container bohr-maschinen-container"></div>'
-    + '       </div>'
-    + '   </div>'
-    + '   <div class="right-park-section">'
-    + '       <div class="maschine-type-container fraes-container">'
-    + '           <p class="park-section-title"><b>Fräsmaschinen</b></p>'
-    + '           <div class="machinen-container fraes-maschinen-container"></div>'
-    + '       </div>'
-    + '       <div class="maschine-type-container dreh-container">'
-    + '           <p class="park-section-title"><b>Drehmaschinen</b></p>'
-    + '           <div class="machinen-container dreh-maschinen-container"></div>'
-    + '       </div>'
-    + '   </div>'
-    + '</div>',
-    showCancelButton: true,
-    width: '100%',
-    customClass: 'swal-park',
-    cancelButtonColor: 'lightgrey',
-    cancelButtonText: 'Abbrechen', 
-    confirmButtonText: 'Speichern',
-    confirmButtonColor: 'rgb(0, 30, 80)',
-    reverseButtons: true,
-  }).then((result) => {
-    if (result.isConfirmed) {
-      if(editMode) {
-        editBooking(currentEditElement, machines);
-        $('#current-machines').addClass('edit-field');
-      } else {
-        createBooking(machines);
-      }
-    } else {
-      if(editMode) {
-        editBooking(machines);
-      } else if(isAdmin) {
-        Swal.close()
-      } else {
-        createBooking();
-      }
-    }
-  })
-
   if(isAdmin) {
+
+    Swal.fire({
+      html: '<div class="maschinenpark-container">'
+      + '   <div class="left-park-section">'
+      + '       <div class="maschine-type-container bohr-container">'
+      + '           <p class="park-section-title"><b>Bohrmaschinen</b></p>'
+      + '           <div class="machinen-container bohr-maschinen-container"></div>'
+      + '       </div>'
+      + '   </div>'
+      + '   <div class="right-park-section">'
+      + '       <div class="maschine-type-container fraes-container">'
+      + '           <p class="park-section-title"><b>Fräsmaschinen</b></p>'
+      + '           <div class="machinen-container fraes-maschinen-container"></div>'
+      + '       </div>'
+      + '       <div class="maschine-type-container dreh-container">'
+      + '           <p class="park-section-title"><b>Drehmaschinen</b></p>'
+      + '           <div class="machinen-container dreh-maschinen-container"></div>'
+      + '       </div>'
+      + '   </div>'
+      + '</div>',
+      width: '100%',
+      showCancelButton: false,
+      showConfirmButton: true,
+      customClass: 'swal-park',
+    })
+
     const machinesEditElement = '<div class="edit-icons-container">'
     + '    <div title="Eine neue Maschine hinzufügen" class="machine-add-icon"><ion-icon name="add-outline"></ion-icon></div>'
     + '    <div title="Maschine bearbeiten" class="machine-edit-icon"><ion-icon name="pencil-outline"></ion-icon></div>'
     + '    <div title="Maschine löschen" class="machine-delete-icon"><ion-icon name="trash-outline"></ion-icon></div>'
     + '</div>'
 
+    $('.swal2-actions').append(machinesEditElement);
     $('.swal2-confirm').hide();
 
-    $('.swal2-html-container').append(machinesEditElement);
 
-    $('.machine-delete-icon').click(() => {
-      if($('.machine-delete-bubble:visible').length == 0)
+    $('.machine-add-icon').click(() => {
+      Swal.fire({
+        html: `<p class="edit-title">Eine neue Maschine hinzufügen</p>`
+        + '     <div class="edit-option-row">'
+        + '         <div>'
+        + '             <select id="machinetype">'
+        + '                 <option value="F">Fräsmaschine</option>'
+        + '                 <option value="D">Drehmaschine</option>'
+        + '                 <option value="B">Bohrmaschine</option>'
+        + '             </select>'
+        + '         </div>'
+        + '     </div>'
+        + ' </div>'
+        + '<div class="edit-options-container">'
+        + ' <div class="edit-option">'
+        + '     <div class="edit-option-row">'
+        + '         <div>'
+        + `             <input id="machine-number" title="Geben Sie hier die Nummer der neuen Maschine ein" min="1" step="1" type="number"/>`
+        + '         </div>'
+        + '     </div>'
+        + ' </div>'
+        + ' <p id="machine-add-error"></p>'
+        + '</div>',
+        showCancelButton: true,
+        width: '90%',
+        customClass: 'swal',
+        cancelButtonColor: 'lightgrey',
+        cancelButtonText: 'Abbrechen', 
+        confirmButtonText: 'Speichern',
+        confirmButtonColor: 'rgb(0, 30, 80)',
+        reverseButtons: true,
+        preConfirm: () => {
+          valid = true; 
+
+          const machineId = $('#machinetype').val() + $('#machine-number').val();
+
+          if(!/^[0-9]+$/.test($('#machine-number').val())) {
+            valid = false;
+            $('#machine-add-error').text(`Ungültige Maschinennummer`);
+            $('#machine-add-error').slideDown();
+            $('#machine-number').addClass('errorBorder');
+          } else {
+            $('#machine-add-error').slideDown();
+            $('#machine-number').removeClass('errorBorder');
+          }
+
+          if(allMachines.includes(machineId)) {
+            valid = false
+            $('#machine-add-error').text(`Maschine ${machineId} existiert bereits`);
+            $('#machine-add-error').slideDown();
+          }
+
+          if(valid) return true
+          else return false
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+              url: "/home/addMachine",
+              method: "POST",
+              contentType: "application/json",
+              data: JSON.stringify({ data: {machineId: $('#machinetype').val() + $('#machine-number').val()}}),
+              success: function (response) {
+                Swal.fire({
+                  title: "Die Maschine wurde erfolgreich hinzugefügt",
+                  icon: "success",
+                  allowOutsideClick: false,
+                  showCloseButton: false,
+                  showCancelButton: false,
+                  showConfirmButton: false,
+                  background: "#f6f8fa",
+                  timer: 2000,
+                }).then(() => {
+                  openParkView(true);
+                });
+              },
+              error: function (err) {
+                console.log(err.responseJSON.msg);
+                try {
+                  Swal.fire({
+                    title: err.responseJSON.msg,
+                    icon: "error",
+                    allowOutsideClick: false,
+                    confirmButtonText: "OK",
+                  });
+                } catch {
+                  Swal.fire({
+                    title: "Es ist ein unerwarteter Fehler aufgetreten",
+                    icon: "error",
+                    allowOutsideClick: false,
+                    confirmButtonText: "OK",
+                    allowOutsideClick: false,
+                    background: "#f6f8fa",
+                  });
+                }
+              }
+            });
+          }
+      })
+    })
+
+    $('.machine-edit-icon').click(() => {
+      if($('.machine-edit-bubble:visible').length == 0)
       {
-        $('.machine-delete-bubble').show();
-      } else {
         $('.machine-delete-bubble').hide();
+        $('.machine-delete-icon').css("background-color", "rgb(0, 30,80");
+        $('.machine-edit-bubble').show();
+        $('.machine-edit-icon').css("background-color", "#02ccfd");
+      } else {
+        $('.machine-edit-bubble').hide();
+        $('.machine-edit-icon').css("background-color", "rgb(0, 30,80");
       }
     })
 
+    $('.machine-delete-icon').click(() => {
+      
+      if($('.machine-delete-bubble:visible').length == 0)
+      {
+        $('.machine-edit-bubble').hide();
+        $('.machine-edit-icon').css("background-color", "rgb(0, 30,80");
+        $('.machine-delete-bubble').show();
+        $('.machine-delete-icon').css("background-color", "#f25902");
+      } else {
+        $('.machine-delete-bubble').hide();
+        $('.machine-delete-icon').css("background-color", "rgb(0, 30,80");
+      }
+    })
+
+
+
     
+  } else {
+
+    Swal.fire({
+      html: '<div class="maschinenpark-container">'
+      + '   <div class="left-park-section">'
+      + '       <div class="maschine-type-container bohr-container">'
+      + '           <p class="park-section-title"><b>Bohrmaschinen</b></p>'
+      + '           <div class="machinen-container bohr-maschinen-container"></div>'
+      + '       </div>'
+      + '   </div>'
+      + '   <div class="right-park-section">'
+      + '       <div class="maschine-type-container fraes-container">'
+      + '           <p class="park-section-title"><b>Fräsmaschinen</b></p>'
+      + '           <div class="machinen-container fraes-maschinen-container"></div>'
+      + '       </div>'
+      + '       <div class="maschine-type-container dreh-container">'
+      + '           <p class="park-section-title"><b>Drehmaschinen</b></p>'
+      + '           <div class="machinen-container dreh-maschinen-container"></div>'
+      + '       </div>'
+      + '   </div>'
+      + '</div>',
+      showCancelButton: true,
+      width: '100%',
+      customClass: 'swal-park',
+      cancelButtonColor: 'lightgrey',
+      cancelButtonText: 'Abbrechen', 
+      confirmButtonText: 'Speichern',
+      confirmButtonColor: 'rgb(0, 30, 80)',
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        if(editMode) {
+          editBooking(currentEditElement, machines);
+          $('#current-machines').addClass('edit-field');
+        } else {
+          createBooking(machines);
+        }
+      } else {
+        if(editMode) {
+          editBooking(machines);
+        } else if(isAdmin) {
+          Swal.close()
+        } else {
+          createBooking();
+        }
+      }
+    })
   }
+
 
   Opentip.styles.maschineInfoStyle = {
     extends: "alert",
@@ -107,7 +257,7 @@ const openParkView = (isAdmin, placeholderMachine, editMode) => {
   getMachines(placeholderMachine);
 }
 
-const createBooking = (machines, edit) => {
+const  createBooking = (machines, edit) => {
 
   machines ? machines : machines = "";
 
@@ -1169,16 +1319,21 @@ const checkStatus = (machine) => {
 }
 
 const getMachines = (placeholderMachine) => {
+  
   $.ajax({
     url: "/home/getMachines",
     method: "POST",
     contentType: "application/json",
     success: function (response) {
 
+      allMachines = [];
+
       let infoContentHtml;
       const weekDays = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
       for(var i = 0; i < response.length; i++) {
+        allMachines.push(response[i].machineId);
+
         switch(response[i].machineId.charAt(0)) {
           case "F":
             let fraesMachineElement = `<div id="${response[i].machineId}" class="maschine fraesmaschine status-${response[i].status.toLowerCase()}"></div>`
@@ -1200,6 +1355,7 @@ const getMachines = (placeholderMachine) => {
           }
 
           $(`#${response[i].machineId}`).append('<div class="machine-delete-bubble"></div>');
+          $(`#${response[i].machineId}`).append('<div class="machine-edit-bubble"></div>');
 
           if(response[i].status === "O") {
 
@@ -1239,8 +1395,9 @@ const getMachines = (placeholderMachine) => {
         }
 
         $('.machine-delete-bubble').append('<ion-icon name="close-outline"></ion-icon>');
+        $('.machine-edit-bubble').append('<ion-icon name="pencil-outline"></ion-icon>');
 
-        $('.machine-delete-bubble').click((event) => {
+        $('.machine-edit-bubble').click((event) => {
           let targetMachine = $(event.target).parents().closest('.maschine');
 
           Swal.fire({
@@ -1265,6 +1422,64 @@ const getMachines = (placeholderMachine) => {
           }).then((result) => {
             if(result.isConfirmed) {
               console.log('test');
+            } else {
+              openParkView(true);
+            }
+          })
+        })
+
+        $('.machine-delete-bubble').click((event) => {
+          let targetMachine = $(event.target).parents().closest('.maschine');
+
+          Swal.fire({
+            title: `Wollen Sie Maschine ${targetMachine.attr('id')} wirklich löschen?`, 
+            icon: 'warning',
+            showCancelButton: true,
+            cancelButtonColor: 'lightgrey',
+            cancelButtonText: 'Abbrechen', 
+            confirmButtonText: 'Löschen',
+            confirmButtonColor: 'rgb(0, 30, 80)',
+            reverseButtons: true,
+          }).then((result) => {
+            if(result.isConfirmed) {
+              $.ajax({
+                url: "/home/deleteMachine",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ data: {machineId: targetMachine.attr('id')} }),
+                success: function (response) {
+                  Swal.fire({
+                    title: "Die Maschine wurde erfolgreich gelöscht",
+                    icon: "success",
+                    allowOutsideClick: false,
+                    showCloseButton: false,
+                    showCancelButton: false,
+                    showConfirmButton: false,
+                    background: "#f6f8fa",
+                    timer: 2000,
+                  }).then(() => {
+                    openParkView(true);
+                  })
+                },
+                error: function (err) {
+                  console.log(err.responseJSON.msg);
+                  try {
+                    Swal.fire({
+                      title: err.responseJSON.msg,
+                      icon: "error",
+                      allowOutsideClick: false,
+                      confirmButtonText: "OK",
+                    });
+                  } catch {
+                    Swal.fire({
+                      title: "Es ist ein unerwarteter Fehler aufgetreten",
+                      icon: "error",
+                      allowOutsideClick: false,
+                      confirmButtonText: "OK",
+                    });
+                  }
+                }
+              });
             } else {
               openParkView(true);
             }
@@ -1863,24 +2078,24 @@ const buildView = (isAdmin) => {
     + '</div>'
 
     
-    if($('#user-btn').length < 1)
-      $('.option-button-container').prepend(adminButtons);
-  
-
-    $('#edit-btn').text("Buchungen bearbeiten");
-
-    $('#machine-btn').click(() => {
-      openParkView(true)
-    })
-
-    $('#statistic-btn').click(() => {
-      openStatisticView();
-    });
-
-
-    $('#user-btn').click(() => {
-      openUserView();
-    })
+     if($('#user-btn').length < 1) {
+       $('.option-button-container').prepend(adminButtons);
+   
+       $('#edit-btn').text("Buchungen verwalten");
+   
+       $('#machine-btn').click(() => {
+         openParkView(true)
+       })
+   
+       $('#statistic-btn').click(() => {
+         openStatisticView();
+       });
+   
+       $('#user-btn').click(() => {
+         openUserView();
+       })
+     }
+    
   }
   else {
     buildBookingTable(false);
@@ -1984,6 +2199,10 @@ $('#edit-btn').click(() => {
 $('#logout-btn').click(() => {
   window.location.pathname = '/logout';
 })
+
+$("[type='number']").keypress(function (evt) {
+  evt.preventDefault();
+});
 
 $(document).keydown(function(event) {
   if(event.key === "Escape" && $('#edit-btn').hasClass('on')) {

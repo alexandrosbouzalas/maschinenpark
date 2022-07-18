@@ -691,5 +691,79 @@ router.post("/deleteUser", async (req, res) => {
   }
 })
 
+router.post("/addMachine", async (req, res) => {
+  if (req.session.authenticated) {
+    try {
+      const { userId } = req.session.user;
+
+      const { machineId } = req.body.data;
+
+      const user = await User.findOne({userId: userId});
+
+      if(user) {
+        if(user.permissionClass === "3") {
+
+          const machine = await Machine.findOne({machineId: machineId});
+
+          if(!machine) {
+            
+            const machine = new Machine({
+              machineId: machineId,
+              status: 'F'
+            });
+      
+            try {
+      
+              await machine.save();
+
+            } catch(e) {
+              console.log(e);
+              res.status(500).send();
+            }
+
+            res.status(200).send();
+          } else {
+            res.status(400).send("Maschine existiert bereits");
+          }
+        }
+      } 
+    } catch (err) {
+      res.status(403).json({msg: "Beim Löschen der Buchung ist eine unerwarteter Fehler augetreten"});
+    }
+    
+  } else {
+    res.status(403).send();
+  }
+})
+
+router.post("/deleteMachine", async (req, res) => {
+  if (req.session.authenticated) {
+    try {
+      const { userId } = req.session.user;
+
+      const { machineId } = req.body.data;
+
+      const user = await User.findOne({userId: userId});
+
+      if(user) {
+        if(user.permissionClass === "3") {
+
+          const machine = await Machine.findOne({machineId: machineId});
+
+          if(machine) {
+            await Machine.deleteOne({machineId: machineId});
+
+            res.status(200).send();
+          }
+        }
+      } 
+    } catch (err) {
+      res.status(403).json({msg: "Beim Löschen der Buchung ist eine unerwarteter Fehler augetreten"});
+    }
+    
+  } else {
+    res.status(403).send();
+  }
+})
 
 module.exports = router;

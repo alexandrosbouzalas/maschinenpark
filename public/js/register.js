@@ -181,7 +181,7 @@ const verifySuccess = () => {
     data: JSON.stringify({ data: data }),
     success: function (response) {
       Swal.fire({
-        title: `Du hast dich erfolgreich registriert`,
+        title: `Sie haben sich erfolgreich registriert`,
         icon: "success",
         allowOutsideClick: false,
         showCloseButton: false,
