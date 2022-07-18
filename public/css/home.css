@@ -16,6 +16,7 @@
 }
 
 #user-edit-error,
+#machine-add-error,
 #booking-create-error {
     display: none;
     color: red;
@@ -80,12 +81,12 @@ caption {
     border: 3px solid rgb(0, 30, 80);
     border-radius: 15px;
     height: 70vh;
-    overflow: scroll;
+    overflow: auto;
 
 }
 
 .user-table-container {
-    overflow-y: scroll !important;
+    overflow-y: auto !important;
     white-space: nowrap;
     width: 80%;
     height: 70vh;
@@ -308,19 +309,20 @@ th {
 .user-edit-icon,
 .machine-edit-icon,
 .machine-add-icon,
-.user-password-icon {
+.user-password-icon,
+.machine-delete-icon {
     margin-right: 5px;
     background-color: rgb(0, 30, 80);
 }
 
 .user-edit-icon,
-.machine-edit-icon {
+.machine-edit-icon,
+.machine-delete-icon {
     margin-left: 5px;
 }
 
 .delete-icon,
-.user-delete-icon,
-.machine-delete-icon {
+.user-delete-icon {
     margin-left: 5px;
     background-color: #f25902;
 }
@@ -346,11 +348,16 @@ th {
 .user-edit-icon:hover,
 .delete-icon:hover,
 .user-delete-icon:hover,
-.user-password-icon:hover {
+.user-password-icon:hover,
+.machine-edit-icon:hover,
+.machine-delete-icon:hover,
+.machine-add-icon:hover {
     opacity: 0.8;
 }
 
 .machine-delete-bubble {
+    cursor: pointer !important;
+    color:white;
     display: none;
     height: 25px;
     width: 25px;
@@ -360,7 +367,28 @@ th {
     top: 0;
     left: 0;
     border-radius: 50%;
+    transform: translate(-13px, -13px);
+    font-size: 25px;
+}
+
+.machine-edit-bubble {
+    cursor: pointer !important;
+    display: none;
+    color: white;
+    font-size: 20px;
+    height: 25px;
+    width: 25px;
+    background-color: rgb(0, 30, 80);
+    border: 2px solid rgb(0, 30, 80);
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 50%;
     transform: translate(-13px, -13px);;
+}
+
+.machine-edit-bubble ion-icon {
+    margin-top: 2px;
 }
 
 .overlay {
@@ -406,13 +434,13 @@ th {
     margin-top: 7px !important;
 }
 
-.machine-delete-bubble {
-    color: white; 
-    font-size: 25px;
-}
 
 .machine-delete-bubble:hover {
     background-color: #f25902;
+}
+
+.machine-edit-bubble:hover {
+    background-color: #02ccfd;
 }
 
 .user-edit-icons-cell,
