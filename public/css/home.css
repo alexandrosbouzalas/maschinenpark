@@ -402,7 +402,8 @@ th {
 
 .edit-icons-container ion-icon,
 .user-search-field-container ion-icon,
-.icon-container ion-icon {
+.icon-container ion-icon,
+.chart-icons-container ion-icon {
     margin-top: 7px !important;
 }
 
@@ -806,6 +807,20 @@ select {
     font-size: 30px;
 }
 
+.current-year {
+    font-family: 'VW Head';
+    font-size: 23px;
+}
+
+.posauto {
+    position: inherit;
+}
+
+.center-year {
+    display: flex !important;
+    justify-content: center !important;
+    margin: 10px 0px 5px 0px;
+}
 
 @media screen and (max-width: 1000px) { 
 

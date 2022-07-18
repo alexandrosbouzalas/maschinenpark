@@ -1424,11 +1424,65 @@ const buildBookingTable = (all) => {
 
 const openStatisticView = () => {
   Swal.fire({
-    html: '<div id="container">'
-    + '       <p class="chart-title">Buchungen der Maschinen pro Beruf</p>'
+    html: '<div id="main-info-container">'
+    + `       <p class="chart-title">Statistiken</p>`
+    + '       <div class="info-container">'
+    + '           <div class="statistic-information"></div>'
+    + '           <div class="stat-line"></div>'
+    + '           <div class="chart-buttons">'
+    + '             <div>'
+    + `               <button id="profession-chart-btn" type="button">Berufsgruppe</button>`
+    + '             </div>'
+    + '             <div>'
+    + `               <button id="role-chart-btn" type="button">Rolle</button>`
+    + '             </div>'
+    + '             <div>'
+    + `               <button id="time-chart-btn" type="button">Zeit</button>`
+    + '             </div>'
+    + '           </div>'
+    + '       </div>'
+    + '    </div>',
+    showCancelButton: false,
+    showConfirmButton: false,
+    width: '50%',
+    customClass: 'small-swal',
+  })
+
+  $('#profession-chart-btn').click(() => {
+    openChartView("Buchungen der Maschinen pro Beruf", "profession");
+  });
+
+  $('#role-chart-btn').click(() => {
+    openChartView("Buchungen der Maschinen pro Rolle", "role");
+  });
+
+  $('#time-chart-btn').click(() => {
+    openChartView("Buchungen der Maschinen pro Monat", "time");
+  });
+}
+
+const openChartView = (title, searchData) => {
+  Swal.fire({
+    html: '<div id="main-chart-container">'
+    + `       <p class="chart-title">${title}</p>`
     + '       <div class="chart-icons-container">'
     + '           <div title="Balkendiagramm anzeigen" class="bar-icon active-chart"><ion-icon name="bar-chart-outline"></ion-icon></div>'
     + '           <div title="Tortendiagramm anzeigen" class="pie-icon inactive-chart"><ion-icon name="pie-chart-outline"></ion-icon></div>'
+    + '       </div>' 
+    + '       <div class="chart-yearswitcher-container">'
+    + '          <div class="mc-select__year center-year">'
+    + '             <button id="year-prev" class="mc-select__nav posauto mc-select__nav--prev">'
+    + '                 <svg class="icon-angle icon-angle--left" viewBox="0 0 256 512" width="10px" height="100%">'
+    + '                     <path fill="currentColor" d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"></path>'
+    + '                 </svg>'
+    + '             </button>'
+    + `             <div id="mc-current--year" class="mc-select__data current-year mc-select__data--year" tabindex="0" aria-label="Click to select year" aria-haspopup="true" aria-expanded="true" aria-controls="mc-month-year__preview"><span>${new Date().getFullYear()}</span></div>`
+    + '             <button id="year-next" class="mc-select__nav posauto mc-select__nav--next">'
+    + '                 <svg class="icon-angle icon-angle--right" viewBox="0 0 256 512" width="10px" height="100%">'
+    + '                     <path fill="currentColor" d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"></path>'
+    + '                 </svg>'
+    + '             </button>'
+    + '          </div>'
     + '       </div>' 
     + '       <div id="chart-container">'     
     + '           <canvas id="chart" width="400" height="400"></canvas>'
@@ -1440,12 +1494,24 @@ const openStatisticView = () => {
     customClass: 'swal',
   })
 
+  $('#year-prev').click(() => {
+    if($('#mc-current--year').text() > 2022) {
+      $('#mc-current--year').text((parseInt($('#mc-current--year').text()) - 1).toString());
+    }
+  })
+
+  $('#year-next').click(() => {
+    if($('#mc-current--year').text() < parseInt(new Date().getFullYear()) + 3) {
+      $('#mc-current--year').text((parseInt($('#mc-current--year').text()) + 1).toString());
+    }
+  })
+
   $('.bar-icon').click(() => {    
     if($('.bar-icon').hasClass('inactive-chart')) {
       $('.bar-icon').addClass('active-chart').removeClass('inactive-chart');
       $('.pie-icon').addClass('inactive-chart').removeClass('active-chart');
 
-      getStatisticsData("bar", false);
+      getStatisticsData("bar", false, searchData);
     }
   })
   
@@ -1454,37 +1520,65 @@ const openStatisticView = () => {
       $('.pie-icon').addClass('active-chart').removeClass('inactive-chart');
       $('.bar-icon').addClass('inactive-chart').removeClass('active-chart');
 
-      getStatisticsData("pie", true);
+      getStatisticsData("pie", true, searchData);
     }
-  })  
+  })
 
-  getStatisticsData("bar", false);
+  getStatisticsData("bar", false, searchData);
 };
 
-const getStatisticsData = (chartType, displayLabel) => {
+const getStatisticsData = (chartType, displayLabel, searchData) => {
 
   $.ajax({
-    url: "/home/getStatisticsData",
+    url: "/home/getStatisticData",
     method: "POST",
     contentType: "application/json",
+    data: JSON.stringify({ data: searchData }), 
     success: function (response) {
-      let labeltext = " Genutzt";
+      let labeltext = " Buchungen";
       let data = [];
       let labels = [];
+      let datasetColor = "#02ccfd";
+      let month = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September',    
+      'Oktober','November','Dezember'];
 
-      response.statisticsNumbers.shift();
+      if (searchData == "profession") {
+        labels[labels.length - 1] = " ANDERE";
+        response.statisticsLabel.shift();
+        response.statisticsNumbers.shift();
+      }
+
+      if (searchData == "time") {
+        chartType = "line";
+        interset = false;
+        $(".chart-icons-container").css("display", "none");
+      } else {
+        $(".chart-yearswitcher-container").css("display", "none");
+        interset = true;
+        datasetColor =
+        [
+          'rgb(0, 30, 80)',
+          '#123C61',
+          '#185183',
+          '#206AAC',
+          '#2782D2',
+          '#2C93EE',
+          '#02ccfd'
+        ];
+      }
+
+      response.statisticsLabel.forEach(function (element, i) {
+        labels[i] = " " + searchData == "time" ? element.statisticLabel : month[element.statisticLabel - 1];
+        console.log(element.statisticLabel);
+      });
+
       response.statisticsNumbers.forEach(function (element, i) {
         data[i] = element.allTimeBookings;
       });
 
-      response.statisticsProfessions.shift();
-      response.statisticsProfessions.forEach(function (element, i) {
-        labels[i] = " " + element.statisticProfession;
-      });
+      console.log(response);
 
-      labels[labels.length - 1] = " ANDERE";
-
-      buildChart(chartType, labels, data, labeltext, displayLabel);
+      buildChart(chartType, labels, data, labeltext, displayLabel, datasetColor, interset);
     },
     error: function (err) {
       console.log(err.responseJSON.msg);
@@ -1505,6 +1599,90 @@ const getStatisticsData = (chartType, displayLabel) => {
       }
     }
   });
+}
+
+const buildChart = (type, labels, data, labeltext, displayLabel, datasetColor, interset) => {
+  let chartStatus = Chart.getChart("chart");
+    if (chartStatus != undefined) {
+      chartStatus.destroy();
+    }
+  const ctx = $('#chart')[0].getContext('2d');
+  const chart = new Chart(ctx, {
+    type: type,
+    data: {
+        labels: labels,
+        datasets: [{
+            label: labeltext,
+            data: data,
+            backgroundColor: datasetColor,
+            borderRadius: 10,
+            borderSkipped: false,
+            pointRadius: 6,
+            pointHoverRadius: 7
+        }]
+      },  
+      options: {
+        interaction: {
+          intersect: interset,
+          mode: 'index',
+        },
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: displayLabel
+          },
+          tooltip: {
+            titleFont: {
+              size: 20,
+              family: 'VW Head, sans-serif'
+            },
+            bodyFont: {
+              size: 20,
+              family: 'VW Head, sans-serif'
+            },
+            callbacks: {
+              title: customTitleTooltip
+            }
+          }
+        },
+        scales: {
+            y: {
+              display: !displayLabel,
+                beginAtZero: true,
+                grid: {
+                  display: !displayLabel
+                },
+                ticks: {
+                  display: !displayLabel,
+                  color: 'rgb(0, 30, 80)',
+                  font: {
+                    size: 15,
+                    family: 'VW Head, sans-serif'
+                  },
+                  precision: 0
+                },
+            },
+            x: {
+              display: !displayLabel,
+              ticks: {
+                display: !displayLabel,
+                color: 'rgb(0, 30, 80)',
+                font: {
+                  size: 15,
+                  family: 'VW Head, sans-serif'
+                },
+              },
+              grid: {
+                lineWidth: 0
+              }
+            }
+        }
+    }
+  });
+}
+
+const customTitleTooltip = () => {
+  return ""
 }
 
 const buildUserTable = (edit) => {
@@ -1609,79 +1787,6 @@ const buildUserTable = (edit) => {
           confirmButtonText: "OK",
         });
       }
-    }
-  })
-}
-
-const buildChart = (type, labels, data, labeltext, displayLabel) => {
-  let chartStatus = Chart.getChart("chart"); // <canvas> id
-    if (chartStatus != undefined) {
-      chartStatus.destroy();
-    }
-  const ctx = $('#chart')[0].getContext('2d');
-  const chart = new Chart(ctx, {
-    type: type,
-    data: {
-        labels: labels,
-        datasets: [{
-            label: labeltext,
-            data: data,
-            backgroundColor: [
-              'rgb(0, 30, 80)',
-              '#123C61',
-              '#185183',
-              '#206AAC',
-              '#2782D2',
-              '#2C93EE',
-              '#02ccfd'
-            ],
-            borderRadius: 10,
-            borderSkipped: false
-        }]
-    },
-    options: {
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: displayLabel
-          },
-          tooltip: {
-            titleFont: {
-              size: 20,
-              family: 'VW Head, sans-serif'
-            },
-            bodyFont: {
-              size: 20,
-              family: 'VW Head, sans-serif'
-            }
-          }
-        },
-        scales: {
-            y: {
-              display: !displayLabel,
-                beginAtZero: true,
-                grid: {
-                  display: !displayLabel
-                },
-                ticks: {
-                  display: !displayLabel,
-                  color: 'rgb(0, 30, 80)',
-                  font: {
-                    size: 15,
-                    family: 'VW Head, sans-serif'
-                  },
-                },
-            },
-            x: {
-              display: !displayLabel,
-              ticks: {
-                display: !displayLabel
-              },
-              grid: {
-                lineWidth: 0
-              }
-            }
-        }
     }
   })
 }

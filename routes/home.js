@@ -3,8 +3,9 @@ const router = express.Router();
 const User = require("./../models/user");
 const Booking = require("./../models/booking");
 const Machine = require("./../models/machine");
-const Statistic = require("./../models/statistic");
-const statistic = require("./../models/statistic");
+const StatisticProfession = require("./../models/statistic-profession");
+const StatisticRole = require("./../models/statistic-role");
+const StatisticTime = require("./../models/statistic-time");
 const { bcryptHash } = require("../public/js/utils");
 
 const apiKey = "jfa9lkm30eKJ2SdlKS";
@@ -79,14 +80,24 @@ router.post("/createNewBooking", async (req, res) => {
 
       const user = await User.findOne({userId: userId});
 
+      
       if(user) {
+
+        const bookingYear = new Date().getFullYear();
+        const bookingMonth = new Date().getMonth();
 
         const [beginDay, beginMonth, beginYear] = beginDate.split('.')
         const [endDay, endMonth, endYear] = endDate.split('.')
 
-        const bookingsProfession = await Statistic.find({statisticProfession: user.profession});
+        const bookingsProfession = await StatisticProfession.find({statisticProfession: user.profession});
+        const bookingsRole = await StatisticRole.find({statisticRole: user.role});
 
-        const bookingsAll = await Statistic.findOne({statisticId: "1"});
+        const bookingsProfessionAll = await StatisticProfession.findOne({statisticId: "1"});
+        const bookingsRoleAll = await StatisticRole.findOne({statisticId: "1"});
+        
+        const bookingId = parseInt(bookingsProfessionAll.allTimeBookings) + 1;
+
+        const statisticTime = await StatisticTime.findOne({bookingYear: bookingYear, bookingMonth: bookingMonth + 1})
 
 
         /* Depending on the timewindow that the user selected when creating the booking, the 
@@ -110,7 +121,7 @@ router.post("/createNewBooking", async (req, res) => {
         }
     
         const booking = new Booking({
-          bookingId: parseInt(bookingsAll.allTimeBookings) + 1,
+          bookingId: bookingId,
           userId: userId,
           machineId: machineId,
           beginDate: new Date(`${beginYear}-${beginMonth}-${beginDay}`),
@@ -119,24 +130,46 @@ router.post("/createNewBooking", async (req, res) => {
           timewindow: timewindow
         });
   
+
         try {
   
           await booking.save();
-  
+
+          if(statisticTime) {
+            await StatisticTime.updateOne(
+              { bookingYear: bookingYear, bookingMonth: bookingMonth + 1 },
+              { $set: { allTimeBookings: parseInt(statisticTime.allTimeBookings) + 1 }}
+            );
+          }
+
           await Machine.updateOne(
             { machineId: booking.machineId},
             { $set: {status: 'O'}}
           ); 
           
-          await Statistic.updateOne(
-            { statisticProfession: user.profession},
-            { $set: { allTimeBookings: parseInt(bookingsProfession[0].allTimeBookings) + 1 } }
+          if(user.profession !== "ABBA" && user.profession !== "FACH") {
+            await StatisticProfession.updateOne(
+              { statisticProfession: user.profession},
+              { $set: { allTimeBookings: parseInt(bookingsProfession[0].allTimeBookings) + 1 } }
+            );
+          }
+
+          await StatisticProfession.updateOne(
+            { statisticId: "1"},
+            { $set: { allTimeBookings: parseInt(bookingsProfessionAll.allTimeBookings) + 1 } }
+            );
+            
+          await StatisticRole.updateOne(
+            { statisticRole: user.role},
+            { $set: { allTimeBookings: parseInt(bookingsRole[0].allTimeBookings) + 1 } }
           );
 
-          await Statistic.updateOne(
+          await StatisticRole.updateOne(
             { statisticId: "1"},
-            { $set: { allTimeBookings: parseInt(bookingsAll.allTimeBookings) + 1 } }
+            { $set: { allTimeBookings: parseInt(bookingsRoleAll.allTimeBookings) + 1 } }
           );
+
+          
   
           res.status(200).send();
         } catch (e) {
@@ -316,30 +349,74 @@ router.post("/getUserBookings", async (req, res) => {
   }
 })
 
-router.post("/getStatisticsData", async (req, res) => {
+router.post("/getStatisticData", async (req, res) => {
   if (req.session.authenticated) {
 
     try {
-      const statisticData = await statistic.find();
+      const dataToSearch = req.body.data;
 
       let dataObj = {};
+      let statisticsLabel = [];
       let statisticsNumbers = [];
-      let statisticsProfessions = [];
-      let currentProfessionStatisticsObj = {};
       let currentNumberStatisticsObj = {};
+      let statisticData = {};
+
+      switch (dataToSearch) {
+        case "profession":
+          let currentProfessionStatisticsObj = {};  
+          statisticData = await StatisticProfession.find();
+
+          for (let statistic of statisticData) {
+            Object.assign(currentProfessionStatisticsObj, {statisticLabel: statistic.statisticProfession});
+            Object.assign(currentNumberStatisticsObj, {allTimeBookings: statistic.allTimeBookings});
+
+            statisticsLabel.push(currentProfessionStatisticsObj);
+            statisticsNumbers.push(currentNumberStatisticsObj);
+
+            currentProfessionStatisticsObj = {};
+            currentNumberStatisticsObj = {};
+          }
+
+          dataObj = {statisticsLabel, statisticsNumbers};
+          break;
+        case "role":
+          let currentRoleStatisticsObj = {};  
+          statisticData = await StatisticRole.find();
+
+          for (let statistic of statisticData) {
+            Object.assign(currentRoleStatisticsObj, {statisticLabel: statistic.statisticRole});
+            Object.assign(currentNumberStatisticsObj, {allTimeBookings: statistic.allTimeBookings});
+
+            statisticsLabel.push(currentRoleStatisticsObj);
+            statisticsNumbers.push(currentNumberStatisticsObj);
+
+            currentRoleStatisticsObj = {};
+            currentNumberStatisticsObj = {};
+          }
+
+          dataObj = {statisticsLabel, statisticsNumbers};
+          break;
+        case "time": 
+          let currentMonthStatisticsObj = {};
+          statisticData = await StatisticTime.find();
+
+          for (let statistic of statisticData) {
+            Object.assign(currentMonthStatisticsObj, {statisticLabel: statistic.bookingMonth});
+            Object.assign(currentNumberStatisticsObj, {allTimeBookings: statistic.allTimeBookings});
+
+            statisticsLabel.push(currentMonthStatisticsObj);
+            statisticsNumbers.push(currentNumberStatisticsObj);
+
+            currentMonthStatisticsObj = {};
+            currentNumberStatisticsObj = {};
+          }
           
-      for (let statistic of statisticData) {
-        Object.assign(currentProfessionStatisticsObj, {statisticProfession: statistic.statisticProfession});
-        Object.assign(currentNumberStatisticsObj, {allTimeBookings: statistic.allTimeBookings});
-
-        statisticsProfessions.push(currentProfessionStatisticsObj);
-        statisticsNumbers.push(currentNumberStatisticsObj);
-
-        currentProfessionStatisticsObj = {};
-        currentNumberStatisticsObj = {};
+          dataObj = {statisticsLabel, statisticsNumbers};
+          break;
+        default:
+          break;
       }
-      
-      dataObj = {statisticsProfessions, statisticsNumbers};
+
       res.status(200).json(dataObj);
     } catch (err) {
       res.status(500).json({msg: "Beim Laden der Daten ist ein Fehler aufgetreten"});

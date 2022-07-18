@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const statisticSchema = new mongoose.Schema({
+const statisticProfessionSchema = new mongoose.Schema({
     statisticId: {
         type: String,
         required: true,
@@ -15,4 +15,4 @@ const statisticSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model("Statistic", statisticSchema);
+module.exports = mongoose.model("StatisticProfession", statisticProfessionSchema);
