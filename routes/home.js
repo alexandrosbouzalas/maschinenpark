@@ -22,6 +22,34 @@ router.get("/", (req, res) => {
   } 
 });
 
+router.post("/getUserInfo", async (req, res) => {
+  if (req.session.authenticated) {
+    try {
+      const { userId } = req.session.user;
+      const user = await User.findOne({userId: userId});
+      
+      if(user) {
+        let userInfo = [];
+  
+        userInfo.push(user.lastname);
+        userInfo.push(user.firstname);
+
+        res.status(200).send(userInfo);
+        
+      } else {
+        res.status(400).send("No user found");
+      }
+
+    } catch (err) {
+      console.log(err)
+      res.status(500).json({msg: "Beim Laden der Maschinen ist ein Fehler aufgetreten"});
+    }
+    
+  } else {
+    res.status(403).send();
+  }
+});
+
 router.post("/getMachines", async (req, res) => {
   if (req.session.authenticated) {
     try {

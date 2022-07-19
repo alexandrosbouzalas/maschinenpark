@@ -23,7 +23,23 @@ setInterval(() => {
     $('#date-time').text(datetime);
 });
 
+
 // Functions
+
+const getUserInfo = () => {
+  $.ajax({
+    url: "/home/getUserInfo",
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({ data: {machineId: $('#machinetype').val() + $('#machine-number').val()}}),
+    success: function (response) {
+      $('#current-user').text(`${response[0]}, ${response[1]}`);
+    },
+    error: function (err) {
+      $('#current-user').text('Kein Nutzer gefunden');
+    }
+  });
+}
 
 const openParkView = (isAdmin, adminEdit, adminDelete, placeholderMachine, editMode) => {
 
@@ -2294,6 +2310,9 @@ const addThEventListeners = (table) => {
 }
 
 // Function calls
+
+getUserInfo();
+
 hasPermission("3", "buildView");
 
 addThEventListeners('my-bookings-table');

@@ -1,3 +1,36 @@
+#header {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    margin-inline: 30px;
+}
+
+.user-bubble {
+    display: flex;
+    background-color: #009879;
+    color: white;
+    font-size: 23px;
+    min-width: 40px;
+    font-family: "VW Head", sans-serif;
+    width: auto;
+    border-radius: 100px;
+}
+
+.user-bubble ion-icon {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 30px;
+    margin-left: 10px
+}
+
+#current-user {
+    margin-top: 5px;
+    margin-inline: 5px 15px;
+}
+
+
 
 .container-main {
     display: flex;
@@ -208,8 +241,6 @@ th {
 
 #date-time {
     text-align: right;
-    margin-top: 20px;
-    padding-right: 30px;
     color: rgb(0, 30, 80);
     font-size: 25px;
     font-family: "VW Head", sans-serif;
