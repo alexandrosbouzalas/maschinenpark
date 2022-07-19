@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("./../models/user");
 const Booking = require("./../models/booking");
+const BookingBackup = require("./../models/booking-backup");
 const Machine = require("./../models/machine");
 const StatisticProfession = require("./../models/statistic-profession");
 const StatisticRole = require("./../models/statistic-role");
@@ -35,7 +36,7 @@ router.post("/getUserInfo", async (req, res) => {
         userInfo.push(user.firstname);
 
         res.status(200).send(userInfo);
-        
+
       } else {
         res.status(400).send("No user found");
       }
@@ -158,11 +159,21 @@ router.post("/createNewBooking", async (req, res) => {
           activity: activity,
           timewindow: timewindow
         });
-  
+        
+        const bookingBackup = new BookingBackup({
+          bookingId: bookingId,
+          userId: userId,
+          machineId: machineId,
+          beginDate: new Date(`${beginYear}-${beginMonth}-${beginDay}`),
+          endDate: new Date(`${endYear}-${endMonth}-${endDay}`).setHours(hoursToAdd, 59, 59, 0),
+          activity: activity,
+          timewindow: timewindow
+        });
 
         try {
   
           await booking.save();
+          await bookingBackup.save();
 
           if(statisticTime) {
             await StatisticTime.updateOne(
@@ -176,7 +187,7 @@ router.post("/createNewBooking", async (req, res) => {
             { $set: {status: 'O'}}
           ); 
           
-          if(user.profession !== "ABBA" && user.profession !== "FACH") {
+          if(user.profession !== "AUSB" && user.profession !== "ABBA") {
             await StatisticProfession.updateOne(
               { statisticProfession: user.profession},
               { $set: { allTimeBookings: parseInt(bookingsProfession[0].allTimeBookings) + 1 } }
@@ -228,7 +239,7 @@ router.post("/deleteBooking", async (req, res) => {
 
         if(user) {
 
-          if(user.permissionClass === "3") {
+          if(user.permissionClass ==="2") {
 
             try{
 
@@ -339,7 +350,7 @@ router.post("/getUserBookings", async (req, res) => {
         
           const user = await User.findOne({userId: userId});
   
-          if(user.permissionClass !== "3") {
+          if(user.permissionClass !=="2") {
             console.log("Insufficient permissions")
             throw new Error("Insufficient permissions")
           } 
@@ -608,7 +619,7 @@ router.post("/getAllUsers", async (req, res) => {
       if(user) {
 
         if(users.length >= 1) {
-          if(user.permissionClass === "3") {
+          if(user.permissionClass ==="2") {
             
             let usersArr = [];
             let currentUser = {};
@@ -666,7 +677,7 @@ router.post("/updateUser", async (req, res) => {
         throw new Error('Die eingegebene UserID existiert bereits und kann nicht nochmal benutzt werden')
       } else {
         if(user && userToEdit) {
-            if(user.permissionClass === "3") {
+            if(user.permissionClass ==="2") {
               
               await User.updateMany(
                 {
@@ -710,7 +721,7 @@ router.post("/updateUserPassword", async (req, res) => {
 
 
       if(user && userToEdit) {
-          if(user.permissionClass === "3") {
+          if(user.permissionClass ==="2") {
 
             updateOptions.password = await bcryptHash(newPassword),
             
@@ -751,7 +762,7 @@ router.post("/deleteUser", async (req, res) => {
 
         if(userToDelete) {
 
-          if(user.permissionClass === "3") {
+          if(user.permissionClass ==="2") {
             
             await User.deleteOne({userId: userIdToDelete});
 
@@ -785,7 +796,7 @@ router.post("/addMachine", async (req, res) => {
       const user = await User.findOne({userId: userId});
 
       if(user) {
-        if(user.permissionClass === "3") {
+        if(user.permissionClass ==="2") {
 
           const machine = await Machine.findOne({machineId: machineId});
 
@@ -830,7 +841,7 @@ router.post("/updateMachine", async (req, res) => {
       const user = await User.findOne({userId: userId});
 
       if(user) {
-        if(user.permissionClass === "3") {
+        if(user.permissionClass ==="2") {
 
           const machine = await Machine.findOne({machineId: machineId});
 
@@ -862,7 +873,7 @@ router.post("/deleteMachine", async (req, res) => {
       const user = await User.findOne({userId: userId});
 
       if(user) {
-        if(user.permissionClass === "3") {
+        if(user.permissionClass ==="2") {
 
           const machine = await Machine.findOne({machineId: machineId});
 

@@ -425,7 +425,7 @@ const  createBooking = (machines, edit) => {
             background: "#f6f8fa",
             timer: 2000,
           }).then(() => {
-            hasPermission("3", "buildView")
+            hasPermission("2", "buildView")
           });
         },
         error: function (err) {
@@ -555,7 +555,7 @@ const editBooking = (event, machines) => {
               background: "#f6f8fa",
               timer: 2000,
             }).then(() => {
-              hasPermission("3", "buildView")
+              hasPermission("2", "buildView")
             });
           },
           error: function (err) {
@@ -645,8 +645,8 @@ const editUser = (event) => {
     + '         <div>'
     + '             <select id="role" name="role">'
     + '                 <option value="AZB">Auszubildender</option>'
-    + '                 <option value="ABBA">Ausbilder - Meister</option>'
-    + '                 <option value="FACH">Facharbeiter</option>'
+    + '                 <option value="AUSB">Ausbilder - Meister</option>'
+    + '                 <option value="ABBA">Ausbildungsbeauftragter - Facharbeiter</option>'
     + '             </select>'
     + '         </div>'
     + '     </div>'
@@ -678,8 +678,7 @@ const editUser = (event) => {
     + '     <div class="edit-option-row">'
     + '         <div>'
     + '             <select id="permissionclass" name="permissionclass">'
-    + '                 <option value="3">Alle Rechte</option>'
-    + '                 <option value="2">Begrenzte Rechte</option>'
+    + '                 <option value="2">Alle Rechte</option>'
     + '                 <option value="1">Standard Rechte</option>'
     + '             </select>'
     + '         </div>'
@@ -761,7 +760,7 @@ const editUser = (event) => {
         Object.assign(updateOptions, {apprenticeyear: $('#apprenticeyear').val()});
       }
       if(currentUserRole !== $('#role').val()) {
-        if($('#role').val() === "ABBA" || $('#role').val() === "FACH") {
+        if($('#role').val() === "AUSB" || $('#role').val() === "ABBA") {
           Object.assign(updateOptions, {role: $('#role').val()});
           Object.assign(updateOptions, {profession: $('#role').val()});
           Object.assign(updateOptions, {apprenticeyear: "0"});
@@ -850,7 +849,7 @@ const editUser = (event) => {
 
   $('.edit-options-container select').css('color', '#757575');
 
-  if(element.children[3].innerText === "ABBA" || element.children[3].innerText === "FACH") {
+  if(element.children[3].innerText === "AUSB" || element.children[3].innerText === "ABBA") {
     $("#role").val(element.children[3].innerText);
     $("#profession").parents().closest('.edit-option').hide();
     $("#apprenticeyear").parents().closest('.edit-option').hide();
@@ -875,7 +874,7 @@ const editUser = (event) => {
     if($("#role").val() === "AZB") {
       $("#profession").parents().closest('.edit-option').slideDown();
       $("#apprenticeyear").parents().closest('.edit-option').slideDown();
-    } else if($("#role").val() === "ABBA" || $("#role").val() === "FACH"){
+    } else if($("#role").val() === "AUSB" || $("#role").val() === "ABBA"){
       $("#profession").parents().closest('.edit-option').slideUp();
       $("#apprenticeyear").parents().closest('.edit-option').slideUp();
     }
@@ -1052,7 +1051,7 @@ const deleteBooking = (event) => {
               background: "#f6f8fa",
               timer: 2000,
             }).then(() => {
-              hasPermission("3", "buildView");
+              hasPermission("2", "buildView");
             });
           },
           error: function (err) {
@@ -1842,9 +1841,9 @@ const getTextStats = () => {
     success: function (response) {
       $('.statistic-information').append(`<p class="stat-text">Anzahl aller Buchungen: <b style="color: #009879">${response[0].allTimeBookings}</b></p>`);
       $('.statistic-information').append(`<p class="stat-text">Anzahl der Registrierten Benutzer: <b style="color: #009879">${response[1]}</b></p>`);
-      $('.statistic-information').append(`<p class="stat-text">Anzahl der der Fräsmaschienen: <b style="color: #009879">${response[2]}</b></p>`);
-      $('.statistic-information').append(`<p class="stat-text">Anzahl der der Drehmaschienen: <b style="color: #009879">${response[3]}</b></p>`);
-      $('.statistic-information').append(`<p class="stat-text">Anzahl der der Bohrmaschienen: <b style="color: #009879">${response[4]}</b></p>`);
+      $('.statistic-information').append(`<p class="stat-text">Anzahl der Fräsmaschienen: <b style="color: #009879">${response[2]}</b></p>`);
+      $('.statistic-information').append(`<p class="stat-text">Anzahl der Drehmaschienen: <b style="color: #009879">${response[3]}</b></p>`);
+      $('.statistic-information').append(`<p class="stat-text">Anzahl der Bohrmaschienen: <b style="color: #009879">${response[4]}</b></p>`);
     },
     error: function (err) {
       console.log(err.responseJSON.msg);
@@ -2049,7 +2048,7 @@ const buildUserTable = (edit) => {
         + `   <td>${user.firstname}</td>`
         + `   <td>${user.userId}</td>`
         + `   <td>${user.role}</td>`
-        + `   <td>${user.profession === "ABBA" || user.profession === "FACH" ? user.profession = "---" : user.profession}</td>`
+        + `   <td>${user.profession === "AUSB" || user.profession === "ABBA" ? user.profession = "---" : user.profession}</td>`
         + `   <td>${user.apprenticeyear === "0" ? user.apprenticeyear = "---" : user.apprenticeyear}</td>`
         + `   <td style="display: none;">${user.permissionClass}</td>`
         + '   <td class="user-edit-icons-cell">'
@@ -2312,7 +2311,7 @@ const addThEventListeners = (table) => {
 
 getUserInfo();
 
-hasPermission("3", "buildView");
+hasPermission("2", "buildView");
 
 addThEventListeners('my-bookings-table');
 

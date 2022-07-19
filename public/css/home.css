@@ -43,11 +43,6 @@
     color: #009879;
 }
 
-.my-bookings-table tbody tr.ended-row {
-    font-weight: bold;
-    color: #f25902;
-}
-
 #user-edit-error,
 #machine-add-error,
 #booking-create-error {
@@ -778,7 +773,7 @@ select {
 }
 
 .status-o-bullet{
-    background-color: #f25902;
+    background-color: #02ccfd;
 }
 
 .status-f-bullet {
@@ -789,7 +784,7 @@ select {
     background-color: red;
 }
 .status-o{
-    background-color: #f25902;
+    background-color: #02ccfd;
     cursor: not-allowed;
 }
 

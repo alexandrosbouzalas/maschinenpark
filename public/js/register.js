@@ -156,7 +156,7 @@ const verifySuccess = () => {
 
       if(role === "AZB")
         profession = pair[1];
-      else if (role === "ABBA" || role === "FACH")
+      else if (role === "AUSB" || role === "ABBA")
         profession = role;
 
       Object.assign(data, { profession : profession });
@@ -167,7 +167,7 @@ const verifySuccess = () => {
 
       if(role === "AZB")
         apprenticeyear = pair[1];
-      else if (role === "ABBA" || role === "FACH")
+      else if (role === "AUSB" || role === "ABBA")
         apprenticeyear = "0";
 
       Object.assign(data, { apprenticeyear: apprenticeyear }); 
@@ -209,7 +209,7 @@ const verifySuccess = () => {
 
 $('#role').change(() => {
 
-  if($('#role').val() === "ABBA" || $('#role').val() === "FACH") {
+  if($('#role').val() === "AUSB" || $('#role').val() === "ABBA") {
     $('#profession').parents().closest('.input-field').slideUp();
     $('#apprenticeyear').parents().closest('.input-field').slideUp();
   } else if($('#role').val() === "AZB") {
