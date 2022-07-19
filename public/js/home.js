@@ -1646,13 +1646,13 @@ const openStatisticView = () => {
     + '           <div class="stat-line"></div>'
     + '           <div class="chart-buttons">'
     + '             <div>'
-    + `               <button id="profession-chart-btn" type="button">Berufsgruppe</button>`
+    + `               <button id="profession-chart-btn" type="button">Berufsgruppen</button>`
     + '             </div>'
     + '             <div>'
-    + `               <button id="role-chart-btn" type="button">Rolle</button>`
+    + `               <button id="role-chart-btn" type="button">Rollen</button>`
     + '             </div>'
     + '             <div>'
-    + `               <button id="time-chart-btn" type="button">Zeit</button>`
+    + `               <button id="time-chart-btn" type="button">Zeitraum</button>`
     + '             </div>'
     + '           </div>'
     + '       </div>'
@@ -1674,9 +1674,12 @@ const openStatisticView = () => {
   $('#time-chart-btn').click(() => {
     openChartView("Buchungen der Maschinen pro Monat", "time");
   });
+
+  getTextStats();
 }
 
 const openChartView = (title, searchData) => {
+  let searchYear = parseInt(new Date().getFullYear());
   Swal.fire({
     html: '<div id="main-chart-container">'
     + `       <p class="chart-title">${title}</p>`
@@ -1699,6 +1702,7 @@ const openChartView = (title, searchData) => {
     + '             </button>'
     + '          </div>'
     + '       </div>' 
+    + '       <div> <p id="nothing-found-info-text" style="color: rgb(0, 30, 80); display: none;"><b>Es konnten keine Daten gefunden werden!</b></p></div>'
     + '       <div id="chart-container">'     
     + '           <canvas id="chart" width="400" height="400"></canvas>'
     + '       </div>'
@@ -1707,17 +1711,21 @@ const openChartView = (title, searchData) => {
     showConfirmButton: false,
     width: '90%',
     customClass: 'swal',
+  }).then(() => {
+    $('#statistic-btn').click();
   })
 
   $('#year-prev').click(() => {
     if($('#mc-current--year').text() > 2022) {
       $('#mc-current--year').text((parseInt($('#mc-current--year').text()) - 1).toString());
+      getStatisticsData("line", false, searchData, parseInt($('#mc-current--year').text()));
     }
   })
 
   $('#year-next').click(() => {
     if($('#mc-current--year').text() < parseInt(new Date().getFullYear()) + 3) {
       $('#mc-current--year').text((parseInt($('#mc-current--year').text()) + 1).toString());
+      getStatisticsData("line", false, searchData, parseInt($('#mc-current--year').text()));
     }
   })
 
@@ -1726,7 +1734,7 @@ const openChartView = (title, searchData) => {
       $('.bar-icon').addClass('active-chart').removeClass('inactive-chart');
       $('.pie-icon').addClass('inactive-chart').removeClass('active-chart');
 
-      getStatisticsData("bar", false, searchData);
+      getStatisticsData("bar", false, searchData, searchYear);
     }
   })
   
@@ -1735,20 +1743,52 @@ const openChartView = (title, searchData) => {
       $('.pie-icon').addClass('active-chart').removeClass('inactive-chart');
       $('.bar-icon').addClass('inactive-chart').removeClass('active-chart');
 
-      getStatisticsData("pie", true, searchData);
+      getStatisticsData("pie", true, searchData, searchYear);
     }
   })
 
-  getStatisticsData("bar", false, searchData);
+  getStatisticsData("bar", false, searchData, searchYear);
 };
 
-const getStatisticsData = (chartType, displayLabel, searchData) => {
+const getTextStats = () => {
+  $.ajax({
+  url: "/home/getTextStats",
+    method: "POST",
+    contentType: "application/json",
+    success: function (response) {
+      $('.statistic-information').append(`<p class="stat-text">Anzahl aller Buchungen: <b style="color: #009879">${response[0].allTimeBookings}</b></p>`);
+      $('.statistic-information').append(`<p class="stat-text">Anzahl der Registrierten Benutzer: <b style="color: #009879">${response[1]}</b></p>`);
+      $('.statistic-information').append(`<p class="stat-text">Anzahl der der Fräsmaschienen: <b style="color: #009879">${response[2]}</b></p>`);
+      $('.statistic-information').append(`<p class="stat-text">Anzahl der der Drehmaschienen: <b style="color: #009879">${response[3]}</b></p>`);
+      $('.statistic-information').append(`<p class="stat-text">Anzahl der der Bohrmaschienen: <b style="color: #009879">${response[4]}</b></p>`);
+    },
+    error: function (err) {
+      console.log(err.responseJSON.msg);
+      try {
+        Swal.fire({
+          title: err.responseJSON.msg,
+          icon: "error",
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+        });
+      } catch {
+        Swal.fire({
+          title: "Es ist ein unerwarteter Fehler aufgetreten",
+          icon: "error",
+          allowOutsideClick: false,
+          confirmButtonText: "OK",
+        });
+      }
+    }
+  });
+};
 
+const getStatisticsData = (chartType, displayLabel, searchData, searchYear) => {
   $.ajax({
     url: "/home/getStatisticData",
     method: "POST",
     contentType: "application/json",
-    data: JSON.stringify({ data: searchData }), 
+    data: JSON.stringify({ searchData: searchData, searchYear: searchYear}), 
     success: function (response) {
       let labeltext = " Buchungen";
       let data = [];
@@ -1757,8 +1797,7 @@ const getStatisticsData = (chartType, displayLabel, searchData) => {
       let month = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September',    
       'Oktober','November','Dezember'];
 
-      if (searchData == "profession") {
-        labels[labels.length - 1] = " ANDERE";
+      if(searchData == "profession") {
         response.statisticsLabel.shift();
         response.statisticsNumbers.shift();
       }
@@ -1781,19 +1820,26 @@ const getStatisticsData = (chartType, displayLabel, searchData) => {
           '#02ccfd'
         ];
       }
-
+      
       response.statisticsLabel.forEach(function (element, i) {
-        labels[i] = " " + searchData == "time" ? element.statisticLabel : month[element.statisticLabel - 1];
-        console.log(element.statisticLabel);
+        labels[i] = " " + (searchData == "time" ? month[element.statisticLabel - 1] : element.statisticLabel);
       });
-
+      
       response.statisticsNumbers.forEach(function (element, i) {
         data[i] = element.allTimeBookings;
       });
+      
+      if (searchData == "profession") labels[labels.length - 1] = " ANDERE";
+      if (searchData == "role") labels[0] = " ALLE";
 
-      console.log(response);
-
-      buildChart(chartType, labels, data, labeltext, displayLabel, datasetColor, interset);
+      if(!data.length == 0) {
+        buildChart(chartType, labels, data, labeltext, displayLabel, datasetColor, interset);
+        $('#nothing-found-info-text').hide();
+        $('#chart').show();
+      } else {
+        $('#nothing-found-info-text').show();
+        $('#chart').hide();
+      }
     },
     error: function (err) {
       console.log(err.responseJSON.msg);

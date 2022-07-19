@@ -7,6 +7,7 @@ const StatisticProfession = require("./../models/statistic-profession");
 const StatisticRole = require("./../models/statistic-role");
 const StatisticTime = require("./../models/statistic-time");
 const { bcryptHash } = require("../public/js/utils");
+const machine = require("./../models/machine");
 
 const apiKey = "jfa9lkm30eKJ2SdlKS";
 
@@ -349,11 +350,64 @@ router.post("/getUserBookings", async (req, res) => {
   }
 })
 
+router.post("/getTextStats", async (req, res) => {
+  if (req.session.authenticated) {
+    try {
+      let statisticData = await StatisticProfession.find();
+      let userCount = await User.aggregate([{ $count: "userId" }]);
+      let machines = await Machine.find();
+      let fräsCount = 0;
+      let drehCount = 0;
+      let bohrCount = 0;
+      
+      let currentProfessionStatisticsObj = {};
+      let dataArr = [];
+
+      for (let stat of statisticData) {
+        if (stat.statisticProfession == "ALL") {
+          Object.assign(currentProfessionStatisticsObj, {allTimeBookings: stat.allTimeBookings});
+
+          dataArr.push(currentProfessionStatisticsObj);
+          currentProfessionStatisticsObj = {};
+        }
+      }
+
+      dataArr.push(userCount[0].userId)
+
+      for (let machine of machines) {
+        switch (machine.machineId.substring(0, 1)) {
+          case "F":
+            fräsCount += 1;
+            break;
+          case "D":
+            drehCount += 1;
+            break;
+          case "B":
+            bohrCount += 1;
+            break;
+          default: 
+            break;
+        }
+      }
+
+      dataArr.push(fräsCount);
+      dataArr.push(drehCount);
+      dataArr.push(bohrCount);
+
+      res.status(200).json(dataArr);
+    } catch (err) {
+      res.status(500).json({msg: "Beim Laden der Daten ist ein Fehler aufgetreten"});
+    }
+  } else {
+    res.status(403).send();
+  }
+})
+
 router.post("/getStatisticData", async (req, res) => {
   if (req.session.authenticated) {
 
     try {
-      const dataToSearch = req.body.data;
+      const { searchData, searchYear } = req.body;
 
       let dataObj = {};
       let statisticsLabel = [];
@@ -361,7 +415,7 @@ router.post("/getStatisticData", async (req, res) => {
       let currentNumberStatisticsObj = {};
       let statisticData = {};
 
-      switch (dataToSearch) {
+      switch (searchData) {
         case "profession":
           let currentProfessionStatisticsObj = {};  
           statisticData = await StatisticProfession.find();
@@ -401,14 +455,16 @@ router.post("/getStatisticData", async (req, res) => {
           statisticData = await StatisticTime.find();
 
           for (let statistic of statisticData) {
-            Object.assign(currentMonthStatisticsObj, {statisticLabel: statistic.bookingMonth});
-            Object.assign(currentNumberStatisticsObj, {allTimeBookings: statistic.allTimeBookings});
+            if(parseInt(statistic.bookingYear) == searchYear){
+              Object.assign(currentMonthStatisticsObj, {statisticLabel: statistic.bookingMonth});
+              Object.assign(currentNumberStatisticsObj, {allTimeBookings: statistic.allTimeBookings});
 
-            statisticsLabel.push(currentMonthStatisticsObj);
-            statisticsNumbers.push(currentNumberStatisticsObj);
+              statisticsLabel.push(currentMonthStatisticsObj);
+              statisticsNumbers.push(currentNumberStatisticsObj);
 
-            currentMonthStatisticsObj = {};
-            currentNumberStatisticsObj = {};
+              currentMonthStatisticsObj = {};
+              currentNumberStatisticsObj = {};
+            }
           }
           
           dataObj = {statisticsLabel, statisticsNumbers};

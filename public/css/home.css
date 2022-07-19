@@ -410,6 +410,48 @@ th {
     position: relative;
   }
 
+#main-info-container {
+    height: 85%;
+    padding: 20px;
+}
+
+.info-container {
+    height: 90%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.stat-line {
+    border-right: #43434382 1px solid;
+    margin-top: 30px;
+    height: 80%;
+}
+
+.statistic-information {
+    width: 45%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.stat-text {
+    margin: 5px;
+    text-align: start;
+    color: grey;
+    font-size: 22px;
+}
+
+.chart-buttons {
+    width: 45%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 .edit-icons-container,
 .chart-icons-container {
     display: flex;
@@ -450,12 +492,20 @@ th {
     display: none;
 }
 
-.swal {
-    height: 90vh;
+.swal,
+.swal-swal {
     display: flex !important;
     flex-direction: column;
     justify-content: center;
     z-index: 2 !important;
+}
+
+.swal {
+    height: 90vh;
+}
+
+.small-swal {
+    height: 40vh;
 }
 
 .swal2-html-container {
@@ -541,6 +591,9 @@ select {
     width: 100px;
 }
 
+#profession-chart-btn,
+#role-chart-btn,
+#time-chart-btn,
 #maschine-change-btn {
     height: 50px;
     width: 200px;
@@ -552,6 +605,17 @@ select {
     font-size: 23px;
 }
 
+#profession-chart-btn,
+#role-chart-btn,
+#time-chart-btn {
+    margin: 10px;
+    height: 60px;
+    width: 240px;
+}
+
+#profession-chart-btn:hover,
+#role-chart-btn:hover,
+#time-chart-btn:hover,
 #maschine-change-btn:hover {
     background-color: #02ccfd;
 }
