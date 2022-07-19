@@ -60,7 +60,7 @@ router.post("/getMachines", async (req, res) => {
         currentMachineObj = {};
       }
 
-      res.status(200).json(machinesObj);
+      res.status(200).json(machinesObj.sort((a, b) => (parseInt(a.machineId.substring(1).trim()) > parseInt(b.machineId.substring(1).trim())) ? 1 : -1));
     } catch (err) {
       console.log(err)
       res.status(500).json({msg: "Beim Laden der Maschinen ist ein Fehler aufgetreten"});
@@ -784,7 +784,39 @@ router.post("/addMachine", async (req, res) => {
         }
       } 
     } catch (err) {
-      res.status(403).json({msg: "Beim Löschen der Buchung ist eine unerwarteter Fehler augetreten"});
+      res.status(403).json({msg: "Beim Löschen der Buchung ist ein unerwarteter Fehler augetreten"});
+    }
+    
+  } else {
+    res.status(403).send();
+  }
+})
+
+router.post("/updateMachine", async (req, res) => {
+  if (req.session.authenticated) {
+    try {
+      const { userId } = req.session.user;
+
+      const { machineId, status } = req.body.data;
+
+      const user = await User.findOne({userId: userId});
+
+      if(user) {
+        if(user.permissionClass === "3") {
+
+          const machine = await Machine.findOne({machineId: machineId});
+
+          if(machine && machine.status !== status) {
+            await Machine.updateOne({machineId: machineId}, {$set: {status: status}});
+
+            res.status(200).send();
+          } else {
+            throw new Error("Diese Maschine existiert nicht")
+          }
+        }
+      } 
+    } catch (err) {
+      res.status(403).json({msg: "Beim Aktualisieren der Maschine ist ein unerwarteter Fehler augetreten"});
     }
     
   } else {
@@ -814,7 +846,7 @@ router.post("/deleteMachine", async (req, res) => {
         }
       } 
     } catch (err) {
-      res.status(403).json({msg: "Beim Löschen der Buchung ist eine unerwarteter Fehler augetreten"});
+      res.status(403).json({msg: "Beim Löschen der Buchung ist ein unerwarteter Fehler augetreten"});
     }
     
   } else {

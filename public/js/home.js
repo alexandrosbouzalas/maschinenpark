@@ -25,7 +25,7 @@ setInterval(() => {
 
 // Functions
 
-const openParkView = (isAdmin, placeholderMachine, editMode) => {
+const openParkView = (isAdmin, adminEdit, adminDelete, placeholderMachine, editMode) => {
 
   if(isAdmin) {
 
@@ -137,7 +137,7 @@ const openParkView = (isAdmin, placeholderMachine, editMode) => {
                   background: "#f6f8fa",
                   timer: 2000,
                 }).then(() => {
-                  openParkView(true);
+                  openParkView(true, false, false);
                 });
               },
               error: function (err) {
@@ -161,6 +161,8 @@ const openParkView = (isAdmin, placeholderMachine, editMode) => {
                 }
               }
             });
+          } else {
+            openParkView(true);
           }
       })
     })
@@ -191,9 +193,6 @@ const openParkView = (isAdmin, placeholderMachine, editMode) => {
         $('.machine-delete-icon').css("background-color", "rgb(0, 30,80");
       }
     })
-
-
-
     
   } else {
 
@@ -254,7 +253,7 @@ const openParkView = (isAdmin, placeholderMachine, editMode) => {
     borderRadius: 10,
   };
   
-  getMachines(placeholderMachine);
+  getMachines(placeholderMachine, adminEdit, adminDelete);
 }
 
 const  createBooking = (machines, edit) => {
@@ -274,7 +273,7 @@ const  createBooking = (machines, edit) => {
     + `             <input class="option-field" id="current-machines" type="text" placeholder="${machines}" name="maschine" disabled/>`
     + '         </div>'
     + '         <div>'
-    + `             <button id="maschine-change-btn" type="button" onClick="openParkView(false, '${machines}')">Auswählen</button>`
+    + `             <button id="maschine-change-btn" type="button" onClick="openParkView(false, false, false, '${machines}')">Auswählen</button>`
     + '         </div>'
     + '     </div>'
     + ' </div>'
@@ -465,7 +464,7 @@ const editBooking = (event, machines) => {
     + `             <input id="current-machines" type="text" name="maschine" placeholder="${machines ? machines : currentMachine.innerText}" disabled/>`
     + '         </div>'
     + '         <div>'
-    + `             <button id="maschine-change-btn" type="button" onClick="openParkView(false, '${machines ? machines : currentMachine.innerText}', true)">Ändern</button>`
+    + `             <button id="maschine-change-btn" type="button" onClick="openParkView(false, false, false, '${machines ? machines : currentMachine.innerText}', true)">Ändern</button>`
     + '         </div>'
     + '     </div>'
     + ' </div>'
@@ -1318,7 +1317,7 @@ const checkStatus = (machine) => {
   }
 }
 
-const getMachines = (placeholderMachine) => {
+const getMachines = (placeholderMachine, adminEdit, adminDelete) => {
   
   $.ajax({
     url: "/home/getMachines",
@@ -1397,23 +1396,33 @@ const getMachines = (placeholderMachine) => {
         $('.machine-delete-bubble').append('<ion-icon name="close-outline"></ion-icon>');
         $('.machine-edit-bubble').append('<ion-icon name="pencil-outline"></ion-icon>');
 
+        if(adminEdit) $('.machine-edit-icon').click();
+        if(adminDelete) $('.machine-delete-icon').click();
+
         $('.machine-edit-bubble').click((event) => {
-          let targetMachine = $(event.target).parents().closest('.maschine');
+          
+          const targetMachine = $(event.target).parents().closest('.maschine');
+
+          const statusClass = targetMachine.attr('class').split(/\s+/)[2];
+
 
           Swal.fire({
-            html: `<p class="edit-title">Maschine ${targetMachine.attr('id')} bearbeiten</p>`
+            html: `<p class="edit-title" style="margin-top: 15px;">Maschine ${targetMachine.attr('id')} Status ändern</p>`
             +'<div class="edit-options-container">'
             + ' <div class="edit-option">'
             + '     <div class="edit-option-row">'
             + '         <div>'
-            + `             <input id="current-machine-number" type="number" name="maschine-number" placeholder="${targetMachine.attr('id').substring(1)}"/>`
+            + '             <select id="machinestatus">'
+            + '                 <option value="F">Funktionsfähig</option>'
+            + '                 <option value="B">Außer Betrieb</option>'
+            + '             </select>'
             + '         </div>'
             + '     </div>'
             + ' </div>'
             + '</div>',
             showCancelButton: true,
-            width: '90%',
-            customClass: 'swal',
+            width: '50%',
+            customClass: 'small-swal',
             cancelButtonColor: 'lightgrey',
             cancelButtonText: 'Abbrechen', 
             confirmButtonText: 'Speichern',
@@ -1421,11 +1430,71 @@ const getMachines = (placeholderMachine) => {
             reverseButtons: true,
           }).then((result) => {
             if(result.isConfirmed) {
-              console.log('test');
+              
+              if($('#machinestatus').val() !== statusClass.charAt(statusClass.length - 1).toUpperCase()) {
+
+                $.ajax({
+                  url: "/home/updateMachine",
+                  method: "POST",
+                  contentType: "application/json",
+                  data: JSON.stringify({ data: {machineId: targetMachine.attr('id'), status: $('#machinestatus').val()} }),
+                  success: function (response) {
+                    Swal.fire({
+                      title: "Die Maschine wurde erfolgreich aktualisiert",
+                      icon: "success",
+                      allowOutsideClick: false,
+                      showCloseButton: false,
+                      showCancelButton: false,
+                      showConfirmButton: false,
+                      background: "#f6f8fa",
+                      timer: 2000,
+                    }).then(() => {
+                      openParkView(true);
+                    })
+                  },
+                  error: function (err) {
+                    console.log(err.responseJSON.msg);
+                    try {
+                      Swal.fire({
+                        title: err.responseJSON.msg,
+                        icon: "error",
+                        allowOutsideClick: false,
+                        confirmButtonText: "OK",
+                      });
+                    } catch {
+                      Swal.fire({
+                        title: "Es ist ein unerwarteter Fehler aufgetreten",
+                        icon: "error",
+                        allowOutsideClick: false,
+                        confirmButtonText: "OK",
+                      });
+                    }
+                  }
+                });
+
+              } else {
+                Swal.fire({
+                  title: "Es wurden keine Änderungen vorgenommen",
+                  icon: "info",
+                  allowOutsideClick: false,
+                  showCloseButton: false,
+                  showCancelButton: false,
+                  showConfirmButton: false,
+                  background: "#f6f8fa",
+                  timer: 2000,
+                }).then(() => {
+                  openParkView(true, true, false);
+                });
+              }
+
             } else {
-              openParkView(true);
+              openParkView(true, true, false);
             }
           })
+
+
+          $('#machinestatus').val(statusClass.charAt(statusClass.length - 1).toUpperCase());
+
         })
 
         $('.machine-delete-bubble').click((event) => {
@@ -1481,7 +1550,7 @@ const getMachines = (placeholderMachine) => {
                 }
               });
             } else {
-              openParkView(true);
+              openParkView(true, false, true);
             }
           })
         })
