@@ -1437,8 +1437,7 @@ const getMachines = (placeholderMachine, adminEdit, adminDelete) => {
             + ' </div>'
             + '</div>',
             showCancelButton: true,
-            width: '50%',
-            customClass: 'small-swal',
+            width: '40%',
             cancelButtonColor: 'lightgrey',
             cancelButtonText: 'Abbrechen', 
             confirmButtonText: 'Speichern',
