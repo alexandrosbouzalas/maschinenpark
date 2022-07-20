@@ -102,10 +102,20 @@ body {
     font-family: 'VW Head', sans-serif;
 }
 
+.last-help-text {
+    padding-top: 40px;
+    font-weight: normal;
+    font-size: 20px;
+}
+
+.last-help-text,
 .help-text {
     margin: 5px 5px 15px 5px;
-    font-size: 25px;
     font-family: 'VW Text', sans-serif;
+}
+
+.help-text {
+    font-size: 25px;
 }
 
 input, select {

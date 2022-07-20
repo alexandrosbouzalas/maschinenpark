@@ -1,6 +1,7 @@
 $('#help-btn').click(() => {
     Swal.fire({
-        html: '<h1 class="help-title">Info zur Anmeldung</h1><p class="help-text">Anmeldungshilfe hier eingeben</p>',
+        html: ` <h1 class="help-title">Info zur Anmeldung</h1>
+                  <p class="help-text">Da es sich hier um ein Offlinesystem handelt, musst du dich hier auch einmal unabhängig von VW registrieren</p>`,
         position: 'top-end',
         showClass: {
           popup: `

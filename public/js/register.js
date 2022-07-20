@@ -29,7 +29,13 @@ $(document).ready(() => {
 
 $('#help-btn').click(() => {
     Swal.fire({
-        html: '<h1 class="help-title">Info zur Registrierung </h1><p class="help-text">Anmeldungshilfe hier eingeben</p>',
+        html: ` <h1 class="help-title">Info zur Registrierung</h1>
+                  <p class="help-text">Benutze bei der Registrierung nur deine echten Daten</p>
+                  <p class="help-text">Die User ID besteht aus sieben Zeichen. Falls du schon migriert wurdest, benutzt du die ID nach dem VW\\</p>
+                  <p class="help-text">Das Passwort muss aus mindestens 8 Zeichen bestehen</p>
+                  <p class="help-text">Merke dir dein Passwort gut, denn nur Administratoren wie Fokko Trei können dein Passwort zurücksetzen</p>
+                <h1 class="help-title">Administrationsrechte</h1>
+                  <p class="help-text">Falls du höhere Administrationsrechte benötigst, wende dich an Fokko Trei</p>`,
         position: 'top-end',
         showClass: {
           popup: `
