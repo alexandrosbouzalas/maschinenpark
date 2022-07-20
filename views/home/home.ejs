@@ -36,25 +36,27 @@
         <p id="date-time"></p>
     </div>
     <div class="container-main">
-        <div class="my-bookings-container">
-            <table class="my-bookings-table" cellspacing="0" cellpadding="0">
-                <caption>Meine Buchungen</caption>
-                <thead>
-                    <tr>
-                        <th>UserID</th>
-                        <th>Buchungsnr.</th>
-                        <th>Machine</th>
-                        <th>Von</th>
-                        <th>Bis</th>
-                        <th class="edit-icons-header"></th>
-                    </tr>
-                </thead>
-                <tbody id="table-body">
-                    <tr id="nobookings-info">
-                        <td class="overlay">Sie haben aktuell keine Buchungen</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="container-left">
+            <div class="my-bookings-container current">
+                <table class="my-bookings-table" cellspacing="0" cellpadding="0">
+                    <caption>Meine Buchungen</caption>
+                    <thead>
+                        <tr>
+                            <th>UserID</th>
+                            <th>Buchungsnr.</th>
+                            <th>Machine</th>
+                            <th>Von</th>
+                            <th>Bis</th>
+                            <th class="edit-icons-header"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <tr id="nobookings-info">
+                            <td class="overlay">Sie haben aktuell keine Buchungen</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="container-secondary">
             <div class="option-button-container">
@@ -69,8 +71,10 @@
                 </div>
             </div>
         </div>
-        <div id="help-btn" class="help-menu-container">
-            <div class="help-menu"><ion-icon name="help-outline"></ion-icon></div>
+        <div class="footer-container">
+            <div id="help-btn" class="help-menu-container">
+                <div class="help-menu"><ion-icon name="help-outline"></ion-icon></div>
+            </div>
         </div>
     </div>
     <script src="/js/jquery.min.js"></script>

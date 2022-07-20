@@ -9,6 +9,7 @@ const StatisticRole = require("./../models/statistic-role");
 const StatisticTime = require("./../models/statistic-time");
 const { bcryptHash } = require("../public/js/utils");
 const machine = require("./../models/machine");
+const { db } = require("./../models/user");
 
 const apiKey = "jfa9lkm30eKJ2SdlKS";
 
@@ -342,8 +343,8 @@ router.post("/getUserBookings", async (req, res) => {
 
         const { userId } = req.session.user;
         const getAllBookings = req.body.data;
-  
-        
+        const dbToUse = req.body.db;
+                
         let bookings;
   
         if(getAllBookings) {
@@ -354,8 +355,12 @@ router.post("/getUserBookings", async (req, res) => {
             console.log("Insufficient permissions")
             throw new Error("Insufficient permissions")
           } 
-  
-          bookings = await Booking.find({});
+          
+          if(dbToUse === 'CURRENT') {
+            bookings = await Booking.find({});
+          } else if(dbToUse === "BACKUP") {
+            bookings = await BookingBackup.find({});
+          }
           
         } else {
           

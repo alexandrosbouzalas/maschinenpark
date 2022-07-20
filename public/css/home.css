@@ -30,8 +30,6 @@
     margin-inline: 5px 15px;
 }
 
-
-
 .container-main {
     display: flex;
     flex-direction: row;
@@ -90,6 +88,17 @@ caption {
     font-family: "VW Head", sans-serif;
 }
 
+.db-switch-container {
+    display: flex;  
+}
+
+.db-switch-text {
+    color: #434343;
+    font-size: 23px;
+    margin-inline: 30px 10px;
+    font-family: "VW Text", sans-serif;
+}
+
 #help-btn {
     height: 40px !important;
     width: 40px !important;
@@ -105,12 +114,17 @@ caption {
     margin-inline: 30px;
     margin-top: 50px;
     margin-bottom: 50px;
-    width: 80%;
+    width: auto;
     border: 3px solid rgb(0, 30, 80);
     border-radius: 15px;
     height: 70vh;
     overflow: auto;
 
+}
+
+
+.container-left {
+    width: 100%;
 }
 
 .user-table-container {

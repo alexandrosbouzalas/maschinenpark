@@ -13,7 +13,7 @@ const bookingSchema = new mongoose.Schema({
   machineId: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   beginDate: {
     type: Date,

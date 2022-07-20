@@ -13,7 +13,6 @@ const bookingBackupSchema = new mongoose.Schema({
   machineId: {
     type: String,
     required: true,
-    unique: true
   },
   beginDate: {
     type: Date,

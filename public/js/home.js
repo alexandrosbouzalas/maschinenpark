@@ -1140,12 +1140,6 @@ const deleteUser = (event) => {
           }
         }
       });
-
-      if($('#table-body')[0].rows.length == 1) {
-        $('#nobookings-info').show();
-        $('#edit-btn').text('Buchungen verwalten');
-        $('#edit-btn').addClass('edit-btn-disabled');
-      }
     } else {
       openUserView(true);
     }
@@ -1620,13 +1614,23 @@ const getMachines = (placeholderMachine, adminEdit, adminDelete) => {
 
 }
 
-const buildBookingTable = (all) => {
+const buildBookingTable = (all, db) => {
 
+  if(all && db === 'CURRENT') {
+  
+    $('caption').text('Buchungen');
+    $('#edit-btn').removeClass('edit-btn-disabled');
+  
+  } else if (all && db === "BACKUP") {
+    $('caption').html('Buchungen ( <b style="color: #009879;">Backup</b> )');
+    $('#edit-btn').addClass('edit-btn-disabled');
+  }
+  
   $.ajax({
     url: "/home/getUserBookings",
     method: "POST",
     contentType: "application/json",
-    data: JSON.stringify({ data: all }),
+    data: JSON.stringify({ data: all, db: db }),
     success: function (response) {
 
       if(all)
@@ -1638,10 +1642,11 @@ const buildBookingTable = (all) => {
 
         $('#nobookings-info').hide();
         $(".booking-row").remove();
+        
+        if($('.my-bookings-container').hasClass('current'))
+          $("#edit-btn").removeClass('edit-btn-disabled');
 
         toggleBookingEditMode();
-
-        $('#edit-btn').removeClass('edit-btn-disabled');
 
         for(let booking of response) {
 
@@ -1694,6 +1699,7 @@ const buildBookingTable = (all) => {
         
       } else {
         $(".booking-row").remove();
+        $("#edit-btn").text('Buchungen verwalten');
         $('#nobookings-info').show();
         $('#edit-btn').addClass('edit-btn-disabled');
       }
@@ -2194,7 +2200,7 @@ const searchTable = (table, searchText) => {
 
 const buildView = (isAdmin) => {
   if(isAdmin) {
-    buildBookingTable(true);
+    buildBookingTable(true, "CURRENT");
 
     const adminButtons = '<div class="button-container">'
     +   '<button class="option-button" id="user-btn">Nutzer verwalten</button>'
@@ -2206,12 +2212,32 @@ const buildView = (isAdmin) => {
     +   '<button class="option-button" id="statistic-btn">Statistiken</button>'
     + '</div>'
 
+    const dbSwitchElement = '<div class="db-switch-container">'
+    + '  <p class="db-switch-text">Buchungsdatenbank wechseln </p>'
+    + '  <label class="switch">'
+    + '    <input id="db-switch-slider" type="checkbox">'
+    + '    <span class="slider round"></span>'
+    + '  </label> '
+    + '</div>'
     
      if($('#user-btn').length < 1) {
        $('.option-button-container').prepend(adminButtons);
-   
-       $('#edit-btn').text("Buchungen verwalten");
-   
+       $('.container-left').append(dbSwitchElement);
+
+       $('#db-switch-slider').click(() => {
+        if($('.my-bookings-container').hasClass('backup')) {
+          $('.my-bookings-container').removeClass('backup')
+          $('.my-bookings-container').addClass('current');
+          $('#add-btn').removeClass('edit-btn-disabled');
+          buildBookingTable(true, "CURRENT");
+        } else if($('.my-bookings-container').hasClass('current')) {
+          $('.my-bookings-container').removeClass('current');
+          $('.my-bookings-container').addClass('backup');
+          $('#add-btn').addClass('edit-btn-disabled');
+          buildBookingTable(true, "BACKUP");
+        }
+      })
+      
        $('#machine-btn').click(() => {
          openParkView(true)
        })
