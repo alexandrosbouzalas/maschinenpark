@@ -44,7 +44,6 @@ const getUserInfo = () => {
 const openParkView = (isAdmin, adminEdit, adminDelete, placeholderMachine, editMode) => {
 
   if(isAdmin) {
-
     Swal.fire({
       html: '<div class="maschinenpark-container">'
       + '   <div class="left-park-section">'
@@ -211,52 +210,53 @@ const openParkView = (isAdmin, adminEdit, adminDelete, placeholderMachine, editM
     })
     
   } else {
-
-    Swal.fire({
-      html: '<div class="maschinenpark-container">'
-      + '   <div class="left-park-section">'
-      + '       <div class="maschine-type-container bohr-container">'
-      + '           <p class="park-section-title"><b>Bohrmaschinen</b></p>'
-      + '           <div class="machinen-container bohr-maschinen-container"></div>'
-      + '       </div>'
-      + '   </div>'
-      + '   <div class="right-park-section">'
-      + '       <div class="maschine-type-container fraes-container">'
-      + '           <p class="park-section-title"><b>Fräsmaschinen</b></p>'
-      + '           <div class="machinen-container fraes-maschinen-container"></div>'
-      + '       </div>'
-      + '       <div class="maschine-type-container dreh-container">'
-      + '           <p class="park-section-title"><b>Drehmaschinen</b></p>'
-      + '           <div class="machinen-container dreh-maschinen-container"></div>'
-      + '       </div>'
-      + '   </div>'
-      + '</div>',
-      showCancelButton: true,
-      width: '100%',
-      customClass: 'swal-park',
-      cancelButtonColor: 'lightgrey',
-      cancelButtonText: 'Abbrechen', 
-      confirmButtonText: 'Speichern',
-      confirmButtonColor: 'rgb(0, 30, 80)',
-      reverseButtons: true,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        if(editMode) {
-          editBooking(currentEditElement, machines);
-          $('#current-machines').addClass('edit-field');
+    if(dates.beginDate && dates.endDate) {
+      Swal.fire({
+        html: '<div class="maschinenpark-container">'
+        + '   <div class="left-park-section">'
+        + '       <div class="maschine-type-container bohr-container">'
+        + '           <p class="park-section-title"><b>Bohrmaschinen</b></p>'
+        + '           <div class="machinen-container bohr-maschinen-container"></div>'
+        + '       </div>'
+        + '   </div>'
+        + '   <div class="right-park-section">'
+        + '       <div class="maschine-type-container fraes-container">'
+        + '           <p class="park-section-title"><b>Fräsmaschinen</b></p>'
+        + '           <div class="machinen-container fraes-maschinen-container"></div>'
+        + '       </div>'
+        + '       <div class="maschine-type-container dreh-container">'
+        + '           <p class="park-section-title"><b>Drehmaschinen</b></p>'
+        + '           <div class="machinen-container dreh-maschinen-container"></div>'
+        + '       </div>'
+        + '   </div>'
+        + '</div>',
+        showCancelButton: true,
+        width: '100%',
+        customClass: 'swal-park',
+        cancelButtonColor: 'lightgrey',
+        cancelButtonText: 'Abbrechen', 
+        confirmButtonText: 'Speichern',
+        confirmButtonColor: 'rgb(0, 30, 80)',
+        reverseButtons: true,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          if(editMode) {
+            editBooking(currentEditElement, machines);
+            $('#current-machines').addClass('edit-field');
+          } else {
+            createBooking(machines);
+          }
         } else {
-          createBooking(machines);
+          if(editMode) {
+            editBooking(machines);
+          } else if(isAdmin) {
+            Swal.close()
+          } else {
+            createBooking();
+          }
         }
-      } else {
-        if(editMode) {
-          editBooking(machines);
-        } else if(isAdmin) {
-          Swal.close()
-        } else {
-          createBooking();
-        }
-      }
-    })
+      })
+    }
   }
 
 
@@ -280,19 +280,6 @@ const  createBooking = (machines, edit) => {
   
   Swal.fire({
     html: '<div class="edit-options-container">'
-    + ' <div class="edit-option">'
-    + '     <div class="edit-option-row">'
-    + '         <div class="label-container">'
-    + '             <label for="maschine">Maschine:</label>'
-    + '         </div>'
-    + '         <div>'
-    + `             <input class="option-field" id="current-machines" type="text" placeholder="${machines}" name="maschine" disabled/>`
-    + '         </div>'
-    + '         <div>'
-    + `             <button id="maschine-change-btn" type="button" onClick="openParkView(false, false, false, '${machines}')">Auswählen</button>`
-    + '         </div>'
-    + '     </div>'
-    + ' </div>'
     + ' <div class="edit-option">'
     + '     <div class="edit-option-row">'
     + '         <div class="label-container">'
@@ -347,6 +334,19 @@ const  createBooking = (machines, edit) => {
     + '         </div>'
     + '     </div>'
     + ' </div>'
+  + '   <div class="edit-option">'
+  + '       <div class="edit-option-row">'
+  + '           <div class="label-container">'
+  + '               <label for="maschine">Maschine:</label>'
+  + '           </div>'
+  + '           <div>'
+  + `               <input class="option-field" id="current-machines" type="text" placeholder="${machines}" name="maschine" disabled/>`
+  + '           </div>'
+  + '           <div>'
+  + `               <button id="maschine-change-btn" type="button" onClick="openParkView(false, false, false, '${machines}')">Auswählen</button>`
+  + '           </div>'
+  + '       </div>'
+  + '   </div>'
     + ' </div>'
     + ' <p id="booking-create-error"></p>'
     + '</div>',
@@ -360,7 +360,7 @@ const  createBooking = (machines, edit) => {
     reverseButtons: true,
     preConfirm: () => {
       valid = true;
-      
+
       if($('#current-machines').attr('placeholder') === "" && !dates.beginDate && !dates.endDate) {
         valid = false;
         $('.edit-options-container input').addClass('errorBorder');
@@ -1348,12 +1348,13 @@ const checkStatus = (machine) => {
 }
 
 const getMachines = (placeholderMachine, adminEdit, adminDelete) => {
-  
   $.ajax({
     url: "/home/getMachines",
     method: "POST",
+    data: JSON.stringify({data: dates}),
     contentType: "application/json",
     success: function (response) {
+      console.log(response);
 
       allMachines = [];
 
@@ -1361,8 +1362,9 @@ const getMachines = (placeholderMachine, adminEdit, adminDelete) => {
       const weekDays = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
       for(var i = 0; i < response.length; i++) {
-        allMachines.push(response[i].machineId);
 
+        allMachines.push(response[i].machineId);
+        console.log(response[i].machineId);
         switch(response[i].machineId.charAt(0)) {
           case "F":
             let fraesMachineElement = `<div id="${response[i].machineId}" class="maschine fraesmaschine status-${response[i].status.toLowerCase()}"></div>`
