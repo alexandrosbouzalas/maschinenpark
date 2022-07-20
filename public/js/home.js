@@ -1289,8 +1289,27 @@ const toggleUserEditMode = () => {
 }
 
 const showHelpMenu = () => {
+
   Swal.fire({
-    html: '<h1 class="help-title">Info zur Anmeldung</h1><p class="help-text">Anmeldungshilfe hier eingeben</p>',
+    html: `<h1 class="help-title">Meine Buchungen</h1>
+          <p class="help-text">In der Tabelle auf der Linken Seite werden Ihre Buchungen angezeigt</p></br>
+          <div class="legend-element">
+            <div class="status-bullet status-f-bullet" style="margin: 3px 5px 0 0;"></div>
+            <p>Aktive Buchung</p>
+          </div>
+          <div class="legend-element">
+            <div class="status-bullet status-s-bullet" style="margin: 3px 5px 0 0;"></div>
+            <p>Kommende Buchung</p>
+          </div></br>
+          <h1 class="help-title">Buchung erstellen</h1>
+          <p class="help-text">Hier können Sie mit Hilfe des "Neue Buchung" Knopfes eine neu Buchung erstellen.</p>
+          <p class="help-text">Als erstes wählen Sie den gewünschten Maschinentyp und die gewünschte Maschinennummer aus.</p>
+          <p class="help-text">Anschließend benötigen Sie noch eine Start und eine Enddatum.</p>
+          <p class="help-text">Außerdem können Sie die gewünschte Aktivität sowohl als auch den gewünschten Zeitraum festlegen.</p></br>
+          <p class="help-text">Wenn <b><u>alle Daten korrekt sind</u></b> wird Ihre Buchung im System gespeichert.</p></br>
+          <h1 class="help-title">Buchung bearbeiten</h1>
+          <p class="help-text">Hier können Sie mit Hilfe des "Buchungen verwalten" Knopfes eine bereits existierende Buchung bearbeiten oder löschen.</p></br>
+          <h1 class="last-help-text"><b style="color: #f25902;">Bei Fragen / Problemen wenden Sie sich an <u>Fokko Trei</u></b></h1>`,
     position: 'top-end',
     showClass: {
       popup: `
@@ -1311,6 +1330,8 @@ const showHelpMenu = () => {
     showConfirmButton: false,
     showCloseButton: true
   }) 
+
+
 }
 
 const checkStatus = (machine) => {
@@ -2199,7 +2220,12 @@ const searchTable = (table, searchText) => {
 }
 
 const buildView = (isAdmin) => {
+
+  if(!isAdmin)
+    $('#help-btn').show();
+
   if(isAdmin) {
+    
     buildBookingTable(true, "CURRENT");
 
     const adminButtons = '<div class="button-container">'

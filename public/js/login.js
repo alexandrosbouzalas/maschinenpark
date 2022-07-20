@@ -1,7 +1,11 @@
 $('#help-btn').click(() => {
     Swal.fire({
         html: ` <h1 class="help-title">Info zur Anmeldung</h1>
-                  <p class="help-text">Da es sich hier um ein Offlinesystem handelt, musst du dich hier auch einmal unabhängig von VW registrieren</p>`,
+                  <p class="help-text">Da es sich hier um ein Offlinesystem handelt, musst du dich hier auch einmal unabhängig von VW registrieren</p></br>
+                  <p class="help-text">Die <b><u>UserID</u></b> besteht aus <b><u>sieben (7)</u></b> Zeichen. <b><u>VW\\ wird bei dieser Registrierung nicht benötigt.</u></b></p></br>
+                  <p class="help-text">Das <b><u>Passwort</u></b> muss aus mindestens <b><u>acht (8) Zeichen</u></b> bestehen.</p></br>
+                <h1 class="last-help-text"><b style="color: #f25902;">Bei Fragen / Problemen wenden Sie sich an <u>Fokko Trei</u></b></h1>
+                `,
         position: 'top-end',
         showClass: {
           popup: `

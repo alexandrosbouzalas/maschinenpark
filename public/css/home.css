@@ -797,6 +797,11 @@ select {
 .status-b-bullet {
     background-color: red;
 }
+
+.status-s-bullet {
+    background-color: rgb(0, 30, 80);
+}
+
 .status-o{
     background-color: #02ccfd;
     cursor: not-allowed;
@@ -810,6 +815,11 @@ select {
 .status-b {
     background-color: red;
     cursor: not-allowed;
+}
+
+.legend-element {
+    display: flex;
+    margin: 0 0 10px 20px;
 }
 
 .info-content {

@@ -30,12 +30,13 @@ $(document).ready(() => {
 $('#help-btn').click(() => {
     Swal.fire({
         html: ` <h1 class="help-title">Info zur Registrierung</h1>
-                  <p class="help-text">Benutze bei der Registrierung nur deine echten Daten</p>
-                  <p class="help-text">Die User ID besteht aus sieben Zeichen. Falls du schon migriert wurdest, benutzt du die ID nach dem VW\\</p>
-                  <p class="help-text">Das Passwort muss aus mindestens 8 Zeichen bestehen</p>
-                  <p class="help-text">Merke dir dein Passwort gut, denn nur Administratoren wie Fokko Trei können dein Passwort zurücksetzen</p>
+                  <p class="help-text">Benutzen Sie bei der Registrierung nur <b><u>Ihre echten Daten.</u></b></p></br>
+                  <p class="help-text">Die <b><u>UserID</u></b> besteht aus <b><u>sieben (7)</u></b> Zeichen. <b><u>VW\\ wird bei dieser Registrierung nicht benötigt.</u></b></p></br>
+                  <p class="help-text">Das <b><u>Passwort</u></b> muss aus mindestens <b><u>acht (8) Zeichen</u></b> bestehen.</p></br>
                 <h1 class="help-title">Administrationsrechte</h1>
-                  <p class="help-text">Falls du höhere Administrationsrechte benötigst, wende dich an Fokko Trei</p>`,
+                  <p class="help-text">Falls Sie höhere Administrationsrechte benötigen, wenden Sie sich an <b><u>Fokko Trei</u></b></p>
+                <h1 class="last-help-text"><b style="color: #f25902;">Bei Fragen / Problemen wenden Sie sich an <u>Fokko Trei</u></b></h1>`,
+
         position: 'top-end',
         showClass: {
           popup: `
@@ -137,8 +138,6 @@ function checkInput() {
 }
 
 const verifySuccess = () => {
-
-  console.log('test')
 
   $("#message").html("").removeClass("errorText");
 
