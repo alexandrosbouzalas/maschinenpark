@@ -2300,7 +2300,7 @@ const openUserView = (edit) => {
     + '               <th title="Nach Nachname Sortieren">Nachname</th>'
     + '               <th title="Nach Vorname Sortieren">Vorname</th>'
     + '               <th title="Nach UserID Sortieren">UserID</th>'
-    + '               <th title="Nach Role Sortieren">Role</th>'
+    + '               <th title="Nach Rolle Sortieren">Rolle</th>'
     + '               <th title="Nach Beruf Sortieren">Beruf</th>'
     + '               <th title="Nach Einstellungsjahr Sortieren">Einstellungsjahr</th>'
     + '               <th style="display: none;"></th>'
