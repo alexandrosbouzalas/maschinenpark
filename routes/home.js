@@ -58,81 +58,59 @@ router.post("/getMachines", async (req, res) => {
       const machines = await Machine.find({});
       const bookings = await Booking.find({});
       const users = await User.find({});
-      const {beginDate, endDate } = req.body.data;
-
-      const [beginDay, beginMonth, beginYear] = beginDate.split('.')
-      const [endDay, endMonth, endYear] = endDate.split('.')
+      const { beginDate, endDate } = req.body.data;
       
       let machinesObj = [];
       let currentMachineObj = {};
+      let dateIsActive;
 
       for (let machine of machines) {
-
         if(machine.status === "B"){
           Object.assign(currentMachineObj, {machineId: machine.machineId});
           Object.assign(currentMachineObj, {status: "B"});
-        } else if (machine.status === "F") {
-          Object.assign(currentMachineObj, {machineId: machine.machineId});
-          Object.assign(currentMachineObj, {status: "F"});
         } else if (machine.status === "O") {
-          let currentBooking = await Booking.findOne({machineId: machine.machineId});
-          if(currentBooking) {
+          if (beginDate && endDate) {
+            const [beginDay, beginMonth, beginYear] = beginDate.split('.')
+            const [endDay, endMonth, endYear] = endDate.split('.')
             let lastDay = new Date(`${endYear}-${endMonth}-${endDay}`);
-            for(let currentDay = new Date(`${beginYear}-${beginMonth}-${beginDay}`); currentDay <= lastDay; currentDay.setDate(currentDay.getDate() + 1)) {
-            
-
-            
-            
-            
-            
-/*             console.log(currentBooking);
-
-            console.log(new Date(`${beginYear}-${beginMonth}-${beginDay}`))
-            console.log(currentBooking.beginDate)
-            console.log('----------------------------------------------------------------')
-            console.log(new Date(`${endYear}-${endMonth}-${endDay}`));
-            console.log(currentBooking.endDate);
-
-            console.log(new Date(`${beginYear}-${beginMonth}-${beginDay}`) >= currentBooking.beginDate);
-            console.log(new Date(`${endYear}-${endMonth}-${endDay}`) < currentBooking.endDate); */
-            console.log(currentDay);
-            console.log(currentBooking.beginDate);
-            console.log(currentBooking.endDate);
-            //if(new Date(`${beginYear}-${beginMonth}-${beginDay}`) >= currentBooking.beginDate && new Date(`${endYear}-${endMonth}-${endDay}`) < currentBooking.endDate) {
-            if(currentDay == currentBooking.beginDate || currentDay == currentBooking.endDate) {
+            let currentBooking = await Booking.findOne({machineId: machine.machineId});
+            if(currentBooking) {
+              dateIsActive = false;
+              for(let currentDay = new Date(`${beginYear}-${beginMonth}-${beginDay}`); currentDay <= lastDay; currentDay.setDate(currentDay.getDate() + 1)) {
+                if(currentDay.getTime() == currentBooking.beginDate.getTime() || currentDay.getTime() == currentBooking.endDate.getTime()) dateIsActive = true;
+              }
               Object.assign(currentMachineObj, {machineId: machine.machineId});
-              Object.assign(currentMachineObj, {bookingId: currentBooking.bookingId});
-              Object.assign(currentMachineObj, {status: "O"});
-
-              for(let booking of bookings) {
-    
-                if(booking.machineId === machine.machineId) {
-    
-                  for(let user of users) {
-    
-                    if(user.userId === booking.userId) {
-                      Object.assign(currentMachineObj, {firstname: user.firstname});
-                      Object.assign(currentMachineObj, {lastname: user.lastname});
-                      Object.assign(currentMachineObj, {endDate: booking.endDate});
-                      Object.assign(currentMachineObj, {timewindow: booking.timewindow});
+              if (dateIsActive == true) {
+                Object.assign(currentMachineObj, {status: "O"});
+                for(let booking of bookings) {
+                  if(booking.machineId === machine.machineId) {
+                    for(let user of users) {
+                      if(user.userId === booking.userId) {
+                        Object.assign(currentMachineObj, {firstname: user.firstname});
+                        Object.assign(currentMachineObj, {lastname: user.lastname});
+                        Object.assign(currentMachineObj, {endDate: booking.endDate});
+                        Object.assign(currentMachineObj, {timewindow: booking.timewindow});
+                      }
                     }
                   }
                 }
+              } else {
+                Object.assign(currentMachineObj, {status: "F"});
               }
-
-            } else {
-              Object.assign(currentMachineObj, {machineId: machine.machineId});
-              Object.assign(currentMachineObj, {status: "F"});
             }
-          }  
+          } else {
+            Object.assign(currentMachineObj, {machineId: machine.machineId});
+            Object.assign(currentMachineObj, {status: "F"});
+          }
+        } else if (machine.status === "F") {
+          Object.assign(currentMachineObj, {machineId: machine.machineId});
+          Object.assign(currentMachineObj, {status: "F"});
         }
-      }
         machinesObj.push(currentMachineObj);
         currentMachineObj = {};
       }
 
-      res.status(200).json(machinesObj);
-      //res.status(200).json(machinesObj.sort((a, b) => (parseInt(a.machineId.substring(1).trim()) > parseInt(b.machineId.substring(1).trim())) ? 1 : -1));
+      res.status(200).json(machinesObj.sort((a, b) => (parseInt(a.machineId.substring(1).trim()) > parseInt(b.machineId.substring(1).trim())) ? 1 : -1));
     } catch (err) {
       console.log(err)
       res.status(500).json({msg: "Beim Laden der Maschinen ist ein Fehler aufgetreten"});

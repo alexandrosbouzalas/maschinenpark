@@ -565,7 +565,7 @@ th {
     height: 40px;
     border-radius: 50px !important;
     text-align: center;
-    width: 150px;
+    width: 250px;
     outline: none !important;
     border: none !important;
     padding: 0 !important;
@@ -631,6 +631,13 @@ select {
     width: 100px;
 }
 
+#warning-message {
+    text-align: center;
+    color: red;
+    padding: 10px 0px;
+    font-size: 25px;
+}
+
 #profession-chart-btn,
 #role-chart-btn,
 #time-chart-btn,
@@ -643,6 +650,10 @@ select {
     color: #f6f8fa;
     font-family: "VW Text", sans-serif;
     font-size: 23px;
+}
+
+#maschine-change-btn {
+    width: 400px;
 }
 
 #profession-chart-btn,
