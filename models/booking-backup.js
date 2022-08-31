@@ -4,7 +4,6 @@ const bookingBackupSchema = new mongoose.Schema({
   bookingId: {
     type: String,
     required: true,
-    unique: true
   },
   userId: {
     type: String,

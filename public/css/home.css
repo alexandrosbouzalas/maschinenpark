@@ -90,6 +90,7 @@ caption {
 
 .db-switch-container {
     display: flex;  
+    margin-bottom: 20px;
 }
 
 .db-switch-text {

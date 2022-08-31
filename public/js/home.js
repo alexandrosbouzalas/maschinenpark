@@ -1639,7 +1639,7 @@ const buildBookingTable = (all, db) => {
 
   if(all && db === 'CURRENT') {
   
-    $('caption').text('Buchungen');
+    $('caption').html('Buchungen ( <b style="color: #009879;">Aktuell</b> )');
     $('#edit-btn').removeClass('edit-btn-disabled');
   
   } else if (all && db === "BACKUP") {
